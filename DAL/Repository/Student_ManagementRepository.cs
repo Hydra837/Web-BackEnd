@@ -113,9 +113,24 @@ namespace DAL.Repository
                           select course).ToListAsync();
         }
 
-        public void InsertUserCours(int id, int id_cours)
+ 
+
+        // Méthode pour insérer une nouvelle inscription dans la table Student_Management
+        public async Task InsertUserCoursAsync(int id, int id_cours)
         {
-            throw new NotImplementedException();
+            // Créez une nouvelle instance de Student_ManagementData avec les valeurs fournies
+            var studentManagement = new Student_ManagementData
+            {
+                ProfesseurId = id,
+                CoursId = id_cours,
+               // EnrollmentDate = DateTime.Now // Assurez-vous d'ajouter d'autres champs si nécessaire
+            };
+
+            // Ajoutez l'entrée à la table Student_Management
+            await _context.InstructorAssignments.AddAsync(studentManagement);
+
+            // Sauvegardez les changements dans la base de données
+            await _context.SaveChangesAsync();
         }
 
         public async Task InsertUserCourseAsync(int userId, int courseId)

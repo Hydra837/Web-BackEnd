@@ -3,6 +3,7 @@ using BLL.Mapper;
 using BLL.Models;
 using DAL.Data;
 using DAL.Interface;
+using DAL.Repository;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -74,6 +75,8 @@ namespace BLL.Service
             throw new NotImplementedException();
         }
 
+      
+
         public void Update(int id)
         {
             throw new NotImplementedException();
@@ -82,6 +85,12 @@ namespace BLL.Service
         public Task UpdateAsync(int id, CoursModel entity)
         {
             throw new NotImplementedException();
+        }
+
+        public async Task InsertUserCoursAsync(int id, int id_cours)
+        {
+            // Appel au repository pour insérer l'inscription de l'utilisateur au cours
+            await _stu.InsertUserCoursAsync(id, id_cours);
         }
 
         //IEnumerable<CoursData> GetAllCourseByUser(int id)

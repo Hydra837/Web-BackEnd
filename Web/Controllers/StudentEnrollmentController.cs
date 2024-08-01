@@ -33,9 +33,10 @@ namespace Web.Controllers
         //        return NotFound("No courses found for the given student.");
 
         //    return Ok(courses.Select(x => x.CoursToApi()));
-        ////}
+        //    //}
+        //    }
 
-        [HttpPost("Insert")]
+            [HttpPost("Insert")]
         public async Task<IActionResult> Insert(int studentId, int courseId)
         {
             if (studentId <= 0 || courseId <= 0)
@@ -52,6 +53,25 @@ namespace Web.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError, $"Internal server error: {ex.Message}");
             }
         }
+        //[HttpPost("Insert2")]
+        //public async Task<IActionResult> Insert2(UsersFORM studentId, CoursFORM courseId)
+        //{
+        //    if (studentId  is null || courseId is null )
+        //        return BadRequest("Invalid student or course ID.");
+
+        //    try
+        //    {
+        //        UsersModel user = studentId.BllAccessToApi();
+        //        CoursModel cours = courseId.CoursToBLL();
+        //        await _studentEnrollmentService.InsertStudentCourseAsync(user, cours);
+        //        return Ok("Student enrolled successfully.");
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        // Log the exception (e.g., using a logging framework)
+        //        return StatusCode(StatusCodes.Status500InternalServerError, $"Internal server error: {ex.Message}");
+        //    }
+        //}
 
         //[HttpPost("Insert")]
         //public async Task<IActionResult> Insert1([FromBody] UsersFORM usr, [FromQuery] CoursFORM cours)
@@ -127,5 +147,102 @@ namespace Web.Controllers
 
         //    return Ok(courses); // Retourne 200 OK avec la liste des cours
         //}
+        [HttpGet("EnrolledStudent/{id}")]
+        public async Task<IActionResult> GetEnrolledStudentCourses(int id)
+        {
+            if (id <= 0)
+            {
+                return BadRequest("Invalid student ID.");
+            }
+
+            try
+            {
+                IEnumerable<CoursModel> courses = await _studentEnrollmentService.EnrolledStudent(id);
+
+                if (courses == null)
+                {
+                    return NotFound("No courses found for the given student ID.");
+                }
+
+                return Ok(courses);
+            }
+            catch (Exception ex)
+            {
+                // Log the exception
+                Console.WriteLine($"Error retrieving enrolled courses for student: {ex.Message}");
+                return StatusCode(500, "Internal server error");
+            }
+        }
+        [HttpDelete("{id}")]
+        public async Task<ActionResult> DeleteAsync(int id)
+        {
+            try
+            {
+                await _studentEnrollmentService.DeleteAsync(id);
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                // Log the exception
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
+        //[HttpPut]
+        //public async Task<ActionResult> UpdateGrade([FromBody] EnrollmentDTO enrollmentDto)
+        //{
+        //    if (enrollmentDto == null)
+        //        return BadRequest("Enrollment data is null.");
+
+        //    try
+        //    {
+        //        var enrollmentModel = enrollmentDto.ToEnrollementFORM(); // Map from DTO to BLL model
+        //        await _studentEnrollmentService.UpdateGrade(enrollmentModel);
+        //        return NoContent();
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        // Log the exception
+        //        return StatusCode(500, $"Internal server error: {ex.Message}");
+        //    }
+        //}
+        [HttpGet("course/{courseId}")]
+        public async Task<ActionResult<EnrollementDTO>> GetByCourseAsync(int courseId)
+        {
+            try
+            {
+                var enrollmentModel = await _studentEnrollmentService.GetByCourseAsync(courseId);
+
+                if (enrollmentModel == null)
+                    return NotFound();
+
+                var enrollmentDto = enrollmentModel.ToEnrollementAPI(); // Map to DTO
+                return Ok(enrollmentDto);
+            }
+            catch (Exception ex)
+            {
+                // Log the exception
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
+        [HttpGet("user/{userId}")]
+        public async Task<ActionResult<EnrollementDTO>> GetByUserIdAsync(int userId)
+        {
+            try
+            {
+                var enrollmentModel = await _studentEnrollmentService.GetByUserIdAsync(userId);
+
+                if (enrollmentModel == null)
+                    return NotFound();
+
+                var enrollmentDto = enrollmentModel.ToEnrollementAPI(); // Map to DTO
+                return Ok(enrollmentDto);
+            }
+            catch (Exception ex)
+            {
+                // Log the exception
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
+
     }
 }

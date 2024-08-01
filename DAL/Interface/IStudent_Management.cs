@@ -10,7 +10,7 @@ namespace DAL.Interface
     public interface IStudent_Management  : IcrudRepository
     {
         public IEnumerable<CoursData> GetAllCourseByUser(int id);
-        public void InsertUserCours(int id, int id_cours);
+        public Task InsertUserCoursAsync(int id, int id_cours);
         public Task DeleteAsync(int id);
         public Task CreateAsync(UsersData usersData);
       

@@ -19,13 +19,7 @@ namespace BLL.Service
             _studentEnrollmentRepository = studentEnrollmentRepository;
         }
 
-        // Méthode synchrone : La méthode de récupération des cours pour chaque étudiant n'est pas encore implémentée
-        public IEnumerable<CoursModel> CoursPourchaqueEtu()
-        {
-            throw new NotImplementedException();
-        }
-
-        // Méthode asynchrone pour récupérer les cours d'un étudiant spécifique
+        // Méthode asynchrone pour récupérer les cours pour chaque étudiant
         //public async Task<IEnumerable<CoursModel>> CoursPourchaqueEtuAsync(int studentId)
         //{
         //    if (studentId <= 0)
@@ -33,30 +27,24 @@ namespace BLL.Service
 
         //    try
         //    {
-        //        var courses = await _studentEnrollmentRepository.CoursPourchaqueEtu(studentId);
+        //        var courses = await _studentEnrollmentRepository.CoursPourchaqueEtuAsync(studentId);
 
         //        if (courses == null || !courses.Any())
         //            return Enumerable.Empty<CoursModel>();
 
-        //        return courses.Select(x => x.ToCoursModel()); // Utilisation d'un mapper pour convertir les données
+        //        return courses.Select(course => course.ToCoursBLL());
         //    }
         //    catch (Exception ex)
         //    {
-        //        // Log the exception
+        //        Log the exception
         //        Console.WriteLine($"Error retrieving courses for student: {ex.Message}");
 
-        //        // Optionally, rethrow the exception if it should be handled by a higher-level handler
+        //        Optionally, rethrow the exception if it should be handled by a higher-level handler
         //        throw;
         //    }
         //}
 
-        // Méthode synchrone pour insérer un cours pour un étudiant
-        public void InsertStudentCourse(int studentId, int courseId)
-        {
-            throw new NotImplementedException();
-        }
-
-        // Méthode asynchrone pour insérer un cours pour un étudiant
+        // Méthode asynchrone pour insérer un cours pour un étudiant en utilisant des IDs
         public async Task InsertStudentCourseAsync2(int studentId, int courseId)
         {
             if (studentId <= 0)
@@ -90,9 +78,9 @@ namespace BLL.Service
 
             try
             {
-                UsersData a = user.ToUserDAL();
-                CoursData b = course.ToCoursDAL();
-                await _studentEnrollmentRepository.InsertStudentCourseAsync(a, b);
+                var userData = user.ToUserDAL();
+                var courseData = course.ToCoursDAL();
+                await _studentEnrollmentRepository.InsertStudentCourseAsync(userData, courseData);
             }
             catch (Exception ex)
             {
@@ -104,47 +92,211 @@ namespace BLL.Service
             }
         }
 
-        public Task InsertStudentCourseAsync(UsersModel user, CoursData course)
-        {
-            throw new NotImplementedException();
-        }
-
-        public async Task<IEnumerable<UsersModel>> GetallUsersByCourse1(int id)
-        {
-            // Assurez-vous que l'ID du cours est valide
-            if (id <= 0)
-            {
-                throw new ArgumentException("L'ID du cours doit être un nombre positif.", nameof(id));
-            }
-
-            // Récupérez les utilisateurs inscrits à ce cours depuis le repository
-            var usersDataList = await _studentEnrollmentRepository.GetAlluserBycourse(id);
-
-            // Convertissez les entités UsersData en modèles UsersModel
-            var usersModelList = usersDataList.Select(user => new UsersModel
-            {
-                Id = user.Id,
-                Nom = user.Nom
-                // Mappez d'autres propriétés si nécessaire
-            });
-
-            return usersModelList;
-        }
-
-        public Task<IEnumerable<UsersModel>> GetallUsersByCourse(int id)
-        {
-            throw new NotImplementedException();
-        }
-
+        // Méthode asynchrone pour récupérer tous les utilisateurs inscrits à un cours
         public async Task<IEnumerable<UsersModel>> GetAlluserBycourse(int id)
         {
-            // Appel au repository pour obtenir les entités UsersData
-            IEnumerable<UsersData> usersData = await _studentEnrollmentRepository.GetAlluserBycourse(id);
+            if (id <= 0)
+                throw new ArgumentOutOfRangeException(nameof(id), "Course ID must be greater than zero.");
 
-            // Mappage des entités UsersData en modèles UsersModel
-            var usersModels = usersData.Select(user => user.ToUserBLL());
+            try
+            {
+                var usersData = await _studentEnrollmentRepository.GetAlluserBycourse(id);
 
-            return usersModels;
+                if (usersData == null || !usersData.Any())
+                    return Enumerable.Empty<UsersModel>();
+
+                return usersData.Select(user => user.ToUserBLL());
+            }
+            catch (Exception ex)
+            {
+                // Log the exception
+                Console.WriteLine($"Error retrieving users for course: {ex.Message}");
+
+                // Optionally, rethrow the exception if it should be handled by a higher-level handler
+                throw;
+            }
         }
+
+        // Méthode asynchrone pour récupérer les cours auxquels un étudiant est inscrit
+        public async Task<IEnumerable<CoursModel>> EnrolledStudentAsync(int id)
+        {
+            if (id <= 0)
+                throw new ArgumentOutOfRangeException(nameof(id), "Student ID must be greater than zero.");
+
+            try
+            {
+                var coursesData = await _studentEnrollmentRepository.EnrolledStudent(id);
+
+                if (coursesData == null || !coursesData.Any())
+                    return Enumerable.Empty<CoursModel>();
+
+                return coursesData.Select(course => course.ToCoursBLL());
+            }
+            catch (Exception ex)
+            {
+                // Log the exception
+                Console.WriteLine($"Error retrieving enrolled courses for student: {ex.Message}");
+
+                // Optionally, rethrow the exception if it should be handled by a higher-level handler
+                throw;
+            }
+        }
+
+        // Méthode asynchrone pour récupérer toutes les notes des étudiants
+        public async Task<IEnumerable<Student_EnrollmentModel>> GetAllGradesAsync()
+        {
+            try
+            {
+                var enrollmentsData = await _studentEnrollmentRepository.GetAllGradesAsync();
+
+                if (enrollmentsData == null || !enrollmentsData.Any())
+                    return Enumerable.Empty<Student_EnrollmentModel>();
+
+                return enrollmentsData.Select(enrollment => enrollment.ToEnrollementBLL());
+            }
+            catch (Exception ex)
+            {
+                // Log the exception
+                Console.WriteLine($"Error retrieving all grades: {ex.Message}");
+
+                // Optionally, rethrow the exception if it should be handled by a higher-level handler
+                throw;
+            }
+        }
+
+        // Méthode asynchrone pour insérer une note pour un étudiant
+        public async Task InsertGrade(int id, int grade)
+        {
+            if (id <= 0)
+                throw new ArgumentOutOfRangeException(nameof(id), "Enrollment ID must be greater than zero.");
+
+            try
+            {
+                await _studentEnrollmentRepository.InsertGrade(id, grade);
+            }
+            catch (Exception ex)
+            {
+                // Log the exception
+                Console.WriteLine($"Error inserting grade: {ex.Message}");
+
+                // Optionally, rethrow the exception if it should be handled by a higher-level handler
+                throw;
+            }
+        }
+
+        // Méthode asynchrone pour mettre à jour une note pour un étudiant
+        public async Task UpdateGrade(Student_EnrollmentModel student)
+        {
+            if (student == null)
+                throw new ArgumentNullException(nameof(student), "L'objet étudiant ne peut pas être null.");
+
+            try
+            {
+                var enrollmentData = student.ToEnrollementDAL();
+                await _studentEnrollmentRepository.UpdateGrade(enrollmentData);
+            }
+            catch (Exception ex)
+            {
+                // Log the exception
+                Console.WriteLine($"Error updating grade: {ex.Message}");
+
+                // Optionally, rethrow the exception if it should be handled by a higher-level handler
+                throw;
+            }
+        }
+
+        // Méthode asynchrone pour supprimer une inscription
+        public async Task DeleteAsync(int id)
+        {
+            if (id <= 0)
+                throw new ArgumentOutOfRangeException(nameof(id), "Enrollment ID must be greater than zero.");
+
+            try
+            {
+                await _studentEnrollmentRepository.DeleteAsync(id);
+            }
+            catch (Exception ex)
+            {
+                // Log the exception
+                Console.WriteLine($"Error deleting enrollment: {ex.Message}");
+
+                // Optionally, rethrow the exception if it should be handled by a higher-level handler
+                throw;
+            }
+        }
+
+        public void InsertStudentCourse(int id, int id_Course)
+        {
+            throw new NotImplementedException();
+        }
+
+        public IEnumerable<CoursModel> CoursPourchaqueEtu()
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<IEnumerable<CoursModel>> EnrolledStudent(int id)
+        {
+            throw new NotSupportedException();
+        }
+
+        public async Task<Student_EnrollmentModel> GetByUserIdAsync(int userId)
+        {
+            if (userId <= 0)
+                throw new ArgumentOutOfRangeException(nameof(userId), "User ID must be greater than zero.");
+
+            try
+            {
+                var enrollmentData = await _studentEnrollmentRepository.GetByUserIdAsync(userId);
+
+                if (enrollmentData == null)
+                    return null;
+
+                return enrollmentData.ToEnrollementBLL();
+            }
+            catch (Exception ex)
+            {
+                // Log the exception
+                Console.WriteLine($"Error retrieving enrollment by user ID: {ex.Message}");
+
+                // Optionally, rethrow the exception if it should be handled by a higher-level handler
+                throw;
+            }
+        }
+
+        public async Task<Student_EnrollmentModel> GetByCourseAsync(int courseId)
+        {
+            if (courseId <= 0)
+                throw new ArgumentOutOfRangeException(nameof(courseId), "Course ID must be greater than zero.");
+
+            try
+            {
+                var enrollmentData = await _studentEnrollmentRepository.GetByCourseAsync(courseId);
+
+                if (enrollmentData == null)
+                    return null;
+
+                return enrollmentData.ToEnrollementBLL();
+            }
+            catch (Exception ex)
+            {
+                // Log the exception
+                Console.WriteLine($"Error retrieving enrollment by course ID: {ex.Message}");
+
+                // Optionally, rethrow the exception if it should be handled by a higher-level handler
+                throw;
+            }
+        }
+
+        // Supprimer les méthodes non implémentées qui font doublon
+
+
+
+
+
+
+
+
+
     }
 }

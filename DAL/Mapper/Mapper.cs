@@ -13,6 +13,8 @@ namespace DAL.Mapper
 
         internal static CoursData ToCours(this IDataRecord record)
         {
+            if (record == null)
+                throw new ArgumentNullException(nameof(record));
             return new CoursData()
             {
                 Id = (int)record["Id"],
@@ -25,6 +27,8 @@ namespace DAL.Mapper
         }
         internal static UsersData ToUser(this IDataRecord record)
         {
+            if (record == null)
+                throw new ArgumentNullException(nameof(record));
             return new UsersData()
             {
                 Id = (int)record["Id"],
@@ -37,6 +41,8 @@ namespace DAL.Mapper
         }
         internal static UserCourseDetailsData ToUsersCoursesBLL(this IDataRecord record)
         {
+            if (record == null)
+                throw new ArgumentNullException(nameof(record));
             return new UserCourseDetailsData()
             {
                 UserId = (int)record["UserId"],
@@ -46,7 +52,20 @@ namespace DAL.Mapper
                 ProfPrenom = (string)record["ProfPrenom"],
                 CoursNom = (string)record["CoursNom"],
                 Disponible = (bool)record["Disponible"]
+                
+            };
+        }
+        internal static GradeData ToGradeData(this IDataRecord record)
+        {
+            if (record == null)
+                throw new ArgumentNullException(nameof(record));
 
+            return new GradeData()
+            {
+                Id = (int)record["Id"],
+                Grade = (int)record["Grade"],
+                UserId = (int)record["UserId"],
+                CourseId = (int)record["CourseId"]
             };
         }
 

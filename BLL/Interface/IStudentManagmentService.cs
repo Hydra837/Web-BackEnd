@@ -10,7 +10,7 @@ namespace BLL.Interface
     public interface IStudentManagmentService : ICRUDSerrvice<CoursModel>
     {
         public IEnumerable<CoursModel> GetAllCourseByUser(int id);
-        public void InsertUserCours(int id, int id_cours);
+        public Task InsertUserCoursAsync(int id, int id_cours);
         public Task DeleteAsync(int id);
     }
 }

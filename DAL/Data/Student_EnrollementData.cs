@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace DAL.Data
 {
-    [Table("Student__Enrollement")]
+    [Table("Student_Enrollement")]
     public class Student_EnrollementData
     {
         [Key]
@@ -16,6 +16,7 @@ namespace DAL.Data
         [Required]
         [ForeignKey("Cours")]
         public int CoursId { get; set; }
+        public int Grade {  get; set; }
 
         // Propriétés de navigation
         public virtual UsersData User { get; set; }

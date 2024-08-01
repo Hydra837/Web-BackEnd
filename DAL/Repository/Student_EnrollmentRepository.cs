@@ -39,6 +39,43 @@ namespace DAL.Repository
             throw new NotImplementedException();
         }
 
+        public async Task DeleteAsync(int id)
+        {
+            var enrollment = await _context.StudentEnrollements.FindAsync(id);
+            if (enrollment == null)
+            {
+                throw new KeyNotFoundException($"No enrollment found with ID {id}");
+            }
+
+            _context.StudentEnrollements.Remove(enrollment);
+            await _context.SaveChangesAsync();
+        }
+
+
+        public async Task<IEnumerable<CoursData>> EnrolledStudent(int id)
+        {
+            return await (from enrollment in _context.StudentEnrollements
+                          join course in _context.Courses on enrollment.CoursId equals course.Id
+                          where enrollment.UserId == id
+                          select new CoursData
+                          {
+                              Id = course.Id,
+                              Nom = course.Nom, 
+                              date_debut = course.date_debut,
+                              date_fin = course.date_fin,
+                              Disponible = course.Disponible
+                              // Ajoutez d'autres propriétés si nécessaire
+                          }).ToListAsync();
+        }
+
+        public async Task<IEnumerable<Student_EnrollementData>> GetAllGradesAsync()
+        {
+            return await _context.StudentEnrollements
+                .Include(se => se.User)
+                .Include(se => se.Cours)
+                .ToListAsync();
+        }
+
 
 
         // Méthode pour récupérer tous les utilisateurs inscrits à un cours spécifique en utilisant l'ID du cours
@@ -60,9 +97,55 @@ namespace DAL.Repository
             return usersList;
         }
 
+        public async Task<Student_EnrollementData> GetByCourseAsync(int courseId)
+        {
+            var enrollment = await _context.StudentEnrollements
+                .Include(se => se.User)
+                .Include(se => se.Cours)
+                .FirstOrDefaultAsync(se => se.CoursId == courseId);
 
-            // Méthode pour insérer un cours pour un étudiant en utilisant les IDs
-            public async Task InsertStudentCourseAsync(int userId, int courseId)
+            if (enrollment == null)
+            {
+                throw new KeyNotFoundException($"No enrollment found for course ID {courseId}");
+            }
+
+            return enrollment;
+        }
+
+
+
+        public async Task<Student_EnrollementData> GetByUserIdAsync(int userId)
+        {
+            var enrollment = await _context.StudentEnrollements
+                .Include(se => se.User)
+                .Include(se => se.Cours)
+                .FirstOrDefaultAsync(se => se.UserId == userId);
+
+            if (enrollment == null)
+            {
+                throw new KeyNotFoundException($"No enrollment found for user ID {userId}");
+            }
+
+            return enrollment;
+        }
+
+
+        public async Task InsertGrade(int id, int grade)
+        {
+            var enrollment = await _context.StudentEnrollements.FindAsync(id);
+            if (enrollment == null)
+            {
+                throw new KeyNotFoundException($"No enrollment found with ID {id}");
+            }
+
+            enrollment.Grade = grade;
+            await _context.SaveChangesAsync();
+        }
+
+
+
+        // Méthode pour insérer un cours pour un étudiant en utilisant les IDs
+        public async Task InsertStudentCourseAsync(int userId, int courseId)
         {
             try
             {
@@ -181,8 +264,23 @@ public async Task InsertStudentCourseAsync2(int userId, int courseId)
         }
     }
 
+        public async Task UpdateGrade(Student_EnrollementData student)
+        {
+            if (student == null)
+            {
+                throw new ArgumentNullException(nameof(student), "L'objet étudiant ne peut pas être null.");
+            }
 
+            var existingEnrollment = await _context.StudentEnrollements.FindAsync(student.Id);
+            if (existingEnrollment == null)
+            {
+                throw new KeyNotFoundException($"No enrollment found with ID {student.Id}");
+            }
 
+            existingEnrollment.Grade = student.Grade;
+            _context.StudentEnrollements.Update(existingEnrollment);
+            await _context.SaveChangesAsync();
+        }
 
-}
+    }
 }

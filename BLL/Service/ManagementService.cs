@@ -78,7 +78,7 @@ namespace BLL.Service
             throw new NotImplementedException();
         }
 
-        public async Task InsertStudentCourseAsync(int studentId, int courseId)
+        public async Task InsertUserCoursAsync(int studentId, int courseId)
         {
             // Vérifier si l'étudiant et le cours existent
             var studentExists = await _contextData.Users.AnyAsync(u => u.Id == studentId);

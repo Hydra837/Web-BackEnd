@@ -1,4 +1,5 @@
 ﻿using BLL.Models;
+using DAL.Data;
 using System.IO;
 using Web.Models;
 
@@ -80,6 +81,53 @@ namespace Web.Mapper
                 ProfPrenom = data.ProfPrenom, 
                
 
+
+            };
+        }
+        public static GradeDTO ToGradeDTO(this GradeModel gradeData)
+        {
+            return new GradeDTO
+            {
+                Id = gradeData.Id,
+                Grade = gradeData.Grade,
+                UserId = gradeData.UserId,
+                CourseId = gradeData.CourseId
+            };
+        }
+        public static GradeModel ToGradeForm(this GradeForm gradeData)
+        {
+            return new GradeModel
+            {
+                Grade = gradeData.Grade,
+                UserId = gradeData.UserId,
+                CourseId = gradeData.CourseId
+            };
+        }
+        public static Student_EnrollmentModel  ToEnrollementBLL(this EnrollementFORM dto)
+        {
+            if (dto == null)
+                return null;
+
+            return new Student_EnrollmentModel
+            {
+                Id = dto.Id,
+                UserId = dto.UserId,
+                CoursId = dto.CoursId,
+                Grade = dto.Grade
+               
+            };
+        }
+        public static EnrollementDTO ToEnrollementAPI(this Student_EnrollmentModel dto)
+        {
+            if (dto == null)
+                return null;
+
+            return new EnrollementDTO
+            {
+                Id = dto.Id,
+                UserId = dto.UserId,
+                CoursId = dto.CoursId,
+                Grade = dto.Grade
 
             };
         }

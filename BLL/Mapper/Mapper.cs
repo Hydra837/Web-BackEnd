@@ -76,5 +76,48 @@ namespace BLL.Mapper
             };
 
         }
+        // Mapper de GradeData vers GradeModel
+        internal static GradeModel ToGradeModel(this GradeData record)
+        {
+            return new GradeModel()
+            {
+                Id = record.Id,
+                Grade = record.Grade,
+                UserId = record.UserId,
+                CourseId = record.CourseId 
+            };
+        }
+
+        // Mapper de GradeModel vers GradeData
+        internal static GradeData ToGradeData(this GradeModel model)
+        {
+            return new GradeData()
+            {
+                Id = model.Id,
+                Grade = model.Grade,
+                UserId = model.UserId,
+                CourseId = model.CourseId 
+            };
+        }
+        internal static Student_EnrollmentModel ToEnrollementBLL(this Student_EnrollementData model)
+        {
+            return new Student_EnrollmentModel()
+            {
+                Id = model.Id,
+                Grade = model.Grade,
+                UserId = model.UserId,
+                CoursId = model.CoursId 
+            };
+        }
+        internal static Student_EnrollementData ToEnrollementDAL(this Student_EnrollmentModel model)
+        {
+            return new Student_EnrollementData()
+            {
+                Id = model.Id,
+                Grade = model.Grade,
+                UserId = model.UserId,
+                CoursId = model.CoursId 
+            };
+        }
     }
 }

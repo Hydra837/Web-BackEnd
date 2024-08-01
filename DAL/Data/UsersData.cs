@@ -24,5 +24,7 @@ namespace DAL.Data
         [Required]
         [StringLength(255)] // Considère une longueur plus longue pour les mots de passe hachés
         public string Passwd { get; set; }
+
+        public virtual ICollection<GradeData> Grades { get; set; } = new HashSet<GradeData>();
     }
 }

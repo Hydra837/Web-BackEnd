@@ -84,5 +84,22 @@ namespace Web.Controllers
               //   _studentManagementService.InsertUserCours(id, courseId);
             return Ok("User enrolled in course successfully.");
         }
+        [HttpPost("InsertProf")]
+        public async Task<ActionResult> InsertUserAsync(int id, int courseId)
+        {
+            try
+            {
+                await _studentManagementService.InsertUserCoursAsync(id, courseId);
+                return Ok(new { Message = "L'utilisateur a été inscrit au cours avec succès." });
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new { Message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { Message = "Une erreur interne est survenue.", Details = ex.Message });
+            }
+        }
     }
 }
