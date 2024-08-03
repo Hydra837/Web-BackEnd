@@ -31,19 +31,19 @@ namespace DAL.Mapper
             if (record == null)
                 throw new ArgumentNullException(nameof(record));
 
-            // Convertir la valeur du champ "Roles" en UserRole
-            if (!Enum.TryParse<UserRole>((string)record["Roles"], out var userRole))
-            {
-                // Gérer le cas où la valeur du rôle est invalide
-                throw new ArgumentException($"Invalid role value: {record["Roles"]}");
-            }
+            //// Convertir la valeur du champ "Roles" en UserRole
+            //if (!Enum.TryParse<UserRole>((string)record["Roles"], out var userRole))
+            //{
+            //    // Gérer le cas où la valeur du rôle est invalide
+            //    throw new ArgumentException($"Invalid role value: {record["Roles"]}");
+            //}
 
             return new UsersData
             {
                 Id = (int)record["Id"],
                 Nom = (string)record["Nom"],
                 Prenom = (string)record["Prenom"],
-                Role = userRole, // Utilisation de l'énumération UserRole
+                Roles = (string)record["Roles"], // Utilisation de l'énumération UserRole
                 Passwd = (string)record["Passwd"],
                 Mail = (string)record["Mail"],
                 Pseudo = (string)record["Pseudo"],

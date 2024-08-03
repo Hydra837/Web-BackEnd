@@ -38,7 +38,7 @@ namespace BLL.Service
             // Exemple :
             existingEntity.Nom = entity.Nom;
             existingEntity.Prenom = entity.Prenom;
-            existingEntity.Roles = entity.Roles;
+            existingEntity.Roles = entity.Role;
             // Ajouter d'autres propriétés ici
 
             await _userRepository.UpdateAsync(existingEntity);

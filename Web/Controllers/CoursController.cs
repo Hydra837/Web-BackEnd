@@ -89,39 +89,39 @@ namespace Web.Controllers
                return Ok(course);
             }
 
-        [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateCourse(int id, [FromBody] CoursModel cours)
-        {
-            if (cours == null)
-            {
-                return BadRequest("Course data is null");
-            }
+        //[HttpPut("{id}")]
+        //public async Task<IActionResult> UpdateCourse(int id,  CoursFORM cours) // [FromBody]
+        //{
+        //    if (cours == null)
+        //    {
+        //        return BadRequest("Course data is null");
+        //    }
 
-            if (id != cours.Id)
-            {
-                return BadRequest("Course ID mismatch");
-            }
+        //    if (id != cours.Id)
+        //    {
+        //        return BadRequest("Course ID mismatch");
+        //    }
 
-            try
-            {
-                await UpdateCourse(id, cours);
-            }
-            catch (KeyNotFoundException)
-            {
-                return NotFound("Course not found");
-            }
-            catch (ArgumentNullException ex)
-            {
-                return BadRequest(ex.Message);
-            }
-            catch (Exception ex)
-            {
-                // Log the exception here
-                return StatusCode(500, $"Internal server error: {ex.Message}");
-            }
+        //    try
+        //    {
+        //        await UpdateAsync(id, cours);
+        //    }
+        //    catch (KeyNotFoundException)
+        //    {
+        //        return NotFound("Course not found");
+        //    }
+        //    catch (ArgumentNullException ex)
+        //    {
+        //        return BadRequest(ex.Message);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        // Log the exception here
+        //        return StatusCode(500, $"Internal server error: {ex.Message}");
+        //    }
 
-            return NoContent();
-        }
+        //    return NoContent();
+        //}
         [HttpPut("update/{id}")]
      
         public async Task<IActionResult> UpdateAsync(int id, [FromBody] CoursFORM coursFORM)

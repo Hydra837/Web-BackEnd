@@ -46,7 +46,7 @@ namespace BLL.Mapper
                 Nom = record.Nom,
                 Prenom = record.Prenom,
                 Password = record.Passwd,
-                Role= record.Role,
+                Role= record.Roles,
                 Pseudo = record.Pseudo,
                 Mail = record.Mail
             };
@@ -60,7 +60,7 @@ namespace BLL.Mapper
                 Nom = record.Nom,
                 Prenom = record.Prenom,
                 Passwd = record.Password,
-                Role = record.Role, 
+                Roles = record.Role, 
                 Pseudo = record.Pseudo, 
                 Mail = record.Mail
             };

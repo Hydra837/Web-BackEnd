@@ -25,11 +25,11 @@ namespace Web.Mapper
             return new CoursModel()
             {
               
+                Description = data.Description,
                 Nom = data.Nom,
                 DateDebut = data.DateDebut,
                 DateFin = data.DateFin
-
-
+                
             };
         }
         //internal static UserModel BllAccessToApi(this RoleaddFORM data) // AJOUTER ROLE ADD
@@ -50,12 +50,10 @@ namespace Web.Mapper
                 Nom = data.Nom,
                 Password = data.Password,
                 Prenom = data.Prenom,
-                Role = data.Roles, 
+                Role = data.Role, 
                 Mail = data.Mail,
                  Pseudo = data.Pseudo
                 
-               
-
 
             };
         }
@@ -63,14 +61,13 @@ namespace Web.Mapper
         {
             return new UsersModel()
             {
-                Id= data.Id,
+               // Id= data.Id,
                 Nom = data.Nom,
                 Password = data.Password,
                 Prenom = data.Prenom,
-               Roles = data.Roles, 
+               Role = data.Role, 
                Mail = data.Mail,
                Pseudo = data.Pseudo
-
 
             };
         }
@@ -85,8 +82,6 @@ namespace Web.Mapper
                 ProfNom = data.ProfNom,
                 ProfPrenom = data.ProfPrenom, 
                
-
-
             };
         }
         public static GradeDTO ToGradeDTO(this GradeModel gradeData)

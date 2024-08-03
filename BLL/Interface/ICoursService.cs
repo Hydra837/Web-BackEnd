@@ -17,8 +17,9 @@ namespace BLL.Interface
         Task<IEnumerable<CoursModel>> GetAvailableCoursesAsync();
        // Task EnrollUserInCourseAsync(CoursModel cours, UsersModel users );
         Task<IEnumerable<CoursModel>> GetAllAsync();
+       // public Task UpdateAsync(int id, CoursModel cours);
         //   public Task<IEnumerable<CoursModel>> GetallByUser(int id);
-       // Task UpdateAsync(int id, CoursModel cours);
+        // Task UpdateAsync(int id, CoursModel cours);
 
 
     }

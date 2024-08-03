@@ -1,6 +1,5 @@
 ﻿using BLL.Authentication;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity.Data;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 using Web.Models;
@@ -44,7 +43,7 @@ namespace Web.Controllers
 
         [HttpPost("Login")]
         [AllowAnonymous]
-        public async Task<IActionResult> Login([FromBody] LoginRequest request)
+        public async Task<IActionResult> Login([FromBody] LoginFORM request)
         {
             if (request == null)
             {

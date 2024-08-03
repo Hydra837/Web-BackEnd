@@ -64,20 +64,33 @@ namespace Web.Controllers
 
         // POST: api/users
         [HttpPost("Create")]
-        public async Task<ActionResult> Create([FromBody] UsersModel user)
+        public async Task<ActionResult> Create(UsersFORM user)
         {
             if (user == null)
             {
-                return BadRequest(new { Message = "User data is null" });
+                return BadRequest(new { Message = "User est null" });
             }
 
-            await _userService.CreateAsync(user);
-            return CreatedAtAction(nameof(GetById), new { id = user.Id }, user);
+            try
+            {
+                UsersModel model = user.BllAccessToApi();
+
+                // Assuming _userService is properly initialized and injected
+                await _userService.CreateAsync(model);
+
+                // Retrieve the created user's ID from the model if needed
+                return CreatedAtAction(nameof(GetById), new { id = model.Id }, model);
+            }
+            catch (Exception ex)
+            {
+                // Log the exception (ex) here if you have a logging mechanism
+                return StatusCode(500, new { Message = "An error occurred while creating the user", Details = ex.Message });
+            }
         }
 
         // PUT: api/users/{id}
         [HttpPut("{id}")]
-        public async Task<ActionResult> Update(int id, [FromBody] UsersModel user)
+        public async Task<ActionResult> Update(int id, UsersFORM user)
         {
             if (user == null)
             {
@@ -86,7 +99,8 @@ namespace Web.Controllers
 
             try
             {
-                await _userService.UpdateAsync(id, user);
+             UsersModel a =   user.BllAccessToApi();
+                await _userService.UpdateAsync(id, a);
                 return NoContent(); // 204 No Content
             }
             catch (KeyNotFoundException)
