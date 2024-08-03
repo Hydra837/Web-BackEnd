@@ -18,7 +18,8 @@ namespace BLL.Mapper
                 Nom = record.Nom,
                 DateDebut = record.date_debut,
                 DateFin = record.date_fin,
-                Disponible = record.Disponible
+                Disponible = record.Disponible,
+                Description = record.Description,   
             };
 
         }
@@ -31,7 +32,8 @@ namespace BLL.Mapper
                 Nom = record.Nom,
                 date_debut = record.DateDebut,
                 date_fin = record.DateFin,
-                Disponible = record.Disponible
+                Disponible = record.Disponible,
+                Description = record.Description,
             };
 #pragma warning restore CS8601 // Existence possible d'une assignation de référence null.
 
@@ -44,7 +46,9 @@ namespace BLL.Mapper
                 Nom = record.Nom,
                 Prenom = record.Prenom,
                 Password = record.Passwd,
-                Roles= record.Roles
+                Role= record.Role,
+                Pseudo = record.Pseudo,
+                Mail = record.Mail
             };
 
         }
@@ -56,7 +60,9 @@ namespace BLL.Mapper
                 Nom = record.Nom,
                 Prenom = record.Prenom,
                 Passwd = record.Password,
-                Roles = record.Roles
+                Role = record.Role, 
+                Pseudo = record.Pseudo, 
+                Mail = record.Mail
             };
 
         }

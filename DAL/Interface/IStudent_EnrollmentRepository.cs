@@ -11,7 +11,8 @@ namespace DAL.Interface
     public interface IStudent_EnrollmentRepository
     {
         Task InsertStudentCourseAsync(UsersData user, CoursData course);
-        Task<IEnumerable<CoursData>> CoursPourchaqueEtuAsync(UsersData user);
+        Task InsertStudentCoursesAsync(int userid, int courseid);
+        Task<IEnumerable<CoursData>> CoursPourchaqueEtuAsync(int id);
         public Task InsertStudentCourseAsync2(int user, int course);
         public Task<IEnumerable<UsersData>> GetAlluserBycourse(int id);
         public Task<IEnumerable<CoursData>> EnrolledStudent(int id);

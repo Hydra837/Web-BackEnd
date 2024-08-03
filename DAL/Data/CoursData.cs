@@ -22,6 +22,9 @@ namespace DAL.Data
         [Required]
         public DateTime date_fin { get; set; }
 
+        [Required]
+        public string Description { get; set; }
+
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
         {
             if (date_fin <= date_debut)

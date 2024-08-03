@@ -84,30 +84,31 @@ namespace DAL.Repository
             return await _context.Courses.ToListAsync();
         }
 
-        public async Task InsertUserCourseAsync(CoursData cours, UsersData user)
-        {
-            var userExists = await _context.Users.AnyAsync(u => u.Id == user.Id);
-            var courseExists = await _context.Courses.AnyAsync(c => c.Id == cours.Id);
 
-            if (!userExists)
-            {
-                throw new ArgumentException("L'utilisateur avec cet ID n'existe pas.");
-            }
+        //public async Task InsertUserCourseAsync(CoursData cours, UsersData user)
+        //{
+        //    var userExists = await _context.Users.AnyAsync(u => u.Id == user.Id);
+        //    var courseExists = await _context.Courses.AnyAsync(c => c.Id == cours.Id);
 
-            if (!courseExists)
-            {
-                throw new ArgumentException("Le cours avec cet ID n'existe pas.");
-            }
+        //    if (!userExists)
+        //    {
+        //        throw new ArgumentException("L'utilisateur avec cet ID n'existe pas.");
+        //    }
 
-            var enrollment = new Student_EnrollementData
-            {
-                UserId = user.Id,
-                CoursId = cours.Id
-            };
+        //    if (!courseExists)
+        //    {
+        //        throw new ArgumentException("Le cours avec cet ID n'existe pas.");
+        //    }
 
-            await _context.StudentEnrollements.AddAsync(enrollment);
-            await _context.SaveChangesAsync();
-        }
+        //    var enrollment = new Student_EnrollementData
+        //    {
+        //        UserId = user.Id,
+        //        CoursId = cours.Id
+        //    };
+
+        //    await _context.StudentEnrollements.AddAsync(enrollment);
+        //    await _context.SaveChangesAsync();
+        //}
 
         public async Task<IEnumerable<CoursData>> GetallByUser(int userId)
         {

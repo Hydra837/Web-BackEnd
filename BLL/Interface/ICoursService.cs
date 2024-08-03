@@ -13,11 +13,12 @@ namespace BLL.Interface
     {
         //public IEnumerable<CoursModel> GetAllAvailble();
         Task<IEnumerable<CoursModel>> GetAllAvailble();
-        public void InsertUserCourse(int id, int id_cours);
+       // Task InsertUserCourseAsync(int id, int id_cours);
         Task<IEnumerable<CoursModel>> GetAvailableCoursesAsync();
-        Task EnrollUserInCourseAsync(CoursModel cours, UsersModel users );
+       // Task EnrollUserInCourseAsync(CoursModel cours, UsersModel users );
         Task<IEnumerable<CoursModel>> GetAllAsync();
-     //   public Task<IEnumerable<CoursModel>> GetallByUser(int id);
+        //   public Task<IEnumerable<CoursModel>> GetallByUser(int id);
+       // Task UpdateAsync(int id, CoursModel cours);
 
 
     }

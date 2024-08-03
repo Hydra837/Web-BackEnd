@@ -34,11 +34,7 @@ namespace DAL.Repository
                           }).ToListAsync();
         }
 
-        public Task<IEnumerable<CoursData>> CoursPourchaqueEtuAsync(UsersData user)
-        {
-            throw new NotImplementedException();
-        }
-
+    
         public async Task DeleteAsync(int id)
         {
             var enrollment = await _context.StudentEnrollements.FindAsync(id);
@@ -66,6 +62,11 @@ namespace DAL.Repository
                               Disponible = course.Disponible
                               // Ajoutez d'autres propriétés si nécessaire
                           }).ToListAsync();
+        }
+
+        public Task EnrollementCoursesAsync(int userid, int courseid)
+        {
+            throw new NotImplementedException();
         }
 
         public async Task<IEnumerable<Student_EnrollementData>> GetAllGradesAsync()
@@ -145,7 +146,7 @@ namespace DAL.Repository
 
 
         // Méthode pour insérer un cours pour un étudiant en utilisant les IDs
-        public async Task InsertStudentCourseAsync(int userId, int courseId)
+        public async Task InsertStudentCoursesAsync(int userId, int courseId)
         {
             try
             {

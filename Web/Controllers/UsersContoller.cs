@@ -117,8 +117,6 @@ namespace Web.Controllers
             IEnumerable<UserCoursDetailsDTO> test = userCourseDetailsData.Select( x => x.ToApiCoursDetailsDTO() );
       
             return test;
-
-            
            
         }
 
@@ -143,6 +141,25 @@ namespace Web.Controllers
         //        return StatusCode(500, new { message = "An error occurred while deleting the user", details = ex.Message }); // 500 Internal Server Error
         //    }
         //}
+        [HttpGet("pseudo/{pseudo}")]
+        public async Task<IActionResult> GetUserByPseudo(string pseudo)
+        {
+            try
+            {
+                var user = await _userService.GetUsersByPseudo(pseudo);
+                if (user == null)
+                {
+                    return NotFound(new { Message = "l'utilisateur est introuvable." });
+                }
+
+                return Ok(user);
+            }
+            catch (Exception ex)
+            {
+                // Log exception details here if needed
+                return StatusCode(500, new { Message = "Une erreur à été détecté.", Details = ex.Message });
+            }
+        }
     }
 }
 

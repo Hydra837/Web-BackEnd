@@ -19,30 +19,30 @@ namespace BLL.Service
             _studentEnrollmentRepository = studentEnrollmentRepository;
         }
 
-        // Méthode asynchrone pour récupérer les cours pour chaque étudiant
-        //public async Task<IEnumerable<CoursModel>> CoursPourchaqueEtuAsync(int studentId)
-        //{
-        //    if (studentId <= 0)
-        //        throw new ArgumentOutOfRangeException(nameof(studentId), "Student ID must be greater than zero.");
+       
+        public async Task<IEnumerable<CoursModel>> CoursPourchaqueEtuAsync(int studentId)
+        {
+            if (studentId <= 0)
+                throw new ArgumentOutOfRangeException(nameof(studentId), "Student ID must be greater than zero.");
 
-        //    try
-        //    {
-        //        var courses = await _studentEnrollmentRepository.CoursPourchaqueEtuAsync(studentId);
+            try
+            {
+                var courses = await _studentEnrollmentRepository.CoursPourchaqueEtuAsync(studentId);
 
-        //        if (courses == null || !courses.Any())
-        //            return Enumerable.Empty<CoursModel>();
+                if (courses == null || !courses.Any())
+                    return Enumerable.Empty<CoursModel>();
 
-        //        return courses.Select(course => course.ToCoursBLL());
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        Log the exception
-        //        Console.WriteLine($"Error retrieving courses for student: {ex.Message}");
+                return courses.Select(course => course.ToCoursBLL());
+            }
+            catch (Exception ex)
+            {
+           
+                Console.WriteLine($"Error retrieving courses for student: {ex.Message}");
 
-        //        Optionally, rethrow the exception if it should be handled by a higher-level handler
-        //        throw;
-        //    }
-        //}
+        
+                throw;
+            }
+        }
 
         // Méthode asynchrone pour insérer un cours pour un étudiant en utilisant des IDs
         public async Task InsertStudentCourseAsync2(int studentId, int courseId)
@@ -235,10 +235,8 @@ namespace BLL.Service
             throw new NotImplementedException();
         }
 
-        public Task<IEnumerable<CoursModel>> EnrolledStudent(int id)
-        {
-            throw new NotSupportedException();
-        }
+     
+    
 
         public async Task<Student_EnrollmentModel> GetByUserIdAsync(int userId)
         {

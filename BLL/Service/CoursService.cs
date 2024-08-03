@@ -67,34 +67,31 @@ namespace BLL.Service
             await _coursRepository.UpdateAsync(existingCourse);
         }
 
-        public async Task InsertUserCourseAsync(CoursModel cours, UsersModel user)
-        {
-            if (cours == null)
-                throw new ArgumentNullException(nameof(cours));
+        //public async Task InsertUserCourseAsync(CoursModel cours, UsersModel user)
+        //{
+        //    if (cours == null)
+        //        throw new ArgumentNullException(nameof(cours));
 
-            if (user == null)
-                throw new ArgumentNullException(nameof(user));
+        //    if (user == null)
+        //        throw new ArgumentNullException(nameof(user));
 
-            CoursData coursData = cours.ToCoursDAL();
-            UsersData userData = user.ToUserDAL();
+        //    CoursData coursData = cours.ToCoursDAL();
+        //    UsersData userData = user.ToUserDAL();
 
-            await _coursRepository.InsertUserCourseAsync(coursData, userData);
-        }
+        //    await _coursRepository.InsertUserCourseAsync(coursData, userData);
+        //}
 
-        public async Task EnrollUserInCourseAsync(CoursModel cours, UsersModel user)
-        {
-            await InsertUserCourseAsync(cours, user);
-        }
+        //public async Task EnrollUserInCourseAsync(CoursModel cours, UsersModel user)
+        //{
+        //    await InsertUserCourseAsync(cours, user);
+        //}
 
         public Task<IEnumerable<CoursModel>> GetAllAvailble()
         {
             throw new NotImplementedException();
         }
 
-        public void InsertUserCourse(int id, int id_cours)
-        {
-            throw new NotImplementedException();
-        }
+       
 
         public void Create(CoursModel cours)
         {
@@ -121,5 +118,28 @@ namespace BLL.Service
 
             return coursModels;
         }
+
+        //public async Task InsertUserCourseAsync(int userId, int courseId)
+        //{
+        //    if (userId <= 0)
+        //        throw new ArgumentOutOfRangeException(nameof(userId), "User ID must be greater than zero.");
+
+        //    if (courseId <= 0)
+        //        throw new ArgumentOutOfRangeException(nameof(courseId), "Course ID must be greater than zero.");
+
+        //    try
+        //    {
+        //        // You may need to implement a method to map userId and courseId to the corresponding entities
+        //        await _coursRepository.InsertUserCourseAsync()
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        // Log the exception
+        //        Console.WriteLine($"Error inserting user course: {ex.Message}");
+
+        //        // Optionally, rethrow the exception if it should be handled by a higher-level handler
+        //        throw;
+        //    }
+        //}
     }
 }

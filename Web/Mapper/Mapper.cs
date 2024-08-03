@@ -50,7 +50,10 @@ namespace Web.Mapper
                 Nom = data.Nom,
                 Password = data.Password,
                 Prenom = data.Prenom,
-                Role = data.Roles
+                Role = data.Roles, 
+                Mail = data.Mail,
+                 Pseudo = data.Pseudo
+                
                
 
 
@@ -64,7 +67,9 @@ namespace Web.Mapper
                 Nom = data.Nom,
                 Password = data.Password,
                 Prenom = data.Prenom,
-               Roles = data.Roles
+               Roles = data.Roles, 
+               Mail = data.Mail,
+               Pseudo = data.Pseudo
 
 
             };

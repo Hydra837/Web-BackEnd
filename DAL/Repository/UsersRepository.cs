@@ -198,5 +198,15 @@ namespace DAL.Repository
 
             return coursList;
         }
+
+        public async Task<UsersData> GetUsersByPseudo(string pseudo)
+        {
+           
+            var user = await _context.Users
+                .FirstOrDefaultAsync(u => u.Pseudo == pseudo);
+
+            return user;
+        }
+
     }
 }

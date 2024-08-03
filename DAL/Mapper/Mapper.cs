@@ -21,7 +21,8 @@ namespace DAL.Mapper
                 Nom = (string)record["Nom"],
                 Disponible = (bool)record["Prenom"],
                 date_debut = (DateTime)record["date_debut"],
-                date_fin = (DateTime)record["date_fin"]
+                date_fin = (DateTime)record["date_fin"], 
+                Description = (string)record["Description"]
           
             };
         }
@@ -29,17 +30,28 @@ namespace DAL.Mapper
         {
             if (record == null)
                 throw new ArgumentNullException(nameof(record));
-            return new UsersData()
+
+            // Convertir la valeur du champ "Roles" en UserRole
+            if (!Enum.TryParse<UserRole>((string)record["Roles"], out var userRole))
+            {
+                // Gérer le cas où la valeur du rôle est invalide
+                throw new ArgumentException($"Invalid role value: {record["Roles"]}");
+            }
+
+            return new UsersData
             {
                 Id = (int)record["Id"],
                 Nom = (string)record["Nom"],
                 Prenom = (string)record["Prenom"],
-                Roles = (string)record["Roles"],
-                Passwd = (string)record["Passwd"]
-
+                Role = userRole, // Utilisation de l'énumération UserRole
+                Passwd = (string)record["Passwd"],
+                Mail = (string)record["Mail"],
+                Pseudo = (string)record["Pseudo"],
+                Salt = record["Salt"] != DBNull.Value ? (string)record["Salt"] : null // Vérification de la valeur nulle pour Salt
             };
         }
-        internal static UserCourseDetailsData ToUsersCoursesBLL(this IDataRecord record)
+    
+    internal static UserCourseDetailsData ToUsersCoursesBLL(this IDataRecord record)
         {
             if (record == null)
                 throw new ArgumentNullException(nameof(record));

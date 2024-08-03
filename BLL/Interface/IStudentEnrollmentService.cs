@@ -11,11 +11,11 @@ namespace BLL.Interface
     public interface IStudentEnrollmentService
     {
         public void InsertStudentCourse(int id, int id_Course);
-        public IEnumerable<CoursModel> CoursPourchaqueEtu();
+        Task<IEnumerable<CoursModel>> CoursPourchaqueEtuAsync(int id);
         public Task InsertStudentCourseAsync(UsersModel user, CoursModel course);
         public Task InsertStudentCourseAsync2(int user, int course);
         public Task<IEnumerable<UsersModel>> GetAlluserBycourse(int id);
-        public Task<IEnumerable<CoursModel>> EnrolledStudent(int id);
+        public Task<IEnumerable<CoursModel>> EnrolledStudentAsync(int id);
         Task<IEnumerable<Student_EnrollmentModel>> GetAllGradesAsync();
         Task<Student_EnrollmentModel> GetByUserIdAsync(int userId);
         Task<Student_EnrollmentModel> GetByCourseAsync(int courseId);

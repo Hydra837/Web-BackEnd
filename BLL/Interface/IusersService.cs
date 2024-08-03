@@ -16,5 +16,6 @@ namespace BLL.Interface
         public void Register(string username, string password);
         Task<IEnumerable<UserCourseDetailsModel>> GetUsersCoursesAsync();
         Task DeleteAsync(int id);
+        public Task<UsersModel> GetUsersByPseudo(string pseudo);
     }
 }

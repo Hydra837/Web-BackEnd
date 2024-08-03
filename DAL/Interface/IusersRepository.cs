@@ -16,6 +16,7 @@ namespace DAL.Interface
         public void Register (string username, string password);
         public Task<IEnumerable<UserCourseDetailsData>> GetUsersCoursesAsync();
         public Task<IEnumerable<CoursData>> GetallByUser(int id);
+        public Task<UsersData> GetUsersByPseudo(string pseudo);
 
     }
 }

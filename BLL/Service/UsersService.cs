@@ -3,6 +3,7 @@ using BLL.Mapper;
 using BLL.Models;
 using DAL.Data;
 using DAL.Interface;
+using DAL.Mapper;
 using DAL.Repository;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -122,6 +123,23 @@ namespace BLL.Service
            var users = await _userRepository.GetUsersCoursesAsync();
             IEnumerable<UserCourseDetailsModel> a = users.Select(u => u.ToUsersCoursDetailBLL());
             return a;
+        }
+
+        public async Task<UsersModel> GetUsersByPseudo(string pseudo)
+        {
+           
+            var userData = await _userRepository.GetUsersByPseudo(pseudo);
+
+          
+            if (userData == null)
+            {
+                return null;
+            }
+
+
+            var userModel = userData.ToUserBLL();
+
+            return userModel;
         }
     }
     

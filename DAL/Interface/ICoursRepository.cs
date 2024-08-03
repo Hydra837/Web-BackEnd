@@ -13,7 +13,7 @@ namespace DAL.Interface
     {
         public Task<IEnumerable<CoursData>> GetAllAvailable();
         public IEnumerable<CoursData> GetAllAvailble1();
-        Task InsertUserCourseAsync(CoursData cours, UsersData user);
+       // Task InsertUserCourseAsync(CoursData cours, UsersData user);
         Task<IEnumerable<CoursData>> Getall();
         public Task<IEnumerable<CoursData>> GetallByUser(int id);
         public Task<IEnumerable<UsersData>> GetAllUuserBycourse(int id);

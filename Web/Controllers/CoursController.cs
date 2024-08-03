@@ -22,19 +22,19 @@ namespace Web.Controllers
             _cours = coursRepository;
         }
 
-        [HttpPost(nameof(InsertUserCourse))]
-        public IActionResult InsertUserCourse(int id, int id_cours)
-        {
-            if ((id < 0 ) && (id_cours > 0))
-            {
-                return BadRequest("Les données sont incorrecte");
-            }
-            else
-            {
-                _cours.InsertUserCourse(id, id_cours);
-                return Ok();
-            }
-        }
+        //[HttpPost(nameof(InsertUserCourse))]
+        //public IActionResult InsertUserCourse(int id, int id_cours)
+        //{
+        //    if ((id < 0 ) && (id_cours > 0))
+        //    {
+        //        return BadRequest("Les données sont incorrecte");
+        //    }
+        //    else
+        //    {
+        //        _cours.InsertUserCourseAsync(id, id_cours);
+        //        return Ok();
+        //    }
+        //}
 
         //[HttpGet(nameof(GetDispo))]
         ////public ActionResult<IEnumerable<CoursFORM>> GetDispo()
@@ -122,7 +122,81 @@ namespace Web.Controllers
 
             return NoContent();
         }
-   
+        [HttpPut("update/{id}")]
+     
+        public async Task<IActionResult> UpdateAsync(int id, [FromBody] CoursFORM coursFORM)
+        {
+            if (id <= 0)
+            {
+                return BadRequest("Invalid course ID.");
+            }
+
+            if (coursFORM == null)
+            {
+                return BadRequest("Course data is null.");
+            }
+
+            try
+            {
+
+                var coursModel = coursFORM.CoursToBLL();
+                coursModel.Id = id; 
+
+                await _cours.UpdateAsync(id , coursModel);
+
+                return Ok("Course updated successfully.");
+            }
+            catch (KeyNotFoundException ex)
+            {
+              
+                Console.WriteLine($"Error: {ex.Message}");
+
+                return NotFound("Course not found.");
+            }
+            catch (Exception ex)
+            {
+                // Log the exception
+                Console.WriteLine($"Error: {ex.Message}");
+
+                return StatusCode(500, "Internal server error.");
+            }
+        }
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteAsync(int id)
+        {
+            if (id <= 0)
+            {
+                return BadRequest("Invalid course ID.");
+            }
+
+            try
+            {
+                // Call the service method to delete the course
+                await _cours.DeleteAsync(id);
+
+                // Return a 204 No Content response to indicate success
+                return NoContent();
+            }
+            catch (KeyNotFoundException ex)
+            {
+                // Log the exception
+                Console.WriteLine($"Error: {ex.Message}");
+
+                // Return a 404 Not Found response if the course ID is not found
+                return NotFound("Course not found.");
+            }
+            catch (Exception ex)
+            {
+                // Log the exception
+                Console.WriteLine($"Error: {ex.Message}");
+
+                // Return a 500 Internal Server Error response if there is a general error
+                return StatusCode(500, "Internal server error.");
+            }
+        }
+
+
+
 
 
     }

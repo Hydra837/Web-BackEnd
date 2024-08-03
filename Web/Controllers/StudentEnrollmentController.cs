@@ -22,21 +22,21 @@ namespace Web.Controllers
             _studentEnrollmentService = studentEnrollmentService;
         }
 
-        //[HttpGet("GetAllCoursesForStudent/{studentId}")]
-        //public async Task<ActionResult<IEnumerable<CoursFORM>>> GetAllCoursesForStudent(int studentId)
-        //{
-        //    if (studentId <= 0)
-        //        return BadRequest("Invalid student ID.");
+        [HttpGet("GetAllCoursesForStudent/{studentId}")]
+        public async Task<ActionResult<IEnumerable<CoursFORM>>> GetAllCoursesForStudent(int studentId)
+        {
+            if (studentId <= 0)
+                return BadRequest("Invalid student ID.");
 
-        //    var courses = await _studentEnrollmentService.CoursPourchaqueEtuAsync(studentId);
-        //    if (!courses.Any())
-        //        return NotFound("No courses found for the given student.");
+            var courses = await _studentEnrollmentService.CoursPourchaqueEtuAsync(studentId);
+            if (!courses.Any())
+                return NotFound("No courses found for the given student.");
 
-        //    return Ok(courses.Select(x => x.CoursToApi()));
-        //    //}
-        //    }
+            return Ok(courses.Select(x => x.CoursToApi()));
+            
+        }
 
-            [HttpPost("Insert")]
+        [HttpPost("Insert")]
         public async Task<IActionResult> Insert(int studentId, int courseId)
         {
             if (studentId <= 0 || courseId <= 0)
@@ -157,7 +157,7 @@ namespace Web.Controllers
 
             try
             {
-                IEnumerable<CoursModel> courses = await _studentEnrollmentService.EnrolledStudent(id);
+                IEnumerable<CoursModel> courses = await _studentEnrollmentService.EnrolledStudentAsync(id);
 
                 if (courses == null)
                 {
