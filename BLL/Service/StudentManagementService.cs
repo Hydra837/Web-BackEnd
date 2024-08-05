@@ -15,9 +15,13 @@ namespace BLL.Service
     public class StudentManagementService : IcrudRepository, IStudentManagmentService
     {
         private IStudent_Management _stu;
-        public StudentManagementService(IStudent_Management cours)
+        private ICoursRepository _cours;
+        private IusersRepository _users;
+        public StudentManagementService(IStudent_Management cours, ICoursRepository courss, IusersRepository users)
         {
             _stu = cours;
+            _cours = courss;
+            _users = users;
         }
         public void Create(CoursData cours)
         {
@@ -94,6 +98,60 @@ namespace BLL.Service
         {
             // Appel au repository pour insérer l'inscription de l'utilisateur au cours
             await _stu.InsertStudentCoursesAsync(id, id_cours);
+        }
+
+        //public async Task DeleteTeacher(int teacherId, int courseId)
+        //{
+        //    try
+        //    {
+        //        await _stu.Deleteteacher(teacherId, courseId);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        throw new Exception("Une erreur à été rencontrer.", ex);
+        //    }
+        //}
+
+        public async Task UpdateTeacherToCourse(int teacherId, int courseId)
+        {
+            try
+            {
+                await _stu.UpdateTeacherToCourse(teacherId, courseId);
+            }
+            catch (Exception ex)
+            {
+                ;
+
+                
+                throw new Exception("Une erreur à été rencontrer.", ex);
+            }
+        }
+
+
+        public async Task Deleteteacher(int idteacher, int course)
+        {
+            try
+            {
+                await _stu.Deleteteacher(idteacher, course);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Une erreur à été rencontrer.", ex);
+            }
+        }
+
+        public async Task<UsersModel> GetTeacherName(int teacherId)
+        {
+            var prof = await _users.GetByIdAsync(teacherId);
+
+            if (prof == null)
+            {
+                throw new Exception("Teacher not found.");
+            }
+
+            UsersModel model = prof.ToUserBLL();
+
+            return model;
         }
 
         //IEnumerable<CoursData> GetAllCourseByUser(int id)

@@ -188,14 +188,14 @@ namespace Web.Controllers
             }
         }
         //[HttpPut]
-        //public async Task<ActionResult> UpdateGrade([FromBody] EnrollmentDTO enrollmentDto)
+        //public async Task<ActionResult> UpdateGrade([FromBody] EnrollementDTO enrollmentDto)
         //{
         //    if (enrollmentDto == null)
         //        return BadRequest("Enrollment data is null.");
 
         //    try
         //    {
-        //        var enrollmentModel = enrollmentDto.ToEnrollementFORM(); // Map from DTO to BLL model
+        //        var enrollmentModel = enrollmentDto;// Map from DTO to BLL model
         //        await _studentEnrollmentService.UpdateGrade(enrollmentModel);
         //        return NoContent();
         //    }
@@ -241,6 +241,34 @@ namespace Web.Controllers
             {
                 // Log the exception
                 return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
+        [HttpPut("UpdateGrade")]
+        public async Task<IActionResult> UpdateGrade(int id, int grade)
+        {
+            if (id <= 0 || grade < 0)
+            {
+                return BadRequest("Invalid student ID or grade.");
+            }
+
+            try
+            {
+                var result = await _studentEnrollmentService.UpdateGrade(id, grade);
+                if (result)
+                {
+                    return Ok("Grade updated successfully.");
+                }
+
+                return NotFound("Enrollment not found.");
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                // Log the exception
+                return StatusCode(500, "Internal server error.");
             }
         }
 

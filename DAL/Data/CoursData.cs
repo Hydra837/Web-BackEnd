@@ -1,16 +1,18 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 
 namespace DAL.Data
 {
-    [Table("Cours")]  // Spécifie le nom de la table dans la base de données
+    [Table("Cours")]
     public class CoursData : IValidatableObject
     {
         [Key]
         public int Id { get; set; }
 
         [Required]
-        [StringLength(100)]  // Limite la longueur de la chaîne à 100 caractères
+        [StringLength(100)]
         public string Nom { get; set; }
 
         [Required]
@@ -25,6 +27,14 @@ namespace DAL.Data
         [Required]
         public string Description { get; set; }
 
+        [AllowNull]
+        public int? ProfesseurId { get; set; }
+
+        public virtual ICollection<Student_EnrollementData> StudentEnrollements { get; set; }
+
+        // Ajout de la propriété de navigation pour les affectations des instructeurs
+        public virtual ICollection<Student_ManagementData> InstructorAssignments { get; set; } = new HashSet<Student_ManagementData>();
+
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
         {
             if (date_fin <= date_debut)
@@ -37,4 +47,3 @@ namespace DAL.Data
         }
     }
 }
-

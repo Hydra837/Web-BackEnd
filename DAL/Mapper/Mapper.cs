@@ -22,7 +22,8 @@ namespace DAL.Mapper
                 Disponible = (bool)record["Prenom"],
                 date_debut = (DateTime)record["date_debut"],
                 date_fin = (DateTime)record["date_fin"], 
-                Description = (string)record["Description"]
+                Description = (string)record["Description"],
+                ProfesseurId = (int)record["ProfesseurId"]
           
             };
         }
@@ -80,7 +81,20 @@ namespace DAL.Mapper
                 CourseId = (int)record["CourseId"]
             };
         }
+        internal static Student_EnrollementData ToEnrollementDAL(this IDataRecord record)
+        {
+            if (record == null)
+                throw new ArgumentNullException(nameof(record));
 
+            return new Student_EnrollementData()
+            {
+                Id = (int)record["Id"],
+                Grade = (int)record["Grade"],
+                UserId = (int)record["UserId"],
+                CoursId = (int)record["CoursId"]
+                
+            };
+        }
 
     }
 }

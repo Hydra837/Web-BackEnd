@@ -23,6 +23,8 @@ namespace BLL.Interface
         Task InsertGrade(int id, int grade);
         Task DeleteAsync(int id);
         Task UpdateGrade(Student_EnrollmentModel student);
+        public  Task<bool> UpdateGrade(int id, int grade);
+
     }
 
     // Changer Cours Model en Cours Etu pour avoir les noms étudiant aussi

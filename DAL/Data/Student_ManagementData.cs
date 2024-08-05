@@ -10,12 +10,10 @@ namespace DAL.Data
         public int Id { get; set; }
 
         [Required]
-        [ForeignKey("Users")]
-        public int ProfesseurId { get; set; }
+        public int ProfesseurId { get; set; }  // Clé étrangère pour UsersData
 
         [Required]
-        [ForeignKey("Cours")]
-        public int CoursId { get; set; }
+        public int CoursId { get; set; }  // Clé étrangère pour CoursData
 
         // Propriétés de navigation
         public virtual UsersData Instructor { get; set; }

@@ -10,13 +10,13 @@ namespace DAL.Data
         public int Id { get; set; }
 
         [Required]
-        [ForeignKey("Users")]
-        public int UserId { get; set; }
+        public int UserId { get; set; }  // Pas besoin de l'attribut ForeignKey ici
 
         [Required]
-        [ForeignKey("Cours")]
-        public int CoursId { get; set; }
-        public int Grade {  get; set; }
+        public int CoursId { get; set; }  // Pas besoin de l'attribut ForeignKey ici
+
+        // Permet à Grade d'être null
+        public int? Grade { get; set; }
 
         // Propriétés de navigation
         public virtual UsersData User { get; set; }

@@ -1,9 +1,10 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Collections.Generic;
 
 namespace DAL.Data
 {
-    [Table("Users")] 
+    [Table("Users")]
     public class UsersData
     {
         [Key]
@@ -14,15 +15,15 @@ namespace DAL.Data
         public string Nom { get; set; }
 
         [Required]
-        [StringLength(50)] 
+        [StringLength(50)]
         public string Prenom { get; set; }
 
         [Required]
-        [StringLength(20)] 
+        [StringLength(20)]
         public string Roles { get; set; }
 
         [Required]
-        [StringLength(255)] 
+        [StringLength(255)]
         public string Passwd { get; set; }
 
         [Required]
@@ -35,11 +36,13 @@ namespace DAL.Data
         public string Salt { get; set; }
 
         public virtual ICollection<GradeData> Grades { get; set; } = new HashSet<GradeData>();
+        public virtual ICollection<Student_EnrollementData> StudentEnrollements { get; set; }
 
-  
+        // Ajout de la propriété de navigation pour les affectations d'instructeurs
+        public virtual ICollection<Student_ManagementData> InstructorAssignments { get; set; } = new HashSet<Student_ManagementData>();
+
         public UsersData() { }
 
-      
         public UsersData(string pseudo, string passwd, string salt, string roles, string nom = null, string prenom = null, string mail = null)
         {
             Pseudo = pseudo;

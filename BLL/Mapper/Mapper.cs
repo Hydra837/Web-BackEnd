@@ -19,7 +19,8 @@ namespace BLL.Mapper
                 DateDebut = record.date_debut,
                 DateFin = record.date_fin,
                 Disponible = record.Disponible,
-                Description = record.Description,   
+                Description = record.Description, 
+                ProfesseurId = record.ProfesseurId
             };
 
         }
@@ -34,6 +35,7 @@ namespace BLL.Mapper
                 date_fin = record.DateFin,
                 Disponible = record.Disponible,
                 Description = record.Description,
+                ProfesseurId = record.ProfesseurId
             };
 #pragma warning restore CS8601 // Existence possible d'une assignation de référence null.
 

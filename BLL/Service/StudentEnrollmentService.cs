@@ -286,7 +286,20 @@ namespace BLL.Service
             }
         }
 
-        // Supprimer les méthodes non implémentées qui font doublon
+        public async Task<bool> UpdateGrade(int id, int grade)
+        {
+            try
+            {
+                await _studentEnrollmentRepository.UpdateGrade(id, grade);
+                return true;
+            }
+            catch (KeyNotFoundException)
+            {
+                return false;
+            }
+        }
+
+
 
 
 

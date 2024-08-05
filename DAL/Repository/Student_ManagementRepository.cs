@@ -100,6 +100,26 @@ namespace DAL.Repository
             }
         }
 
+        public async Task Deleteteacher(int idteacher, int course)
+        {
+            var courses = await _context.Courses.FindAsync(course);
+            if (courses == null)
+            {
+                throw new Exception("Course not found");
+            }
+
+            if (courses.ProfesseurId == idteacher)
+            {
+                courses.ProfesseurId = null;
+                await _context.SaveChangesAsync();
+            }
+            else
+            {
+                throw new Exception("Teacher not assigned to this course");
+            }
+        }
+
+
         public IEnumerable<CoursData> GetAllCourseByUser(int id)
         {
             throw new NotImplementedException();
@@ -118,23 +138,34 @@ namespace DAL.Repository
             throw new NotImplementedException();
         }
 
+        public async Task UpdateTeacherToCourse(int teacherId, int courseId)
+        {
+            var course = await _context.Courses.FindAsync(courseId);
+            if (course == null)
+            {
+                throw new Exception("Course not found");
+            }
+
+            course.ProfesseurId = teacherId;
+            await _context.SaveChangesAsync();
+        }
 
 
-        // Méthode pour insérer une nouvelle inscription dans la table Student_Management
+
+        
         public async Task InsertUserCoursAsync(int id, int id_cours)
         {
-            // Créez une nouvelle instance de Student_ManagementData avec les valeurs fournies
+         
             var studentManagement = new Student_ManagementData
             {
                 ProfesseurId = id,
                 CoursId = id_cours,
-               // EnrollmentDate = DateTime.Now // Assurez-vous d'ajouter d'autres champs si nécessaire
+         
             };
 
-            // Ajoutez l'entrée à la table Student_Management
             await _context.InstructorAssignments.AddAsync(studentManagement);
 
-            // Sauvegardez les changements dans la base de données
+           
             await _context.SaveChangesAsync();
         }
 

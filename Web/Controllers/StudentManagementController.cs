@@ -13,7 +13,7 @@ namespace Web.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class StudentManagementController : ControllerBase
+    public class StudentManagementController :ControllerBase
     {
         private readonly IStudentManagmentService _studentManagementService;
 
@@ -99,6 +99,45 @@ namespace Web.Controllers
             catch (Exception ex)
             {
                 return StatusCode(500, new { Message = "Une erreur interne est survenue.", Details = ex.Message });
+            }
+        }
+        [HttpGet("GetTeacher/{teacherId}")]
+        public async Task<IActionResult> GetTeacherName(int teacherId)
+        {
+            try
+            {
+                var teacher = await _studentManagementService.GetTeacherName(teacherId);
+                return Ok(teacher);
+            }
+            catch (Exception ex)
+            {
+                return NotFound(new { Message = ex.Message });
+            }
+        }
+        [HttpDelete("RemoveTeacher")]
+        public async Task<IActionResult> RemoveTeacherFromCourse(int teacherId, int courseId)
+        {
+            try
+            {
+                await _studentManagementService.Deleteteacher(teacherId, courseId);
+                return Ok(new { Message = "Teacher removed from course successfully." });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { Message = ex.Message });
+            }
+        }
+        [HttpPut("UpdateTeacher")]
+        public async Task<IActionResult> UpdateTeacherToCourse(int teacherId, int courseId)
+        {
+            try
+            {
+                await _studentManagementService.UpdateTeacherToCourse(teacherId, courseId);
+                return Ok(new { Message = "Teacher updated for the course successfully." });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { Message = ex.Message });
             }
         }
     }

@@ -19,9 +19,12 @@ namespace DAL.Interface
         Task<IEnumerable<Student_EnrollementData>> GetAllGradesAsync();
         Task<Student_EnrollementData> GetByUserIdAsync(int userId);
         Task<Student_EnrollementData> GetByCourseAsync(int courseId);
-     //   Task<IEnumerable<GradeData>> GetByCoursesAsync(int id);
+        //   Task<IEnumerable<GradeData>> GetByCoursesAsync(int id);
         Task InsertGrade(int id, int grade);
         Task DeleteAsync(int id);
+        Task UpdateGrade(int id, int grade);
         Task UpdateGrade(Student_EnrollementData student);
-    }
+        Task<bool> UpdateGradeAsync(int userId, int courseId, int grade)
+            }
+        
 }

@@ -13,7 +13,7 @@ using System.Threading.Tasks;
 
 namespace BLL.Service
 {
-    public class ManagementService : IStudentManagmentService
+    public class ManagementService  // : IStudentManagmentService
         { 
         private readonly EFDbContextData _contextData;
 

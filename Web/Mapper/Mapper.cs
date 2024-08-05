@@ -15,7 +15,8 @@ namespace Web.Mapper
                 Nom = data.Nom,
                 DateDebut = data.DateDebut,
                 DateFin = data.DateFin,
-                Disponible = data.Disponible
+                Disponible = data.Disponible,
+                ProfesseurId = data.ProfesseurId,
 
 
             };
@@ -28,9 +29,10 @@ namespace Web.Mapper
                 Description = data.Description,
                 Nom = data.Nom,
                 DateDebut = data.DateDebut,
-                DateFin = data.DateFin
-                
-            };
+                DateFin = data.DateFin,
+               ProfesseurId = data.ProfesseurId,
+
+    };
         }
         //internal static UserModel BllAccessToApi(this RoleaddFORM data) // AJOUTER ROLE ADD
         //{
