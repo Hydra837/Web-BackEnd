@@ -35,6 +35,8 @@ builder.Services.AddScoped<IusersRepository, UsersRepository>();
 builder.Services.AddScoped<IusersService, UsersService>();
 builder.Services.AddScoped<IStudent_EnrollmentRepository, Student_EnrollmentRepository>();
 builder.Services.AddScoped<IStudentEnrollmentService, StudentEnrollmentService>();
+builder.Services.AddScoped<IStudent_Management, Student_ManagementRepository>();
+builder.Services.AddScoped<IStudentManagmentService, StudentManagementService>();
 
 // Ajouter l'authentification JWT
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)

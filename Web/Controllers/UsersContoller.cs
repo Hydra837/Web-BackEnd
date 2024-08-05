@@ -3,6 +3,10 @@ using Microsoft.AspNetCore.Mvc;
 using Web.Models;
 using BLL.Interface;
 using BLL.Models;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using BLL.Service;
 using Web.Mapper;
 
@@ -10,105 +14,129 @@ namespace Web.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class UsersContoller : ControllerBase
+    public class UsersController : ControllerBase
     {
-        private IusersService _userService;
-        public UsersContoller(IusersService userService)
+        private readonly IusersService _userService;
+
+        public UsersController(IusersService userService)
         {
             _userService = userService;
         }
+
         [HttpPost]
         [Route(nameof(Register))]
-        public ActionResult Register(UsersFORM user)
+        public ActionResult Register([FromBody] UsersFORM user)
         {
             if (user == null)
             {
-                throw new ArgumentNullException(nameof(user));
+                return BadRequest(new { Message = "User cannot be null" });
             }
-            else
-            {
 
+            try
+            {
                 _userService.Register(user.Prenom, user.Nom);
-                return Ok(); // Changer Password, Prenom en UserModel
+                return Ok(new { Message = "User registered successfully" });
+            }
+            catch (Exception ex)
+            {
+                // Log the exception here if you have a logging mechanism
+                return StatusCode(500, new { Message = "An error occurred during registration", Details = ex.Message });
             }
         }
+
         [HttpGet("GetAll")]
         public async Task<ActionResult<IEnumerable<UsersDTO>>> GetAll()
         {
-            // Récupérer tous les utilisateurs du service
-            var users = await _userService.GetAllAsync();
-
-            // Mapper les utilisateurs si nécessaire
-            // Supposons que ToBLLMapper est la méthode de mappage pour convertir en UsersModel
-            var userModels = users.Select(user => user.BllAccessToApi());
-
-            // Retourner les utilisateurs mappés dans une réponse HTTP 200 OK
-            return Ok(userModels);
+            try
+            {
+                var users = await _userService.GetAllAsync();
+                var userModels = users.Select(user => user.BllAccessToApi());
+                return Ok(userModels);
+            }
+            catch (Exception ex)
+            {
+                // Log the exception here if you have a logging mechanism
+                return StatusCode(500, new { Message = "An error occurred while retrieving users", Details = ex.Message });
+            }
         }
 
-        // GET: api/users/{id}
         [HttpGet("GetById/{id}")]
         public async Task<ActionResult<UsersDTO>> GetById(int id)
         {
             try
             {
                 var user = await _userService.GetByIdAsync(id);
-                user.BllAccessToApi();
-                return Ok(user);
+                if (user == null)
+                {
+                    return NotFound(new { Message = "User not found" });
+                }
+                var userModel = user.BllAccessToApi();
+                return Ok(userModel);
             }
-            catch (KeyNotFoundException)
+            catch (Exception ex)
             {
-                return NotFound(new { Message = "User not found" });
+                // Log the exception here if you have a logging mechanism
+                return StatusCode(500, new { Message = "An error occurred while retrieving the user", Details = ex.Message });
             }
         }
 
-        // POST: api/users
         [HttpPost("Create")]
-        public async Task<ActionResult> Create(UsersFORM user)
+        public async Task<ActionResult> Create([FromBody] UsersFORM user)
         {
             if (user == null)
             {
-                return BadRequest(new { Message = "User est null" });
+                return BadRequest(new { Message = "User cannot be null" });
+            }
+
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
             }
 
             try
             {
                 UsersModel model = user.BllAccessToApi();
-
-                // Assuming _userService is properly initialized and injected
                 await _userService.CreateAsync(model);
-
-                // Retrieve the created user's ID from the model if needed
                 return CreatedAtAction(nameof(GetById), new { id = model.Id }, model);
             }
             catch (Exception ex)
             {
-                // Log the exception (ex) here if you have a logging mechanism
+                // Log the exception here if you have a logging mechanism
                 return StatusCode(500, new { Message = "An error occurred while creating the user", Details = ex.Message });
             }
         }
 
+
         // PUT: api/users/{id}
         [HttpPut("{id}")]
-        public async Task<ActionResult> Update(int id, UsersFORM user)
+        public async Task<ActionResult> Update(int id, [FromBody] UsersFORM user)
         {
             if (user == null)
             {
                 return BadRequest(new { Message = "User data is null" });
             }
 
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
             try
             {
-             UsersModel a =   user.BllAccessToApi();
-                await _userService.UpdateAsync(id, a);
+                UsersModel model = user.BllAccessToApi();
+                await _userService.UpdateAsync(id, model);
                 return NoContent(); // 204 No Content
             }
             catch (KeyNotFoundException)
             {
                 return NotFound(new { Message = "User not found" });
             }
+            catch (Exception ex)
+            {
+                // Log the exception here if you have a logging mechanism
+                return StatusCode(500, new { Message = "An error occurred while updating the user", Details = ex.Message });
+            }
         }
-
         // DELETE: api/users/{id}
         [HttpDelete("Delete/{id}")]
         public async Task<ActionResult> Delete(int id)

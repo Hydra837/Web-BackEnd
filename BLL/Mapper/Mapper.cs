@@ -56,7 +56,7 @@ namespace BLL.Mapper
         {
             return new UsersData()
             {
-                Id = record.Id,
+               // Id = record.Id,
                 Nom = record.Nom,
                 Prenom = record.Prenom,
                 Passwd = record.Password,

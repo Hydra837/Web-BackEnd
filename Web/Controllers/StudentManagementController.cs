@@ -81,7 +81,7 @@ namespace Web.Controllers
             }
 
             //await
-              //   _studentManagementService.InsertUserCours(id, courseId);
+            //   _studentManagementService.InsertUserCours(id, courseId);
             return Ok("User enrolled in course successfully.");
         }
         [HttpPost("InsertProf")]

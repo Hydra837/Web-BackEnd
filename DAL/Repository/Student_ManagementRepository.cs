@@ -113,7 +113,12 @@ namespace DAL.Repository
                           select course).ToListAsync();
         }
 
- 
+        public Task InsertStudentCoursesAsync(int user, int course)
+        {
+            throw new NotImplementedException();
+        }
+
+
 
         // Méthode pour insérer une nouvelle inscription dans la table Student_Management
         public async Task InsertUserCoursAsync(int id, int id_cours)

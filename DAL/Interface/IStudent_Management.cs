@@ -13,6 +13,7 @@ namespace DAL.Interface
         public Task InsertUserCoursAsync(int id, int id_cours);
         public Task DeleteAsync(int id);
         public Task CreateAsync(UsersData usersData);
-      
+        public Task InsertStudentCoursesAsync(int user, int course);
+
     }
 }

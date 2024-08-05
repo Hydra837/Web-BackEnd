@@ -86,11 +86,14 @@ namespace BLL.Service
         {
             throw new NotImplementedException();
         }
+        //public Task GetCoursWithTeacher(int coursid, int userid)
+        //{
 
+        //}
         public async Task InsertUserCoursAsync(int id, int id_cours)
         {
             // Appel au repository pour insérer l'inscription de l'utilisateur au cours
-            await _stu.InsertUserCoursAsync(id, id_cours);
+            await _stu.InsertStudentCoursesAsync(id, id_cours);
         }
 
         //IEnumerable<CoursData> GetAllCourseByUser(int id)

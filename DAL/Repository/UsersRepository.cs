@@ -3,14 +3,10 @@ using DAL.Interface;
 using DAL.Mapper;
 using Dapper;
 using Microsoft.EntityFrameworkCore;
-using Org.BouncyCastle.Crypto.Generators;
 using System;
 using System.Collections.Generic;
-using System.Data;
-using System.Data.SqlClient;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 using Tools;
 
 namespace DAL.Repository
@@ -20,19 +16,17 @@ namespace DAL.Repository
         private readonly Connection _connection;
         private readonly EFDbContextData _context;
         private readonly DbSet<UsersData> _dbSet;
-        private readonly DbSet<UserCourseDetailsData> __db;
-        public UsersRepository(Connection connection, EFDbContextData context) : base(connection)
+        private readonly DbSet<UserCourseDetailsData> _detailsDbSet;
+        private readonly ILogger<UsersRepository> _logger;
+
+        public UsersRepository(Connection connection, EFDbContextData context, ILogger<UsersRepository> logger) : base(connection)
         {
-           _connection = connection;
+            _connection = connection;
             _context = context;
             _dbSet = _context.Users;
-            __db = _context.UserCourseDetails;
-           
-
-
+            _detailsDbSet = _context.UserCourseDetails;
+            _logger = logger;
         }
-
-      
 
         public void Logout()
         {
@@ -41,37 +35,75 @@ namespace DAL.Repository
 
         public async Task<IEnumerable<UsersData>> GetAllAsync()
         {
-            return await _dbSet.ToListAsync();
+            try
+            {
+                return await _dbSet.ToListAsync();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred while retrieving all users");
+                throw;
+            }
         }
 
         public async Task<UsersData> GetByIdAsync(int id)
         {
-            return await _dbSet.FindAsync(id);
+            try
+            {
+                return await _dbSet.FindAsync(id);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"An error occurred while retrieving user with id {id}");
+                throw;
+            }
         }
 
         public async Task AddAsync(UsersData entity)
         {
-             await _dbSet.AddAsync(entity);
-            await _context.SaveChangesAsync(); ;
+            try
+            {
+                await _dbSet.AddAsync(entity);
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred while adding a new user");
+                throw;
+            }
         }
 
         public async Task UpdateAsync(UsersData entity)
         {
-            _dbSet.Update(entity);
-            await _context.SaveChangesAsync();
+            try
+            {
+                _dbSet.Update(entity);
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred while updating the user");
+                throw;
+            }
         }
 
-
+        // Optional: Implement a method to delete a user if required
         public async Task DeleteAsync(int id)
         {
-            var user = await _context.Users.FindAsync(id);
-            if (user == null)
+            try
             {
-                throw new Exception($"l'utilisateur avec  l'ID {id} n'a pas été trouvé.");
+                var entity = await GetByIdAsync(id);
+                if (entity != null)
+                {
+                    _dbSet.Remove(entity);
+                    await _context.SaveChangesAsync();
+                }
             }
-
-            _context.Users.Remove(user);
-            await _context.SaveChangesAsync();
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"An error occurred while deleting user with id {id}");
+                throw;
+            }
         }
         public void UserRole(int userId, string role)
         {
@@ -79,18 +111,18 @@ namespace DAL.Repository
             {
                 connection.Open();
 
-                // Vérifier si le rôle existe
+               
                 string roleQuery = "SELECT Id FROM Roles WHERE RoleName = @RoleName";
                 int? roleId = connection.QueryFirstOrDefault<int?>(roleQuery, new { RoleName = role });
 
                 if (roleId == null)
                 {
-                    // Insérer le rôle s'il n'existe pas
+                   
                     string insertRoleQuery = "INSERT INTO Roles (RoleName) VALUES (@RoleName); SELECT CAST(SCOPE_IDENTITY() as int)";
                     roleId = connection.ExecuteScalar<int>(insertRoleQuery, new { RoleName = role });
                 }
 
-                // Assigner le rôle à l'utilisateur
+              
                 string userRoleQuery = "INSERT INTO UserRoles (UserId, RoleId) VALUES (@UserId, @RoleId)";
                 connection.Execute(userRoleQuery, new { UserId = userId, RoleId = roleId });
             }
@@ -153,7 +185,7 @@ namespace DAL.Repository
         public async Task<IEnumerable<UserCourseDetailsData>> GetUsersCoursesAsync()
         {
             var sql = " GetUserCourseDetails";
-            var userCourseDetails = await __db.FromSqlRaw(sql).ToListAsync();
+            var userCourseDetails = await _detailsDbSet.FromSqlRaw(sql).ToListAsync();
        
             return userCourseDetails;
         }
