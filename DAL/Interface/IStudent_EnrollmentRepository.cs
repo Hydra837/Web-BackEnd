@@ -24,7 +24,7 @@ namespace DAL.Interface
         Task DeleteAsync(int id);
         Task UpdateGrade(int id, int grade);
         Task UpdateGrade(Student_EnrollementData student);
-        Task<bool> UpdateGradeAsync(int userId, int courseId, int grade)
+        Task<bool> UpdateGradesAsync(int userId, int courseId, int grade);
             }
         
 }

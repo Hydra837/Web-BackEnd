@@ -299,15 +299,9 @@ namespace BLL.Service
             }
         }
 
-
-
-
-
-
-
-
-
-
-
+        public async Task<bool> UpdateGradesAsync(int userId, int courseId, int grade)
+        {
+            return await _studentEnrollmentRepository.UpdateGradesAsync(userId, courseId, grade);
+        }
     }
 }

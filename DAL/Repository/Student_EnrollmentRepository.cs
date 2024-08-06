@@ -241,11 +241,11 @@ public async Task InsertStudentCourseAsync2(int userId, int courseId)
 
         try
         {
-            // Définir les paramètres de la procédure stockée
+            
             var userIdParam = new SqlParameter("@UserId", userId);
             var courseIdParam = new SqlParameter("@CourseId", courseId);
 
-            // Appeler la procédure stockée
+           
             await _context.Database.ExecuteSqlRawAsync(
                 "InsertStudentEnrollment @UserId, @CourseId",
                 userIdParam,
@@ -254,15 +254,14 @@ public async Task InsertStudentCourseAsync2(int userId, int courseId)
         }
         catch (SqlException ex)
         {
-            // Gérer les erreurs SQL
+           
             Console.WriteLine("Erreur SQL : " + ex.Message);
-            throw; // Rejeter l'exception pour propager l'erreur
+            throw; 
         }
         catch (Exception ex)
         {
-            // Gérer les autres erreurs
             Console.WriteLine("Une erreur est survenue : " + ex.Message);
-            throw; // Rejeter l'exception pour propager l'erreur
+            throw; 
         }
     }
 
@@ -286,7 +285,7 @@ public async Task InsertStudentCourseAsync2(int userId, int courseId)
 
         public async Task UpdateGrade(int id, int grade)
         {
-            // Rechercher l'enregistrement à mettre à jour
+            
             var enrollment = await _context.StudentEnrollements.FindAsync(id);
 
             if (enrollment == null)
@@ -294,33 +293,48 @@ public async Task InsertStudentCourseAsync2(int userId, int courseId)
                 throw new KeyNotFoundException("Enrollment not found.");
             }
 
-            // Mettre à jour la note
+           
             enrollment.Grade = grade;
-
-            // Enregistrer les modifications dans la base de données
             await _context.SaveChangesAsync();
         }
 
         public async Task<bool> UpdateGradeAsync(int userId, int courseId, int grade)
         {
-            // Rechercher l'inscription de l'utilisateur au cours spécifié
+           
             var enrollment = await _context.StudentEnrollements
                 .FirstOrDefaultAsync(se => se.UserId == userId && se.CoursId == courseId);
 
-            // Vérifier si l'inscription existe
             if (enrollment == null)
             {
-                return false; // L'inscription n'existe pas, retourner false
+                return false;
             }
-
-            // Mettre à jour la note
             enrollment.Grade = grade;
 
-            // Enregistrer les changements dans la base de données
-            await SaveChanges();
 
-            return true; // La mise à jour a réussi
+            await _context.SaveChangesAsync();
+
+            return true;
         }
 
+        public async Task<bool> UpdateGradesAsync(int userId, int courseId, int grade)
+        {
+            
+            var enrollment = await _context.StudentEnrollements
+                .FirstOrDefaultAsync(se => se.UserId == userId && se.CoursId == courseId);
+
+            if (enrollment == null)
+            {
+               
+                return false;
+            }
+
+         
+            enrollment.Grade = grade;
+
+          
+            _context.StudentEnrollements.Update(enrollment);
+            return await _context.SaveChangesAsync() > 0;
+        }
     }
+
 }

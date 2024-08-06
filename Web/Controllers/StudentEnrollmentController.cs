@@ -272,5 +272,18 @@ namespace Web.Controllers
             }
         }
 
+        [HttpPut("UpdateGrades")]
+        public async Task<IActionResult> UpdateGrade(int idUsers, int idCours, int grade)
+        {
+            var result = await _studentEnrollmentService.UpdateGradesAsync(idUsers, idCours, grade);
+
+            if (result)
+            {
+                return Ok();
+            }
+
+            return NotFound();
+        }
+
     }
 }

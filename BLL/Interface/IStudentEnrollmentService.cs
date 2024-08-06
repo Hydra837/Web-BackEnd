@@ -24,6 +24,8 @@ namespace BLL.Interface
         Task DeleteAsync(int id);
         Task UpdateGrade(Student_EnrollmentModel student);
         public  Task<bool> UpdateGrade(int id, int grade);
+       // public Task<bool> UpdateGrade(int iduser, int coursid, int grade);
+        Task<bool> UpdateGradesAsync(int userId, int courseId, int grade);
 
     }
 
