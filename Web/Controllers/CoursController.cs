@@ -124,7 +124,7 @@ namespace Web.Controllers
         //}
         [HttpPut("update/{id}")]
      
-        public async Task<IActionResult> UpdateAsync(int id, [FromBody] CoursFORM coursFORM)
+        public async Task<IActionResult> UpdateAsync(int id,  CoursFORM coursFORM)
         {
             if (id <= 0)
             {
