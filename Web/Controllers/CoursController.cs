@@ -22,26 +22,6 @@ namespace Web.Controllers
             _cours = coursRepository;
         }
 
-        //[HttpPost(nameof(InsertUserCourse))]
-        //public IActionResult InsertUserCourse(int id, int id_cours)
-        //{
-        //    if ((id < 0 ) && (id_cours > 0))
-        //    {
-        //        return BadRequest("Les données sont incorrecte");
-        //    }
-        //    else
-        //    {
-        //        _cours.InsertUserCourseAsync(id, id_cours);
-        //        return Ok();
-        //    }
-        //}
-
-        //[HttpGet(nameof(GetDispo))]
-        ////public ActionResult<IEnumerable<CoursFORM>> GetDispo()
-        ////{
-
-        ////  //  return Ok(_cours.GetAllAvailble().Select(x => x.CoursToApi()));
-        ////}
         [HttpGet("GetAll")]
         public async Task<ActionResult<IEnumerable<CoursDTO>>> GetCourses()
         {
@@ -89,39 +69,7 @@ namespace Web.Controllers
                return Ok(course);
             }
 
-        //[HttpPut("{id}")]
-        //public async Task<IActionResult> UpdateCourse(int id,  CoursFORM cours) // [FromBody]
-        //{
-        //    if (cours == null)
-        //    {
-        //        return BadRequest("Course data is null");
-        //    }
-
-        //    if (id != cours.Id)
-        //    {
-        //        return BadRequest("Course ID mismatch");
-        //    }
-
-        //    try
-        //    {
-        //        await UpdateAsync(id, cours);
-        //    }
-        //    catch (KeyNotFoundException)
-        //    {
-        //        return NotFound("Course not found");
-        //    }
-        //    catch (ArgumentNullException ex)
-        //    {
-        //        return BadRequest(ex.Message);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        // Log the exception here
-        //        return StatusCode(500, $"Internal server error: {ex.Message}");
-        //    }
-
-        //    return NoContent();
-        //}
+      
         [HttpPut("update/{id}")]
      
         public async Task<IActionResult> UpdateAsync(int id,  CoursFORM coursFORM)
@@ -192,6 +140,24 @@ namespace Web.Controllers
 
                 // Return a 500 Internal Server Error response if there is a general error
                 return StatusCode(500, "Internal server error.");
+            }
+        }
+        [HttpGet("cours/professeur/{teacherId}")]
+        public async Task<ActionResult<IEnumerable<CoursModel>>> GetCoursesByTeacher(int teacherId)
+        {
+            try
+            {
+                var courses = await _cours.GetAllByTeacher(teacherId);
+                if (courses == null)
+                {
+                    return NotFound(); // 404 Not Found if no courses are found
+                }
+                return Ok(courses); // 200 OK with the list of courses
+            }
+            catch (Exception ex)
+            {
+                // Log the exception (ex) here if needed
+                return StatusCode(500, "Internal server error"); // 500 Internal Server Error
             }
         }
 

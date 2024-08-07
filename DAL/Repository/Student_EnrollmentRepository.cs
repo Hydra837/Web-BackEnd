@@ -47,7 +47,12 @@ namespace DAL.Repository
             await _context.SaveChangesAsync();
         }
 
-
+        public async Task<IEnumerable<UsersData>> GetUsersWithCoursesAsync()
+        {
+            return await _context.Users
+                .Include(u => u.EnrolledCourses) // Inclure les cours auxquels l'utilisateur est inscrit
+                .ToListAsync();
+        }
         public async Task<IEnumerable<CoursData>> EnrolledStudent(int id)
         {
             return await (from enrollment in _context.StudentEnrollements

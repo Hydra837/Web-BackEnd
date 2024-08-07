@@ -8,13 +8,16 @@ namespace DAL.Data
 {    
     public class UserCourseDetailsData
     {
-            public int UserId { get; set; }
+            public int? UserId { get; set; }
             public string? UserNom { get; set; }
             public string? UserPrenom { get; set; }
+            public int? CourseId { get; set; }
             public string? CoursNom { get; set; }
             public bool Disponible { get; set; }
             public string? ProfNom { get; set; }
             public string? ProfPrenom { get; set; }
+            public int? Grade { get; set; }
+
         
     }
 }

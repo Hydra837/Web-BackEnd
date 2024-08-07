@@ -119,6 +119,13 @@ namespace BLL.Service
             return coursModels;
         }
 
+        public async Task<IEnumerable<CoursModel>> GetAllByTeacher(int id)
+        {
+            var coursEntities = await _coursRepository.GetAllCourseByTeacher(id);
+            var coursModels = coursEntities.Select(cours => cours.ToCoursBLL()).ToList();
+            return coursModels;
+        }
+
         //public async Task InsertUserCourseAsync(int userId, int courseId)
         //{
         //    if (userId <= 0)

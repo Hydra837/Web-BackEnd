@@ -3,6 +3,8 @@ using BLL.Mapper;
 using BLL.Models;
 using DAL.Data;
 using DAL.Interface;
+using DAL.Repository;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -43,9 +45,14 @@ namespace BLL.Service
                 throw;
             }
         }
-
-        // Méthode asynchrone pour insérer un cours pour un étudiant en utilisant des IDs
-        public async Task InsertStudentCourseAsync2(int studentId, int courseId)
+        //public async Task<IEnumerable<UsersModel>> GetUsersWithCoursesAsync()
+        //{
+        //    //return await _userRepository.GetUsersWithCoursesAsync();
+            
+        //}
+    
+    // Méthode asynchrone pour insérer un cours pour un étudiant en utilisant des IDs
+    public async Task InsertStudentCourseAsync2(int studentId, int courseId)
         {
             if (studentId <= 0)
                 throw new ArgumentOutOfRangeException(nameof(studentId), "Student ID must be greater than zero.");
@@ -235,8 +242,12 @@ namespace BLL.Service
             throw new NotImplementedException();
         }
 
-     
-    
+        public async Task<IEnumerable<UsersModel>> GetUsersWithCoursesAsync()
+        {
+            IEnumerable<UsersData> a = await _studentEnrollmentRepository.GetUsersWithCoursesAsync();
+            return a.Select(x => x.ToUserBLL());
+        }
+
 
         public async Task<Student_EnrollmentModel> GetByUserIdAsync(int userId)
         {

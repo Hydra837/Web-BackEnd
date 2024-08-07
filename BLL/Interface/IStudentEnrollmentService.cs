@@ -1,5 +1,6 @@
 ﻿using BLL.Models;
 using DAL.Data;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -26,7 +27,8 @@ namespace BLL.Interface
         public  Task<bool> UpdateGrade(int id, int grade);
        // public Task<bool> UpdateGrade(int iduser, int coursid, int grade);
         Task<bool> UpdateGradesAsync(int userId, int courseId, int grade);
-
+        Task<IEnumerable<UsersModel>> GetUsersWithCoursesAsync();
+      
     }
 
     // Changer Cours Model en Cours Etu pour avoir les noms étudiant aussi

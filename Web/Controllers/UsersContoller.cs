@@ -25,7 +25,7 @@ namespace Web.Controllers
 
         [HttpPost]
         [Route(nameof(Register))]
-        public ActionResult Register([FromBody] UsersFORM user)
+        public ActionResult Register( UsersFORM user)
         {
             if (user == null)
             {
@@ -81,7 +81,7 @@ namespace Web.Controllers
         }
 
         [HttpPost("Create")]
-        public async Task<ActionResult> Create([FromBody] UsersFORM user)
+        public async Task<ActionResult> Create( UsersFORM user)
         {
             if (user == null)
             {
@@ -109,7 +109,7 @@ namespace Web.Controllers
 
         // PUT: api/users/{id}
         [HttpPut("{id}")]
-        public async Task<ActionResult> Update(int id, [FromBody] UsersFORM user)
+        public async Task<ActionResult> Update(int id,UsersFORM user)
         {
             if (user == null)
             {
@@ -154,12 +154,33 @@ namespace Web.Controllers
         [HttpGet("GetAllCourseEachCourse")]
         public async Task<IEnumerable<UserCoursDetailsDTO>> GetUsersCoursesAsync()
         {
-            // Récupérer les données depuis le repository DAL
-           IEnumerable<UserCourseDetailsModel> userCourseDetailsData = await _userService.GetUsersCoursesAsync();
-            IEnumerable<UserCoursDetailsDTO> test = userCourseDetailsData.Select( x => x.ToApiCoursDetailsDTO() );
-      
-            return test;
-           
+            try
+            {
+                // Récupération des détails des cours depuis le service
+                IEnumerable<UserCourseDetailsModel> userCourseDetailsData = await _userService.GetUsersCoursesAsync();
+
+                // Conversion des modèles en DTOs
+                IEnumerable<UserCoursDetailsDTO> userCoursDetailsDTOs = userCourseDetailsData
+                    .Select(x => x.ToApiCoursDetailsDTO());
+
+                return userCoursDetailsDTOs;
+            }
+            catch (KeyNotFoundException ex)
+            {
+                // Log l'erreur ou gérer le cas où aucune donnée n'est trouvée
+                // Par exemple, loggez l'erreur dans un fichier ou un système de log
+                // Vous pouvez également retourner une réponse HTTP appropriée si vous êtes dans un contrôleur
+               // Log.Error("Détails de l'erreur: ", ex); // Exemple de logging
+                throw; // Relance l'exception pour être capturée ailleurs si nécessaire
+            }
+            catch (Exception ex)
+            {
+                // Gérer d'autres exceptions qui pourraient survenir
+                // Log l'erreur et retournez un message d'erreur général
+                // Log.Error("Détails de l'erreur: ", ex); // Exemple de logging
+                throw new ApplicationException("Une erreur inattendue est survenue lors de la récupération des données.", ex);
+            }
+
         }
 
         //[HttpDelete("{id}")]

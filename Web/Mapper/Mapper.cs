@@ -83,6 +83,8 @@ namespace Web.Mapper
                 CoursNom = data.CoursNom,
                 ProfNom = data.ProfNom,
                 ProfPrenom = data.ProfPrenom, 
+                coursId = data.CourseId,
+                Grade = data.Grade,
                
             };
         }

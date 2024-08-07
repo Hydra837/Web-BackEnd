@@ -78,7 +78,9 @@ namespace BLL.Mapper
                 ProfNom = record.ProfNom,
                 ProfPrenom = record.ProfPrenom,
                 UserNom = record.UserNom,
-                UserPrenom = record.UserPrenom
+                UserPrenom = record.UserPrenom, 
+                CourseId = record.CourseId,
+                Grade = record.Grade,
 
 
             };

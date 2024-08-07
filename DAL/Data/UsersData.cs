@@ -33,10 +33,12 @@ namespace DAL.Data
         [StringLength(255)]
         public string Mail { get; set; }
 
-        public string Salt { get; set; }
+        public string? Salt { get; set; }
 
         public virtual ICollection<GradeData> Grades { get; set; } = new HashSet<GradeData>();
         public virtual ICollection<Student_EnrollementData> StudentEnrollements { get; set; }
+        public ICollection<CoursData> EnrolledCourses { get; set; } = new List<CoursData>();
+       // public ICollection<UserCourse> UserCourses { get; set; } = new List<UserCourse>();
 
         // Ajout de la propriété de navigation pour les affectations d'instructeurs
         public virtual ICollection<Student_ManagementData> InstructorAssignments { get; set; } = new HashSet<Student_ManagementData>();

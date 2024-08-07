@@ -8,5 +8,8 @@
         public bool Disponible { get; set; }
         public string? ProfNom { get; set; }
         public string? ProfPrenom { get; set; }
+        public int? coursId { get; set; }
+        public int? Grade { get; set; }
+
     }
 }

@@ -64,7 +64,10 @@ namespace DAL.Mapper
                 ProfNom = (string)record["ProfNom"],
                 ProfPrenom = (string)record["ProfPrenom"],
                 CoursNom = (string)record["CoursNom"],
-                Disponible = (bool)record["Disponible"]
+                Disponible = (bool)record["Disponible"], 
+                CourseId = (int)record["CourseId"],
+                Grade = (int)record["Grade"]
+
                 
             };
         }
