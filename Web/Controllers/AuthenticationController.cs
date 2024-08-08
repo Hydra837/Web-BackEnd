@@ -1,8 +1,12 @@
-﻿using BLL.Authentication;
+﻿using BLL;
+using BLL.Interface;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Tokens;
 using System.Threading.Tasks;
 using Web.Models;
+using BLL.Models;
+using Web.Mapper;
 
 namespace Web.Controllers
 {
@@ -11,10 +15,11 @@ namespace Web.Controllers
     public class AuthenticationController : ControllerBase
     {
         private readonly ILogger<AuthenticationController> _logger;
-        private readonly AuthenticationService _authenticationService;
+        private readonly IAuthenticationService _authenticationService;
+        
 
         public AuthenticationController(ILogger<AuthenticationController> logger,
-                                        AuthenticationService authenticationService)
+                                        IAuthenticationService authenticationService)
         {
             _logger = logger;
             _authenticationService = authenticationService;
@@ -22,7 +27,7 @@ namespace Web.Controllers
 
         [HttpPost("Register")]
         [AllowAnonymous]
-        public async Task<IActionResult> Register([FromBody] UsersFORM request)
+        public async Task<IActionResult> Register(UsersFORM request) // FROM BODY à ajouter
         {
             if (request == null)
             {
@@ -30,8 +35,11 @@ namespace Web.Controllers
             }
 
             try
-            {
-                await _authenticationService.RegisterUserAsync(request.Pseudo, request.Password, request.Role);
+            { UsersFORM a = request;
+              a.BllAccessToApi();
+               await _authenticationService.RegisterUserAsync(a);
+                
+               
                 return Ok("User registered successfully");
             }
             catch (Exception ex)
@@ -43,7 +51,7 @@ namespace Web.Controllers
 
         [HttpPost("Login")]
         [AllowAnonymous]
-        public async Task<IActionResult> Login([FromBody] LoginFORM request)
+        public async Task<IActionResult> Login( LoginFORM request) // from BODY
         {
             if (request == null)
             {
@@ -61,5 +69,20 @@ namespace Web.Controllers
                 return Unauthorized("Invalid username or password");
             }
         }
+        [HttpGet("RefreshToken")]
+        [AllowAnonymous]
+        public IActionResult RefreshToken(string token)
+        {
+            try
+            {
+                var refreshedToken = _authenticationService.RefreshToken(token);
+                return Ok(new { token = refreshedToken });
+            }
+            catch (SecurityTokenException)
+            {
+                return Unauthorized(new { message = "Invalid token" });
+            }
+        }
+        
     }
 }

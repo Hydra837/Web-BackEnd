@@ -2,22 +2,23 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
-using Microsoft.IdentityModel.Tokens;
 using Microsoft.Extensions.Configuration;
-using System.Linq;
-using System.Collections.Generic;
+using Microsoft.IdentityModel.Tokens;
+using System.Threading.Tasks;
 using DAL.Interface;
 using BLL.Models;
 using DAL.Data;
+using BLL.Mapper;
+using BLL.Interface;
 
-namespace BLL.Authentication
+namespace  BLL.Service//Authentication.Authentication
 {
-    public class AuthenticationService
+    public class AuthService : IAuthenticationService
     {
         private readonly IConfiguration _config;
         private readonly IusersRepository _userRepository;
 
-        public AuthenticationService(IConfiguration config, IusersRepository userRepository)
+        public AuthService(IConfiguration config, IusersRepository userRepository)
         {
             _config = config;
             _userRepository = userRepository;
@@ -26,11 +27,6 @@ namespace BLL.Authentication
         private string GenerateJSONWebToken(string username, List<string> roles)
         {
             var secretKey = _config["Jwt:Key"];
-            if (string.IsNullOrEmpty(secretKey))
-            {
-                throw new InvalidOperationException("La clé secrète JWT n'est pas définie dans la configuration.");
-            }
-
             var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey));
             var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
 
@@ -45,11 +41,6 @@ namespace BLL.Authentication
 
             var jwtIssuer = _config["Jwt:Issuer"];
             var jwtAudience = _config["Jwt:Audience"];
-
-            if (string.IsNullOrEmpty(jwtIssuer) || string.IsNullOrEmpty(jwtAudience))
-            {
-                throw new InvalidOperationException("L'émetteur ou le public JWT n'est pas défini dans la configuration.");
-            }
 
             var token = new JwtSecurityToken(
                 jwtIssuer,
@@ -66,30 +57,32 @@ namespace BLL.Authentication
             var hash = Rfc2898DeriveBytes.Pbkdf2(
                 password: Encoding.UTF8.GetBytes(password),
                 salt: Encoding.UTF8.GetBytes(salt),
-                iterations: 10000, // Recommandé pour une meilleure sécurité
+                iterations: 10000,
                 hashAlgorithm: HashAlgorithmName.SHA512,
                 outputLength: 32);
             return Convert.ToHexString(hash);
         }
 
-        public async Task RegisterUserAsync(string username, string password, string role)
+        public async Task RegisterUserAsync(UsersModel user)
         {
-            var existingUser = await _userRepository.GetUsersByPseudo(username);
-
-            if (existingUser != null)
+            UsersData a = await _userRepository.GetUsersByPseudo(user.Pseudo);
+            if ( a is not null)
             {
-                throw new Exception("L'utilisateur existe déjà");
+                throw new Exception("User already exists");
             }
 
             var salt = GenerateSalt();
-            var passwordHash = HashPassword(password, salt);
+            var passwordHash = HashPassword(a.Passwd, salt);
 
             var newUser = new UsersData
             {
-                Pseudo = username,
-                Passwd = passwordHash,
+                Pseudo = a.Pseudo,
+                Passwd = a.Passwd,
                 Salt = salt,
-                Roles = role
+                Roles = a.Roles,
+                Mail = a.Mail,
+                Nom = a.Nom,
+                Prenom = a.Prenom
             };
 
             await _userRepository.AddAsync(newUser);
@@ -107,19 +100,38 @@ namespace BLL.Authentication
 
         public async Task<string> LoginAsync(string username, string password)
         {
-            var user = await _userRepository.GetUsersByPseudo(username)
-                        ?? throw new Exception("Utilisateur ou mot de passe invalide");
+          
+            UsersData user = await _userRepository.GetUsersByPseudo(username)
+                      ?? throw new Exception("Login failed; Invalid username or password");
 
-            var passwordHash = HashPassword(password, user.Salt);
-            if (user.Passwd != passwordHash)
+         
+            UsersModel a = user.ToUserBLL();
+
+       
+            var passwordHash = HashPassword(password, a.Salt);
+
+
+            if (a.Password != passwordHash)
             {
-                throw new Exception("Utilisateur ou mot de passe incorrect");
+                throw new Exception("Login failed; Invalid username or password");
             }
 
-            var roles = new List<string> { user.Roles };
+           
+            var roles = new List<string> { a.Role };
 
-            var token = GenerateJSONWebToken(username, roles);
-            return token;
+      
+            return GenerateJSONWebToken(username, roles);
+        }
+
+        public string RefreshToken(string token)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<string> GetUserRoleAsync(string username)
+        {
+            throw new NotImplementedException();
         }
     }
+
 }

@@ -1,80 +1,72 @@
-using Microsoft.AspNetCore.Builder;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.FileProviders;
-using Microsoft.IdentityModel.Tokens;
 using System.Text;
-using System.IO;
-using Tools;
-using DAL.Data;
-using DAL.Repository;
-using DAL.Interface;
-using BLL.Interface;
-using BLL.Service;
-using DAL;
-using BLL.Authentication;
+
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Any;
+using Microsoft.OpenApi.Interfaces;
+using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Ajouter les services au conteneur
-builder.Services.AddControllers();
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
-
-// Ajouter la chaîne de connexion et le DbContext
+// Add services to the container.
 builder.Services.AddSingleton(sp => new Tools.Connection(builder.Configuration.GetConnectionString("Default")));
-builder.Services.AddDbContext<EFDbContextData>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("Default")));
 
-// Ajouter les services d'application
-builder.Services.AddScoped<ICoursRepository, CoursRepository>();
-builder.Services.AddScoped<ICoursService, CoursService>();
-builder.Services.AddScoped<IusersRepository, UsersRepository>();
-builder.Services.AddScoped<IusersService, UsersService>();
-builder.Services.AddScoped<IStudent_EnrollmentRepository, Student_EnrollmentRepository>();
-builder.Services.AddScoped<IStudentEnrollmentService, StudentEnrollmentService>();
-builder.Services.AddScoped<IStudent_Management, Student_ManagementRepository>();
-builder.Services.AddScoped<IStudentManagmentService, StudentManagementService>();
+builder.Services.AddAuthentication(opt => {
+    opt.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    opt.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+})
+            .AddJwtBearer(options =>
+            {
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuer = true,
+                    ValidateAudience = true,
+                    ValidateLifetime = true,
+                    ValidateIssuerSigningKey = true,
+                    ValidIssuer = builder.Configuration["Jwt:Issuer"],
+                    ValidAudience = builder.Configuration["Jwt:Audience"],
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]))
+                };
+            });
+builder.Services.AddScoped<BLL.Interface.IAuthenticationService, BLL.Service.AuthService>();
+builder.Services.AddScoped<DAL.Interface.IusersRepository, DAL.Repository.UsersRepository>();
 
-// Ajouter l'authentification JWT
-builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-    .AddJwtBearer(options =>
+
+builder.Services.AddScoped<AuthenticationService, AuthenticationService>();
+builder.Services.AddControllers();
+// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen(option => {
+    option.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
-        options.TokenValidationParameters = new TokenValidationParameters
-        {
-            ValidateIssuer = true,
-            ValidateAudience = true,
-            ValidateLifetime = true,
-            ValidateIssuerSigningKey = true,
-            ValidIssuer = builder.Configuration["Jwt:Issuer"],
-            ValidAudience = builder.Configuration["Jwt:Audience"],
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]))
-        };
+        In = ParameterLocation.Header,
+        Description = "Please enter a valid token",
+        Name = "Authorization",
+        Type = SecuritySchemeType.Http,
+        BearerFormat = "JWT",
+        Scheme = "Bearer"
     });
-
-// Ajouter l'autorisation
-builder.Services.AddAuthorization();
-
-// Configurer CORS
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy("AllowAngularApp",
-        policy =>
-        {
-            policy.WithOrigins("http://localhost:4200") // URL de votre application Angular en développement
-                  .AllowAnyHeader()
-                  .AllowAnyMethod();
-        });
+    option.AddSecurityRequirement(new OpenApiSecurityRequirement
+                        {
+                            {
+                                new OpenApiSecurityScheme
+                                {
+                                    Reference = new OpenApiReference
+                                    {
+                                        Type=ReferenceType.SecurityScheme,
+                                        Id="Bearer"
+                                    }
+                                },
+                                new string[]{}
+                            }
+                        });
 });
 
-// Enregistrer le service d'authentification
-builder.Services.AddScoped<AuthenticationService>();
 
 var app = builder.Build();
 
-// Configurer le pipeline de requêtes HTTP
+// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -83,29 +75,8 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-// Utiliser CORS
-app.UseCors("AllowAngularApp");
-
-// Utiliser l'authentification et l'autorisation
 app.UseAuthentication();
 app.UseAuthorization();
 
-// Configurer le routage
-app.UseRouting();
-
-// Configurer les fichiers statiques si nécessaire
-var angularDistPath = @"C:\Users\maxim\source\repos\Projet_Ephec2\ClientApp\Client\dist";
-
-if (Directory.Exists(angularDistPath))
-{
-    app.UseStaticFiles(new StaticFileOptions
-    {
-        FileProvider = new PhysicalFileProvider(angularDistPath),
-        RequestPath = ""
-    });
-}
-
 app.MapControllers();
-app.MapFallbackToFile("index.html");
-
 app.Run();
