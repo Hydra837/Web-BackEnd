@@ -16,12 +16,28 @@ namespace BLL.Service
 
         public GradeService(IGradeRepository gradeRepository)
         {
-            _gradeRepository = gradeRepository;
+            _gradeRepository = gradeRepository ?? throw new ArgumentNullException(nameof(gradeRepository));
         }
 
         public async Task DeleteAsync(int id)
         {
+            if (id <= 0)
+            {
+                throw new ArgumentException("L'ID de la note doit être un nombre positif.", nameof(id));
+            }
+
             await _gradeRepository.DeleteAsync(id);
+        }
+
+        public async Task<IEnumerable<GradeModel>> GetAllByTeacherAsync(int teacherId)
+        {
+            if (teacherId <= 0)
+            {
+                throw new ArgumentException("L'ID de l'enseignant doit être un nombre positif.", nameof(teacherId));
+            }
+
+            var gradeDataList = await _gradeRepository.GetAllByTeacherAsync(teacherId);
+            return gradeDataList.Select(gradeData => gradeData.ToGradeModel());
         }
 
         public async Task<IEnumerable<GradeModel>> GetAllGradesAsync()
@@ -32,30 +48,86 @@ namespace BLL.Service
 
         public async Task<GradeModel> GetByCourseAsync(int courseId)
         {
+            if (courseId <= 0)
+            {
+                throw new ArgumentException("L'ID du cours doit être un nombre positif.", nameof(courseId));
+            }
+
             var gradeData = await _gradeRepository.GetByCourseAsync(courseId);
             return gradeData?.ToGradeModel();
         }
 
-        public async Task<IEnumerable<GradeModel>> GetByCoursesAsync(int id)
+        public async Task<IEnumerable<GradeModel>> GetByCoursesAsync(int courseId)
         {
-            var gradeDataList = await _gradeRepository.GetByCoursesAsync(id);
+            if (courseId <= 0)
+            {
+                throw new ArgumentException("L'ID du cours doit être un nombre positif.", nameof(courseId));
+            }
+
+            var gradeDataList = await _gradeRepository.GetByCoursesAsync(courseId);
             return gradeDataList.Select(gradeData => gradeData.ToGradeModel());
         }
 
         public async Task<GradeModel> GetByUserIdAsync(int userId)
         {
+            if (userId <= 0)
+            {
+                throw new ArgumentException("L'ID de l'utilisateur doit être un nombre positif.", nameof(userId));
+            }
+
             var gradeData = await _gradeRepository.GetByUserIdAsync(userId);
             return gradeData?.ToGradeModel();
         }
 
-        public async Task InsertGrade(int userId, int grade)
+        public async Task InsertGradeAsync(GradeModel gradeModel)
         {
-            await _gradeRepository.InsertGrade(userId, grade);
+            if (gradeModel == null)
+            {
+                throw new ArgumentNullException(nameof(gradeModel));
+            }
+
+            var gradeData = gradeModel.ToGradeData();
+            await _gradeRepository.InsertGradeAsync(gradeData);
         }
 
-        public async Task Update(int userId, int grade)
+        public async Task UpdateGradeAsync(GradeModel gradeModel)
         {
-            await _gradeRepository.Update(userId, grade);
+            if (gradeModel == null)
+            {
+                throw new ArgumentNullException(nameof(gradeModel));
+            }
+
+            var gradeData = gradeModel.ToGradeData();
+            await _gradeRepository.UpdateAsync(gradeData.Id, gradeData.Grade);
+        }
+
+        public async Task UpdateAllGradesAsync(IEnumerable<GradeModel> gradeModels)
+        {
+            if (gradeModels == null)
+            {
+                throw new ArgumentNullException(nameof(gradeModels));
+            }
+
+            var gradeDataList = gradeModels.Select(gm => gm.ToGradeData()).ToList();
+            foreach (var gradeData in gradeDataList)
+            {
+                await _gradeRepository.UpdateAsync(gradeData.Id, gradeData.Grade);
+            }
+        }
+
+        public async Task UpdateGradeAsync(int id, int grade)
+        {
+            if (id <= 0)
+            {
+                throw new ArgumentException("L'ID de la note doit être un nombre positif.", nameof(id));
+            }
+
+            if (grade < 0) // Assuming grades cannot be negative
+            {
+                throw new ArgumentException("La note doit être un nombre positif ou nul.", nameof(grade));
+            }
+
+            await _gradeRepository.UpdateGradeAsync(id, grade);
         }
     }
 }

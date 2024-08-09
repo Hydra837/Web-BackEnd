@@ -84,9 +84,9 @@ namespace BLL.Mapper
 
 
             };
-
+            
         }
-        // Mapper de GradeData vers GradeModel
+        
         internal static GradeModel ToGradeModel(this GradeData record)
         {
             return new GradeModel()
@@ -94,11 +94,12 @@ namespace BLL.Mapper
                 Id = record.Id,
                 Grade = record.Grade,
                 UserId = record.UserId,
-                CourseId = record.CourseId 
+                //CourseId = record.CoursId , 
+                AssignementsId = record.AssignementsId
             };
         }
 
-        // Mapper de GradeModel vers GradeData
+  
         internal static GradeData ToGradeData(this GradeModel model)
         {
             return new GradeData()
@@ -106,7 +107,8 @@ namespace BLL.Mapper
                 Id = model.Id,
                 Grade = model.Grade,
                 UserId = model.UserId,
-                CourseId = model.CourseId 
+               // CourseId = model.CourseId, 
+                AssignementsId = model.AssignementsId
             };
         }
         internal static Student_EnrollmentModel ToEnrollementBLL(this Student_EnrollementData model)
@@ -127,6 +129,30 @@ namespace BLL.Mapper
                 Grade = model.Grade,
                 UserId = model.UserId,
                 CoursId = model.CoursId 
+            };
+        }
+        public static AssigementsData AssignementsToDAL(this AssignementsModel model)
+        {
+            return new AssigementsData()
+            {
+                Id = model.Id,
+                Description = model.Description, // Mapping de la description
+                CoursId = model.CoursId,
+                IsAvailable = model.IsAvailable,
+                Cours = model.Cours, // Attention : cette ligne suppose que le cours est déjà dans le bon format DAL
+                Grades = model.Grades?.ToList() // Si la collection n'est pas null, on la transforme en List
+            };
+        }
+        public static AssignementsModel ToBLL(this AssigementsData data)
+        {
+            return new AssignementsModel()
+            {
+                Id = data.Id,
+                Description = data.Description,
+                CoursId = data.CoursId,
+                IsAvailable = data.IsAvailable,
+                Cours = data.Cours,
+                Grades = data.Grades?.ToList() 
             };
         }
     }

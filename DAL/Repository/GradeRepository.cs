@@ -25,56 +25,50 @@ namespace DAL.Repository
         // Récupérer toutes les notes
         public async Task<IEnumerable<GradeData>> GetAllGradesAsync()
         {
-            return await _dbSet.ToListAsync();
+            return await _dbSet
+                .Include(g => g.Assignment) // Include Assignments
+                .ToListAsync();
         }
 
-        // Récupérer les notes par ID utilisateur
-        public async Task<GradeData> GetByUserIdAsync(int userId)
+        // Récupérer une note par ID utilisateur et ID d'assignement
+        public async Task<GradeData> GetByUserIdAsync(int userId, int assignementsId)
         {
-            if (userId <= 0)
-            {
-                throw new ArgumentException("L'ID utilisateur doit être un nombre positif.", nameof(userId));
-            }
-
-            return await _dbSet.FirstOrDefaultAsync(g => g.UserId == userId);
+            return await _dbSet
+                .Include(g => g.Assignment) // Include Assignments
+                .FirstOrDefaultAsync(g => g.UserId == userId && g.AssignementsId == assignementsId);
         }
 
-        // Récupérer les notes par ID de cours
-        public async Task<GradeData> GetByCourseAsync(int courseId)
+        // Récupérer toutes les notes par ID utilisateur
+        public async Task<IEnumerable<GradeData>> GetAllByUserAsync(int userId)
         {
-            if (courseId <= 0)
-            {
-                throw new ArgumentException("L'ID du cours doit être un nombre positif.", nameof(courseId));
-            }
-
-            return await _dbSet.FirstOrDefaultAsync(g => g.CourseId == courseId);
+            return await _dbSet
+                .Include(g => g.Assignment) // Include Assignments
+                .Where(g => g.UserId == userId)
+                .ToListAsync();
         }
 
-        // Récupérer les notes par ID de cours
-        public async Task<IEnumerable<GradeData>> GetByCoursesAsync(int courseId)
+        // Récupérer toutes les notes par ID de cours
+        public async Task<IEnumerable<GradeData>> GetAllByCourseAsync(int courseId)
         {
-            if (courseId <= 0)
-            {
-                throw new ArgumentException("L'ID du cours doit être un nombre positif.", nameof(courseId));
-            }
-
-            return await _dbSet.Where(g => g.CourseId == courseId).ToListAsync();
+            return await _dbSet
+                .Include(g => g.Assignment) // Include Assignments
+                .Where(g => g.Assignment.CoursId == courseId) // Filter by CourseId
+                .ToListAsync();
         }
 
-        // Insérer une nouvelle note pour un utilisateur
-        public async Task InsertGrade(int userId, int grade)
+        // Récupérer toutes les notes pour un enseignant via Assignements et Courses
+        public async Task<IEnumerable<GradeData>> GetAllByTeacherAsync(int teacherId)
         {
-            if (userId <= 0)
-            {
-                throw new ArgumentException("L'ID utilisateur doit être un nombre positif.", nameof(userId));
-            }
+            return await _dbSet
+                .Include(g => g.Assignment)
+                .ThenInclude(a => a.Cours)
+                .Where(g => g.Assignment.Cours.ProfesseurId == teacherId)
+                .ToListAsync();
+        }
 
-            var gradeData = new GradeData
-            {
-                UserId = userId,
-                Grade = grade
-            };
-
+        // Insérer une note
+        public async Task InsertGradeAsync(GradeData gradeData)
+        {
             await _dbSet.AddAsync(gradeData);
             await _context.SaveChangesAsync();
         }
@@ -82,39 +76,52 @@ namespace DAL.Repository
         // Supprimer une note par ID
         public async Task DeleteAsync(int id)
         {
-            if (id <= 0)
+            var grade = await _dbSet.FindAsync(id);
+            if (grade != null)
             {
-                throw new ArgumentException("L'ID de la note doit être un nombre positif.", nameof(id));
+                _dbSet.Remove(grade);
+                await _context.SaveChangesAsync();
             }
+        }
 
-            var gradeData = await _dbSet.FindAsync(id);
-            if (gradeData == null)
+        // Mettre à jour une note pour un utilisateur spécifique
+        public async Task UpdateAsync(int userId, int grade)
+        {
+            var gradeData = await _dbSet.FirstOrDefaultAsync(g => g.UserId == userId);
+            if (gradeData != null)
             {
-                throw new InvalidOperationException("La note à supprimer n'existe pas.");
+                gradeData.Grade = grade;
+                _context.Update(gradeData);
+                await _context.SaveChangesAsync();
             }
+        }
 
-            _dbSet.Remove(gradeData);
+        // Mettre à jour une note spécifique (single object)
+        public async Task UpdateAsync(GradeData gradeModel)
+        {
+            _dbSet.Update(gradeModel);
             await _context.SaveChangesAsync();
         }
 
-        // Mettre à jour une note existante pour un utilisateur
-        public async Task Update(int userId, int grade)
+        // Mettre à jour une note spécifique (par ID)
+        public async Task UpdateGradeAsync(int id, int grade)
         {
-            if (userId <= 0)
+            var gradeData = await _dbSet.FindAsync(id);
+            if (gradeData != null)
             {
-                throw new ArgumentException("L'ID utilisateur doit être un nombre positif.", nameof(userId));
+                gradeData.Grade = grade;
+                _context.Update(gradeData);
+                await _context.SaveChangesAsync();
             }
+        }
 
-            var gradeData = await _dbSet.FirstOrDefaultAsync(g => g.UserId == userId);
-            if (gradeData == null)
-            {
-                throw new InvalidOperationException("La note à mettre à jour n'existe pas.");
-            }
-
-            gradeData.Grade = grade;
-
-            _dbSet.Update(gradeData);
-            await _context.SaveChangesAsync();
+        // Récupérer toutes les notes par ID de cours (une méthode redondante dans l'interface, selon les besoins)
+        public async Task<IEnumerable<GradeData>> GetByCoursesAsync(int id)
+        {
+            return await _dbSet
+                .Include(g => g.Assignment) // Include Assignments
+                .Where(g => g.Assignment.CoursId == id) // Filter by CourseId
+                .ToListAsync();
         }
     }
 }

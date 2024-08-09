@@ -65,28 +65,41 @@ namespace  BLL.Service//Authentication.Authentication
 
         public async Task RegisterUserAsync(UsersModel user)
         {
+            Console.WriteLine(" user " + user.Password, user.Nom);
             UsersData a = await _userRepository.GetUsersByPseudo(user.Pseudo);
-            if ( a is not null)
+            if (a is not null)
             {
                 throw new Exception("User already exists");
             }
 
             var salt = GenerateSalt();
-            var passwordHash = HashPassword(a.Passwd, salt);
+            Console.WriteLine("salt " + salt);
+            var passwordHash = HashPassword(user.Password, salt);
 
             var newUser = new UsersData
             {
-                Pseudo = a.Pseudo,
-                Passwd = a.Passwd,
+                Pseudo = user.Password,
                 Salt = salt,
-                Roles = a.Roles,
-                Mail = a.Mail,
-                Nom = a.Nom,
-                Prenom = a.Prenom
+                Roles = user.Role,
+                Mail = user.Mail,
+                Nom = user.Nom,
+                Prenom = user.Prenom
             };
 
             await _userRepository.AddAsync(newUser);
         }
+        //public void RegisterUser(string username, string password)
+        //{
+        //    if (users.Any(user => user.Username.ToLower() == username.ToLower()))
+        //    {
+        //        throw new Exception("User already exist");
+        //    }
+        //    var salt = DateTime.Now.ToString("dddd"); // get the day of week. Ex: Sunday
+        //    var passwordHash = HashPassword(password, salt);
+        //    var newUser = new User(username, passwordHash, salt);
+        //    users.Add(newUser);s
+
+        //   }
 
         private string GenerateSalt()
         {

@@ -4,8 +4,9 @@ namespace Web.Models
 {
     public class GradeForm
     {
-        public int CourseId { get; set; }
+      //  public int CourseId { get; set; }
         public int UserId { get; set; }
         public int Grade {  get; set; }
+        public int AssignementsId { get; set; }
     }
 }

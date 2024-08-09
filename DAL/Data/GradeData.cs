@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Diagnostics.CodeAnalysis;
+using DAL.Data;
 
 namespace DAL.Data
 {
@@ -15,13 +16,20 @@ namespace DAL.Data
         public int Grade { get; set; }
 
         
-        [AllowNull]
+        [Required]
         public int UserId { get; set; }
 
+        //[Required]
+        //public int CourseId { get; set; }
         [Required]
-        public int CourseId { get; set; }
+        [Key, Column(Order = 2)]
+       public int AssignementsId { get; set; }
+
 
         // Propriété de navigation pour la relation avec User
-        public virtual UsersData User { get; set; }
+        [Required]
+        public virtual UsersData? User { get; set; }
+
+        public AssigementsData? Assignment { get; set; }
     }
 }

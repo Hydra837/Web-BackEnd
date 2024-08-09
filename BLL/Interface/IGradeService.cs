@@ -1,22 +1,35 @@
-﻿using DAL.Data;
-using System;
+﻿using BLL.Models;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
-using BLL.Models;
 
 namespace BLL.Interface
 {
     public interface IGradeService
     {
-
+       
         Task<IEnumerable<GradeModel>> GetAllGradesAsync();
+
+      
         Task<GradeModel> GetByUserIdAsync(int userId);
+
+        
         Task<GradeModel> GetByCourseAsync(int courseId);
-        Task<IEnumerable<GradeModel>> GetByCoursesAsync(int id);
-        Task InsertGrade(int userid, int grade);
+
+  
+        Task<IEnumerable<GradeModel>> GetByCoursesAsync(int courseId);
+
+      
+        Task InsertGradeAsync(GradeModel gradeModel);
+
         Task DeleteAsync(int id);
-        Task Update(int userid, int grade);
+
+    
+        Task UpdateGradeAsync(int id , int grade);
+
+    
+        Task UpdateAllGradesAsync(IEnumerable<GradeModel> gradeModels);
+
+
+        Task<IEnumerable<GradeModel>> GetAllByTeacherAsync(int teacherId);
     }
 }

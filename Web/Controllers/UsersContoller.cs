@@ -95,7 +95,7 @@ namespace Web.Controllers
 
             try
             {
-                UsersModel model = user.BllAccessToApi();
+                UsersModel model = user.BllAccessToApi1();
                 await _userService.CreateAsync(model);
                 return CreatedAtAction(nameof(GetById), new { id = model.Id }, model);
             }
@@ -123,7 +123,7 @@ namespace Web.Controllers
 
             try
             {
-                UsersModel model = user.BllAccessToApi();
+                UsersModel model = user.BllAccessToApi1();
                 await _userService.UpdateAsync(id, model);
                 return NoContent(); // 204 No Content
             }

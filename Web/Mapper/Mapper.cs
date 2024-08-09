@@ -59,7 +59,7 @@ namespace Web.Mapper
 
             };
         }
-        internal static UsersModel BllAccessToApi(this UsersFORM data)
+        internal static UsersModel BllAccessToApi1(this UsersFORM data)
         {
             return new UsersModel()
             {
@@ -95,7 +95,8 @@ namespace Web.Mapper
                 Id = gradeData.Id,
                 Grade = gradeData.Grade,
                 UserId = gradeData.UserId,
-                CourseId = gradeData.CourseId
+                AssignementsId = gradeData.AssignementsId,
+              //  CourseId = gradeData.CourseId
             };
         }
         public static GradeModel ToGradeForm(this GradeForm gradeData)
@@ -104,7 +105,7 @@ namespace Web.Mapper
             {
                 Grade = gradeData.Grade,
                 UserId = gradeData.UserId,
-                CourseId = gradeData.CourseId
+                //CourseId = gradeData.CourseId
             };
         }
         public static Student_EnrollmentModel  ToEnrollementBLL(this EnrollementFORM dto)
@@ -133,6 +134,36 @@ namespace Web.Mapper
                 CoursId = dto.CoursId,
                 Grade = dto.Grade
 
+            };
+        }
+        public static AssignementsDTO ToAssignementsDTO(this AssignementsModel model)
+        {
+            if (model == null)
+                return null;
+
+            return new AssignementsDTO
+            {
+                Id = model.Id,
+                Description = model.Description,
+                CoursId = model.CoursId,
+                IsAvailable = model.IsAvailable,
+             //   Cours = model.Cours?.ToCoursDTO(),
+              //  Grades = model.Grades?.Select(g => g .ToGradeDTO()).ToList()
+            };
+        }
+        public static AssignementsModel ToAssignementsModel(this AssignementsFORM dto)
+        {
+            if (dto == null)
+                return null;
+
+            return new AssignementsModel
+            {
+                Id = dto.Id,
+                Description = dto.Description,
+                CoursId = dto.CoursId,
+                IsAvailable = dto.IsAvailable,
+                //Cours = dto.Cours?.ToCoursModel(),
+                //Grades = dto.Grades?.Select(g => g.ToGradeModel()).ToList()
             };
         }
 

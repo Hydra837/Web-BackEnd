@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using DAL.Data;
+using Microsoft.Extensions.Logging;
 
 namespace DAL
 {
@@ -13,7 +14,8 @@ namespace DAL
         public DbSet<Student_EnrollementData> StudentEnrollements { get; set; }
         public DbSet<Student_ManagementData> InstructorAssignments { get; set; }
         public DbSet<UserCourseDetailsData> UserCourseDetails { get; set; }
-        public DbSet<GradeData> Grades { get; set; } // Ajout de GradeData
+        public DbSet<GradeData> Grades { get; set; }
+        public DbSet<AssigementsData> Assignments { get; set; }
 
         // Configuration des entités et des relations
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -53,7 +55,18 @@ namespace DAL
                 .HasOne(g => g.User)
                 .WithMany(u => u.Grades)
                 .HasForeignKey(g => g.UserId)
-                .OnDelete(DeleteBehavior.SetNull);
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // Configuration de la relation entre GradeData et AssignementsData
+            modelBuilder.Entity<GradeData>()
+                .HasOne(g => g.Assignment)
+                .WithMany(a => a.Grades)
+                .HasForeignKey(g => g.AssignementsId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // Définir une clé primaire composite pour GradeData
+            modelBuilder.Entity<GradeData>()
+                .HasKey(g => new { g.UserId, g.AssignementsId });
 
             // Configuration pour UserCourseDetailsData
             modelBuilder.Entity<UserCourseDetailsData>(entity =>
@@ -65,6 +78,18 @@ namespace DAL
             modelBuilder.Entity<Student_EnrollementData>()
                 .Property(se => se.Grade)
                 .HasColumnType("int"); // Définir le type de colonne pour Grade si nécessaire
+        }
+
+        // Pour activer le logging des requêtes SQL pour le débogage
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            if (!optionsBuilder.IsConfigured)
+            {
+                optionsBuilder
+                    .UseSqlServer("YourConnectionStringHere") // Remplacez par votre chaîne de connexion
+                    .LogTo(Console.WriteLine, new[] { DbLoggerCategory.Database.Command.Name }, LogLevel.Information)
+                    .EnableSensitiveDataLogging(); // Active le logging des données sensibles, à utiliser avec précaution
+            }
         }
     }
 }

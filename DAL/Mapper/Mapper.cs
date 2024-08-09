@@ -81,7 +81,8 @@ namespace DAL.Mapper
                 Id = (int)record["Id"],
                 Grade = (int)record["Grade"],
                 UserId = (int)record["UserId"],
-                CourseId = (int)record["CourseId"]
+               // CourseId = (int)record["CourseId"], 
+                AssignementsId = (int)record["AssignementsId"]
             };
         }
         internal static Student_EnrollementData ToEnrollementDAL(this IDataRecord record)
@@ -94,10 +95,24 @@ namespace DAL.Mapper
                 Id = (int)record["Id"],
                 Grade = (int)record["Grade"],
                 UserId = (int)record["UserId"],
-                CoursId = (int)record["CoursId"]
+                CoursId = (int)record["CoursId"], 
+                 
                 
             };
         }
+        internal static AssigementsData ToAssigementsDAL(this IDataRecord record)
+        {
+            if (record == null)
+                throw new ArgumentNullException(nameof(record));
 
+            return new  AssigementsData()
+            {
+                Id = (int)record["Id"],
+                Description = (string)record["Description"],
+                IsAvailable= (bool)record["UserId"],
+                CoursId = (int)record["CoursId"]
+
+            };
+        }
     }
 }

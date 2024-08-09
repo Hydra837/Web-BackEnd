@@ -27,27 +27,40 @@ namespace Web.Controllers
 
         [HttpPost("Register")]
         [AllowAnonymous]
-        public async Task<IActionResult> Register(UsersFORM request) // FROM BODY à ajouter
+        public async Task<IActionResult> Register([FromBody] UsersFORM request) // FROM BODY à ajouter
         {
             if (request == null)
             {
                 return BadRequest("Invalid client request");
             }
 
+            // Validate the request model
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
             try
-            { UsersFORM a = request;
-              a.BllAccessToApi();
-               await _authenticationService.RegisterUserAsync(a);
-                
-               
-                return Ok("User registered successfully");
+            {
+                // Perform any business logic or additional validation here
+               UsersModel a =  request.BllAccessToApi1();
+
+                // Register the user
+                await _authenticationService.RegisterUserAsync(a);
+
+                // Return a success response
+                return CreatedAtAction(nameof(Register), "User registered successfully");
             }
             catch (Exception ex)
             {
+                // Log the exception details
                 _logger.LogError(ex, "An error occurred during registration");
-                return BadRequest("An error occurred during registration");
+
+                // Return a bad request response with a general error message
+                return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred during registration");
             }
         }
+
 
         [HttpPost("Login")]
         [AllowAnonymous]
