@@ -46,17 +46,6 @@ namespace BLL.Service
             return gradeDataList.Select(gradeData => gradeData.ToGradeModel());
         }
 
-        public async Task<GradeModel> GetByCourseAsync(int courseId)
-        {
-            if (courseId <= 0)
-            {
-                throw new ArgumentException("L'ID du cours doit être un nombre positif.", nameof(courseId));
-            }
-
-            var gradeData = await _gradeRepository.GetByCourseAsync(courseId);
-            return gradeData?.ToGradeModel();
-        }
-
         public async Task<IEnumerable<GradeModel>> GetByCoursesAsync(int courseId)
         {
             if (courseId <= 0)
@@ -68,16 +57,17 @@ namespace BLL.Service
             return gradeDataList.Select(gradeData => gradeData.ToGradeModel());
         }
 
-        public async Task<GradeModel> GetByUserIdAsync(int userId)
+        public async Task<IEnumerable<GradeModel>> GetByUserIdAsync(int userId)
         {
             if (userId <= 0)
             {
                 throw new ArgumentException("L'ID de l'utilisateur doit être un nombre positif.", nameof(userId));
             }
 
-            var gradeData = await _gradeRepository.GetByUserIdAsync(userId);
-            return gradeData?.ToGradeModel();
+            IEnumerable<GradeData> gradeData = await _gradeRepository.GetAllByUserAsync(userId);
+            return gradeData.Select(x => x.ToGradeModel());
         }
+
 
         public async Task InsertGradeAsync(GradeModel gradeModel)
         {
@@ -122,12 +112,38 @@ namespace BLL.Service
                 throw new ArgumentException("L'ID de la note doit être un nombre positif.", nameof(id));
             }
 
-            if (grade < 0) // Assuming grades cannot be negative
+            if (grade < 0) 
             {
                 throw new ArgumentException("La note doit être un nombre positif ou nul.", nameof(grade));
             }
 
             await _gradeRepository.UpdateGradeAsync(id, grade);
+        }
+
+        public Task<IEnumerable<GradeModel>> GetByCourseAsync(int courseId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public async Task<GradeModel> GetByUserIdAsync(int userId, int assignementsId)
+        {
+            var gradeData = await _gradeRepository.GetByUserIdAsync(userId, assignementsId);
+
+
+            if (gradeData == null)
+            {
+                return null;
+            }
+     
+            var grade = gradeData.ToGradeModel();
+            return grade;
+        }
+
+        public async Task<IEnumerable<GradeModel>> GetAllByAssignmentAsync(int assignementsId)
+        {
+            var grades = await _gradeRepository.GetAllByAssignmentAsync(assignementsId);
+            return grades.Select(g => g.ToGradeModel()).ToList();
+           
         }
     }
 }

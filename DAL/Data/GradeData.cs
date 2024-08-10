@@ -22,7 +22,7 @@ namespace DAL.Data
         //[Required]
         //public int CourseId { get; set; }
         [Required]
-        [Key, Column(Order = 2)]
+       
        public int AssignementsId { get; set; }
 
 

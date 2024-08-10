@@ -22,21 +22,23 @@ namespace Web.Controllers
 
         // GET: api/grade/{id}
         [HttpGet("{id}")]
-        public async Task<ActionResult<GradeDTO>> GetById(int id)
+        public async Task<ActionResult<IEnumerable<GradeDTO>>> GetById(int id)
         {
-            var grade = await _gradeService.GetByUserIdAsync(id);
-            if (grade == null)
+            var grades = await _gradeService.GetByUserIdAsync(id);
+            if (grades == null || !grades.Any())
             {
                 return NotFound();
             }
-            return Ok(grade.ToGradeDTO());
+            var gradeDTOs = grades.Select(g => g.ToGradeDTO());
+            return Ok(gradeDTOs);
         }
+
 
         // GET: api/grade/course/{courseId}
         [HttpGet("course/{courseId}")]
         public async Task<ActionResult<IEnumerable<GradeDTO>>> GetByCourse(int courseId)
         {
-            var grades = await _gradeService.GetByCourseAsync(courseId);
+            var grades = await _gradeService.GetByCoursesAsync(courseId);
             return Ok(grades);
         }
 
@@ -129,6 +131,29 @@ namespace Web.Controllers
             await _gradeService.UpdateGradeAsync(id, newGrade);
 
             return NoContent();
+        }
+        // GET api/grade/assignments/{assignementsId}
+        [HttpGet("assignments/{assignementsId}")]
+        public async Task<ActionResult<IEnumerable<GradeModel>>> GetByAssignmentAsync(int assignementsId)
+        {
+            var grades = await _gradeService.GetAllByAssignmentAsync(assignementsId);
+            if (grades == null)
+            {
+                return NotFound();
+            }
+            return Ok(grades);
+        }
+
+        // GET api/grade/user/{userId}/assignments/{assignementsId}
+        [HttpGet("user/{userId}/assignments/{assignementsId}")]
+        public async Task<ActionResult<GradeModel>> GetByUserIdAsync(int userId, int assignementsId)
+        {
+            var grade = await _gradeService.GetByUserIdAsync(userId, assignementsId);
+            if (grade == null)
+            {
+                return NotFound();
+            }
+            return Ok(grade);
         }
     }
 }

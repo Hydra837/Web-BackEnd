@@ -69,9 +69,19 @@ namespace DAL.Repository
         // Insérer une note
         public async Task InsertGradeAsync(GradeData gradeData)
         {
+            // Vérifiez que l'assignement existe
+            var assignement = await _context.Assignments.FindAsync(gradeData.AssignementsId);
+            if (assignement == null)
+            {
+                throw new InvalidOperationException("L'assignement spécifié n'existe pas.");
+            }
+
+            _context.Attach(assignement);
+
             await _dbSet.AddAsync(gradeData);
             await _context.SaveChangesAsync();
         }
+
 
         // Supprimer une note par ID
         public async Task DeleteAsync(int id)
@@ -122,6 +132,15 @@ namespace DAL.Repository
                 .Include(g => g.Assignment) // Include Assignments
                 .Where(g => g.Assignment.CoursId == id) // Filter by CourseId
                 .ToListAsync();
+        }
+
+        public async Task<IEnumerable<GradeData>> GetAllByAssignmentAsync(int assignementsId)
+        {
+            return await _dbSet
+          .Where(g => g.AssignementsId == assignementsId)
+          .ToListAsync();
+
+
         }
     }
 }

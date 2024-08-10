@@ -14,14 +14,24 @@ namespace BLL.Models
     {
 
 
-        public int Id { get; set; }
+           public int Id { get; set; }
+            public int UserId { get; set; }
+            public int AssignementsId { get; set; }
+            public int Grade { get; set; }
 
-        [Range(0, 20, ErrorMessage = "La note doit être comprise entre 0 et 100.")]
-        public int Grade { get; set; }
+            // Conversion de GradeModel en GradeData
+            public GradeData ToGradeData()
+            {
+                return new GradeData
+                {
+                    Id = Id,
+                    UserId = this.UserId,
+                    AssignementsId = this.AssignementsId,
+                    Grade = this.Grade
+                };
+            }
+        
 
-        public int UserId { get; set; }
-       // public int CourseId { get; set; }
-        public int AssignementsId { get; set; }
-       
+
     }
 }

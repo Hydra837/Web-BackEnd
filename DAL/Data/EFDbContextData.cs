@@ -57,16 +57,21 @@ namespace DAL
                 .HasForeignKey(g => g.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            // Configuration de la relation entre GradeData et AssignementsData
+            // Configuration de la relation entre GradeData et AssigementsData
             modelBuilder.Entity<GradeData>()
                 .HasOne(g => g.Assignment)
                 .WithMany(a => a.Grades)
                 .HasForeignKey(g => g.AssignementsId)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            // Définir une clé primaire composite pour GradeData
+            // Définir la clé primaire pour GradeData
             modelBuilder.Entity<GradeData>()
-                .HasKey(g => new { g.UserId, g.AssignementsId });
+                .HasKey(g => g.Id);
+
+            // Assurez-vous que la propriété Id est auto-générée
+            modelBuilder.Entity<GradeData>()
+                .Property(g => g.Id)
+                .ValueGeneratedOnAdd();
 
             // Configuration pour UserCourseDetailsData
             modelBuilder.Entity<UserCourseDetailsData>(entity =>
@@ -78,6 +83,14 @@ namespace DAL
             modelBuilder.Entity<Student_EnrollementData>()
                 .Property(se => se.Grade)
                 .HasColumnType("int"); // Définir le type de colonne pour Grade si nécessaire
+
+            // Configuration pour AssigementsData
+            modelBuilder.Entity<AssigementsData>()
+                .HasKey(a => a.Id);
+
+            modelBuilder.Entity<AssigementsData>()
+                .Property(a => a.Id)
+                .ValueGeneratedOnAdd(); // Assurez-vous que l'Id est généré automatiquement
         }
 
         // Pour activer le logging des requêtes SQL pour le débogage

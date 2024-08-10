@@ -103,6 +103,7 @@ namespace Web.Mapper
         {
             return new GradeModel
             {
+                AssignementsId = gradeData.AssignementsId,
                 Grade = gradeData.Grade,
                 UserId = gradeData.UserId,
                 //CourseId = gradeData.CourseId

@@ -1,4 +1,5 @@
 ﻿using BLL.Models;
+using DAL.Data;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -10,10 +11,10 @@ namespace BLL.Interface
         Task<IEnumerable<GradeModel>> GetAllGradesAsync();
 
       
-        Task<GradeModel> GetByUserIdAsync(int userId);
+        Task<IEnumerable<GradeModel>> GetByUserIdAsync(int userId);
 
         
-        Task<GradeModel> GetByCourseAsync(int courseId);
+        Task<IEnumerable<GradeModel>> GetByCourseAsync(int courseId);
 
   
         Task<IEnumerable<GradeModel>> GetByCoursesAsync(int courseId);
@@ -31,5 +32,7 @@ namespace BLL.Interface
 
 
         Task<IEnumerable<GradeModel>> GetAllByTeacherAsync(int teacherId);
+        public Task<IEnumerable<GradeModel>> GetAllByAssignmentAsync(int assignementsId);
+        Task<GradeModel> GetByUserIdAsync(int userId, int assignementsId);
     }
 }
