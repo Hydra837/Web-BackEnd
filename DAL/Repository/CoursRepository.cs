@@ -133,6 +133,21 @@ namespace DAL.Repository
                              .Where(c => c.ProfesseurId == id)
                              .ToListAsync();
         }
+
+        public  async Task<IEnumerable<CoursData>> GetUnenrolledCoursesAsync(int studentId)
+        {
+
+            var enrolledCourseIds = await _context.StudentEnrollements
+                .Where(enrollment => enrollment.UserId == studentId)
+                .Select(enrollment => enrollment.CoursId)
+                .ToListAsync();
+
+            var unenrolledCourses = await _context.Courses
+                .Where(course => !enrolledCourseIds.Contains(course.Id))
+                .ToListAsync();
+
+            return unenrolledCourses;
+        }
     }
 }
 

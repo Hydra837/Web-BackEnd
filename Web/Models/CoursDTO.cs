@@ -9,6 +9,7 @@
         public DateTime DateFin { get; set; }
         public string? Description { get; set; }
         public int? ProfesseurId { get; set; }
+      //  public ICollection<>
 
     }
 }

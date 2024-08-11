@@ -1,6 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using DAL.Data;
 using Microsoft.Extensions.Logging;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace DAL
 {
@@ -103,6 +105,26 @@ namespace DAL
                     .LogTo(Console.WriteLine, new[] { DbLoggerCategory.Database.Command.Name }, LogLevel.Information)
                     .EnableSensitiveDataLogging(); // Active le logging des données sensibles, à utiliser avec précaution
             }
+        }
+
+        // Méthode pour récupérer les étudiants avec leurs cours
+        public List<UsersData> GetStudentsWithCourses()
+        {
+            return Users
+                .Include(u => u.StudentEnrollements)
+                    .ThenInclude(se => se.Cours)
+                .Where(u => u.Roles == "Etudiant")
+                .ToList();
+        }
+
+        // Méthode pour récupérer les professeurs avec leurs cours
+        public List<UsersData> GetInstructorsWithCourses()
+        {
+            return Users
+                .Include(u => u.InstructorAssignments)
+                    .ThenInclude(ia => ia.Cours)
+                .Where(u => u.Roles == "Professeur")
+                .ToList();
         }
     }
 }

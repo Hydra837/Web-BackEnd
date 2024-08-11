@@ -223,6 +223,18 @@ namespace Web.Controllers
                 return StatusCode(500, new { Message = "Une erreur à été détecté.", Details = ex.Message });
             }
         }
+        [HttpGet("GetUserRole/{userId}")]
+        public async Task<IActionResult> GetUserRole(int userId)
+        {
+            var role = await _userService.GetUserRoleAsync(userId);
+
+            if (role == null)
+            {
+                return NotFound("L'utilisateur n'a pas été trouvé.");
+            }
+
+            return Ok(new { UserId = userId, Role = role });
+        }
     }
 }
 

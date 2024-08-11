@@ -34,7 +34,7 @@ namespace DAL.Repository
                           }).ToListAsync();
         }
 
-    
+
         public async Task DeleteAsync(int id)
         {
             var enrollment = await _context.StudentEnrollements.FindAsync(id);
@@ -50,7 +50,7 @@ namespace DAL.Repository
         public async Task<IEnumerable<UsersData>> GetUsersWithCoursesAsync()
         {
             return await _context.Users
-                .Include(u => u.EnrolledCourses) // Inclure les cours auxquels l'utilisateur est inscrit
+                .Include(u => u.StudentEnrollements) // Inclure les cours auxquels l'utilisateur est inscrit
                 .ToListAsync();
         }
         public async Task<IEnumerable<CoursData>> EnrolledStudent(int id)
@@ -61,7 +61,7 @@ namespace DAL.Repository
                           select new CoursData
                           {
                               Id = course.Id,
-                              Nom = course.Nom, 
+                              Nom = course.Nom,
                               date_debut = course.date_debut,
                               date_fin = course.date_fin,
                               Disponible = course.Disponible
@@ -236,39 +236,39 @@ namespace DAL.Repository
         }
         // Assurez-vous d'utiliser cet espace de noms
 
-public async Task InsertStudentCourseAsync2(int userId, int courseId)
-    {
-        if (userId <= 0)
-            throw new ArgumentException("L'identifiant utilisateur doit être supérieur à zéro.", nameof(userId));
-
-        if (courseId <= 0)
-            throw new ArgumentException("L'identifiant du cours doit être supérieur à zéro.", nameof(courseId));
-
-        try
+        public async Task InsertStudentCourseAsync2(int userId, int courseId)
         {
-            
-            var userIdParam = new SqlParameter("@UserId", userId);
-            var courseIdParam = new SqlParameter("@CourseId", courseId);
+            if (userId <= 0)
+                throw new ArgumentException("L'identifiant utilisateur doit être supérieur à zéro.", nameof(userId));
 
-           
-            await _context.Database.ExecuteSqlRawAsync(
-                "InsertStudentEnrollment @UserId, @CourseId",
-                userIdParam,
-                courseIdParam
-            );
+            if (courseId <= 0)
+                throw new ArgumentException("L'identifiant du cours doit être supérieur à zéro.", nameof(courseId));
+
+            try
+            {
+
+                var userIdParam = new SqlParameter("@UserId", userId);
+                var courseIdParam = new SqlParameter("@CourseId", courseId);
+
+
+                await _context.Database.ExecuteSqlRawAsync(
+                    "InsertStudentEnrollment @UserId, @CourseId",
+                    userIdParam,
+                    courseIdParam
+                );
+            }
+            catch (SqlException ex)
+            {
+
+                Console.WriteLine("Erreur SQL : " + ex.Message);
+                throw;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Une erreur est survenue : " + ex.Message);
+                throw;
+            }
         }
-        catch (SqlException ex)
-        {
-           
-            Console.WriteLine("Erreur SQL : " + ex.Message);
-            throw; 
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine("Une erreur est survenue : " + ex.Message);
-            throw; 
-        }
-    }
 
         public async Task UpdateGrade(Student_EnrollementData student)
         {
@@ -290,7 +290,7 @@ public async Task InsertStudentCourseAsync2(int userId, int courseId)
 
         public async Task UpdateGrade(int id, int grade)
         {
-            
+
             var enrollment = await _context.StudentEnrollements.FindAsync(id);
 
             if (enrollment == null)
@@ -298,14 +298,14 @@ public async Task InsertStudentCourseAsync2(int userId, int courseId)
                 throw new KeyNotFoundException("Enrollment not found.");
             }
 
-           
+
             enrollment.Grade = grade;
             await _context.SaveChangesAsync();
         }
 
         public async Task<bool> UpdateGradeAsync(int userId, int courseId, int grade)
         {
-           
+
             var enrollment = await _context.StudentEnrollements
                 .FirstOrDefaultAsync(se => se.UserId == userId && se.CoursId == courseId);
 
@@ -323,23 +323,43 @@ public async Task InsertStudentCourseAsync2(int userId, int courseId)
 
         public async Task<bool> UpdateGradesAsync(int userId, int courseId, int grade)
         {
-            
+
             var enrollment = await _context.StudentEnrollements
                 .FirstOrDefaultAsync(se => se.UserId == userId && se.CoursId == courseId);
 
             if (enrollment == null)
             {
-               
+
                 return false;
             }
 
-         
+
             enrollment.Grade = grade;
 
-          
+
             _context.StudentEnrollements.Update(enrollment);
             return await _context.SaveChangesAsync() > 0;
         }
-    }
 
+        public async Task<IEnumerable<UsersData>> GetStudentsWithCourses()
+        {
+            return await _context.Users
+      .Include(u => u.StudentEnrollements) // Inclut les inscriptions des étudiants
+          .ThenInclude(se => se.Cours)    // Puis inclut les cours associés
+      .Where(u => u.Roles == "Etudiant") // Filtre pour obtenir uniquement les étudiants
+      .ToListAsync();
+        }
+
+
+        public async Task<IEnumerable<UsersData>> GetInstructorsWithCourses()
+        {
+            return await _context.Users
+       .Include(u => u.InstructorAssignments) // Inclut les assignations des instructeurs
+           .ThenInclude(ia => ia.Cours)      // Puis inclut les cours associés
+       .Where(u => u.Roles == "Professeur") // Filtre pour obtenir uniquement les instructeurs
+       .ToListAsync();
+        }
+
+
+    }
 }

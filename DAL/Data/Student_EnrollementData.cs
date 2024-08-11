@@ -19,7 +19,7 @@ namespace DAL.Data
         public int? Grade { get; set; }
 
         // Propriétés de navigation
-        public virtual UsersData User { get; set; }
+        public virtual  UsersData User { get; set; }
         public virtual CoursData Cours { get; set; }
     }
 }

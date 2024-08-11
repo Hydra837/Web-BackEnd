@@ -160,6 +160,27 @@ namespace Web.Controllers
                 return StatusCode(500, "Internal server error"); // 500 Internal Server Error
             }
         }
+        [HttpGet("UnenrolledCourses/{studentId}")]
+        public async Task<ActionResult<IEnumerable<CoursDTO>>> GetUnenrolledCourses(int studentId)
+        {
+            try
+            {
+                var courses = await _cours.GetUnenrolledCoursesAsync(studentId);
+                IEnumerable<CoursDTO> cours = courses.Select(x => x.CoursToApi());
+
+                if (courses == null || !courses.Any())
+                {
+                    return NotFound("No unenrolled courses found for the student.");
+                }
+
+                return Ok(courses);
+            }
+            catch (Exception ex)
+            {
+                // Log the exception (not shown here)
+                return StatusCode(500, "An error occurred while processing your request.");
+            }
+        }
 
 
 

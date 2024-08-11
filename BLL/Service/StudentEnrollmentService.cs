@@ -314,5 +314,18 @@ namespace BLL.Service
         {
             return await _studentEnrollmentRepository.UpdateGradesAsync(userId, courseId, grade);
         }
+
+        public async Task<ICollection<UsersModel>> GetStudentAllCourseAsync()
+        {
+            var coursesData = await _studentEnrollmentRepository.GetStudentsWithCourses();
+            //  ICollection<CoursModel> c = coursesData.Select(x => x.ToUserBLL()).ToList();
+            return coursesData.Select(x => x.ToUserBLL()).ToList();
+        }
+
+        public async Task<ICollection<UsersModel>> GetTeacherAllCourseAsync()
+        {
+            var coursesModel = await _studentEnrollmentRepository.GetInstructorsWithCourses();
+            return coursesModel.Select(x => x.ToUserBLL()).ToList();
+        }
     }
 }

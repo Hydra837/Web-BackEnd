@@ -126,6 +126,15 @@ namespace BLL.Service
             return coursModels;
         }
 
+        public async Task<IEnumerable<CoursModel>> GetUnenrolledCoursesAsync(int studentId)
+        {
+            var unenrolledCourses = await _coursRepository.GetUnenrolledCoursesAsync(studentId);
+
+            // Transformation des entités Cours en DTO CoursModel
+            var unenrolledCoursesModels = unenrolledCourses.Select(course => course.ToCoursBLL()).ToList();
+            return unenrolledCoursesModels;
+        }
+
         //public async Task InsertUserCourseAsync(int userId, int courseId)
         //{
         //    if (userId <= 0)

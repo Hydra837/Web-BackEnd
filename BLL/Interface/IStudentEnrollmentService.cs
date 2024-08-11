@@ -28,6 +28,8 @@ namespace BLL.Interface
        // public Task<bool> UpdateGrade(int iduser, int coursid, int grade);
         Task<bool> UpdateGradesAsync(int userId, int courseId, int grade);
         Task<IEnumerable<UsersModel>> GetUsersWithCoursesAsync();
+        Task<ICollection<UsersModel>> GetStudentAllCourseAsync();
+        Task<ICollection<UsersModel>> GetTeacherAllCourseAsync();
       
     }
 

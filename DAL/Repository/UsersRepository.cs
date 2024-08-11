@@ -240,5 +240,15 @@ namespace DAL.Repository
             return user;
         }
 
+        public async Task<string> GetUserRoleByIdAsync(int userId)
+        {
+            var user = await _context.Users
+           .Where(u => u.Id == userId)
+           .Select(u => u.Roles)  // Assurez-vous que la colonne s'appelle 'Role'
+           .FirstOrDefaultAsync();
+
+            return user;
+
+        }
     }
 }

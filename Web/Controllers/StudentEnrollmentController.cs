@@ -202,6 +202,33 @@ namespace Web.Controllers
 
             return NotFound();
         }
-
+        [HttpGet("Etudiants")]
+        public async Task<IActionResult> GetStudentAllCourseAsync()
+        {
+            try
+            {
+                var studentsModel = await _studentEnrollmentService.GetStudentAllCourseAsync();
+                return Ok(studentsModel);
+            }
+            catch (Exception ex)
+            {
+                // Enregistrer l'exception si nécessaire
+                return StatusCode(500, $"Une erreur s'est produite : {ex.Message}");
+            }
+        }
+        [HttpGet("Professeurs")]
+        public async Task<IActionResult> GetTeacherAllCourseAsync()
+        {
+            try
+            {
+                var teachersModel = await _studentEnrollmentService.GetTeacherAllCourseAsync();
+                return Ok(teachersModel);
+            }
+            catch (Exception ex)
+            {
+                // Enregistrer l'exception si nécessaire
+                return StatusCode(500, $"Une erreur s'est produite : {ex.Message}");
+            }
+        }
     }
 }

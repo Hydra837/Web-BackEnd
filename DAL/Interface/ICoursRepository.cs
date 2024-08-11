@@ -18,5 +18,6 @@ namespace DAL.Interface
         public Task<IEnumerable<CoursData>> GetallByUser(int id);
         public Task<IEnumerable<UsersData>> GetAllUuserBycourse(int id);
         public Task<IEnumerable<CoursData>> GetAllCourseByTeacher(int id);
+        public Task<IEnumerable<CoursData>> GetUnenrolledCoursesAsync(int studentId);
     }
 }

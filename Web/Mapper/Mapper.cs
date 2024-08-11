@@ -54,8 +54,9 @@ namespace Web.Mapper
                 Prenom = data.Prenom,
                 Role = data.Role, 
                 Mail = data.Mail,
-                 Pseudo = data.Pseudo
-                
+                 Pseudo = data.Pseudo,
+                coursDTOs = data.Cours?.Select(c => c.CoursToApi()).ToList()
+
 
             };
         }

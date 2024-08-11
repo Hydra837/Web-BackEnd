@@ -141,6 +141,11 @@ namespace BLL.Service
 
             return userModel;
         }
+
+        public async Task<string> GetUserRoleAsync(int userId)
+        {
+            return await _userRepository.GetUserRoleByIdAsync(userId);
+        }
     }
     
 }

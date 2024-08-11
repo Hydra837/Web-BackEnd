@@ -35,7 +35,8 @@ namespace BLL.Mapper
                 date_fin = record.DateFin,
                 Disponible = record.Disponible,
                 Description = record.Description,
-                ProfesseurId = record.ProfesseurId
+                ProfesseurId = record.ProfesseurId, 
+              
             };
 #pragma warning restore CS8601 // Existence possible d'une assignation de référence null.
 
@@ -50,7 +51,8 @@ namespace BLL.Mapper
                 Password = record.Passwd,
                 Role= record.Roles,
                 Pseudo = record.Pseudo,
-                Mail = record.Mail
+                Mail = record.Mail,
+                Cours = record.Courses?.Select(c => c.ToCoursBLL()).ToList()
             };
 
         }

@@ -12,5 +12,6 @@ namespace Web.Models
         public string? Pseudo { get; set; }
         public string? Mail { get; set; }
         public string? Salt { get; set; }
+        public ICollection<CoursDTO>? coursDTOs { get; set; }
     }
 }
