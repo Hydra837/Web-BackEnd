@@ -160,9 +160,9 @@ namespace Web.Mapper
 
             return new AssignementsModel
             {
-                Id = dto.Id,
+               // Id = dto.Id,
                 Description = dto.Description,
-                CoursId = dto.CoursId,
+                CoursId = dto.CourseId,
                 IsAvailable = dto.IsAvailable,
                 //Cours = dto.Cours?.ToCoursModel(),
                 //Grades = dto.Grades?.Select(g => g.ToGradeModel()).ToList()

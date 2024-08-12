@@ -42,12 +42,13 @@ builder.Services.AddScoped<IGradeService, GradeService>();
 builder.Services.AddScoped<IAuthenticationService, AuthService>();
 
 // Configurer CORS
+// Configurer CORS
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowAngularApp",
+    options.AddPolicy("AllowAll",
         policy =>
         {
-            policy.WithOrigins("http://localhost:4200") // URL de votre application Angular en développement
+            policy.AllowAnyOrigin()
                   .AllowAnyHeader()
                   .AllowAnyMethod();
         });
@@ -65,7 +66,7 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 
 // Utiliser CORS
-app.UseCors("AllowAngularApp");
+app.UseCors("AllowAll");
 
 // Configurer le routage
 app.UseRouting();
