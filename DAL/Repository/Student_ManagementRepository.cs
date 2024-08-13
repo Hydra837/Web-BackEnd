@@ -52,7 +52,7 @@ namespace DAL.Repository
             throw new NotImplementedException();
         }
 
-        public async Task DeleteAsync(int studentId, int courseId)
+        public async Task DeleteAsync1(int studentId, int courseId)
         {
             try
             {

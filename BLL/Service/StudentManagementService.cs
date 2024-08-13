@@ -50,9 +50,10 @@ namespace BLL.Service
             _stu.Delete(id);
         }
 
-        public Task DeleteAsync(int id)
+        public async Task DeleteAsync1(int id, int coursid)
         {
-            throw new NotImplementedException();
+            if ((id < 0 ) || (coursid < 0)) throw new ArgumentOutOfRangeException(nameof(coursid));
+           await _stu.DeleteAsync1(id, coursid);
         }
 
         public Task<IEnumerable<CoursModel>> GetAllAsync()
@@ -152,6 +153,11 @@ namespace BLL.Service
             UsersModel model = prof.ToUserBLL();
 
             return model;
+        }
+
+        public Task DeleteAsync(int id)
+        {
+            throw new NotImplementedException();
         }
 
         //IEnumerable<CoursData> GetAllCourseByUser(int id)

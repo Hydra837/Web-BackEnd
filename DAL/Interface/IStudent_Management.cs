@@ -11,7 +11,7 @@ namespace DAL.Interface
     {
         public IEnumerable<CoursData> GetAllCourseByUser(int id);
         public Task InsertUserCoursAsync(int id, int id_cours);
-        public Task DeleteAsync(int id);
+        public Task DeleteAsync1(int id, int course);
         public Task CreateAsync(UsersData usersData);
         public Task InsertStudentCoursesAsync(int user, int course);
         public Task Deleteteacher(int idteacher, int course);

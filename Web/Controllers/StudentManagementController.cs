@@ -55,7 +55,7 @@ namespace Web.Controllers
                 return BadRequest("Invalid student or course ID.");
             }
 
-            await _studentManagementService.DeleteAsync(courseId); //  modifie pour supprimer (2 param) 
+            await _studentManagementService.DeleteAsync1(studentId , courseId); //  modifie pour supprimer (2 param) 
             return Ok("Student unenrolled from course successfully.");
         }
 

@@ -11,7 +11,7 @@ namespace BLL.Interface
     {
         public IEnumerable<CoursModel> GetAllCourseByUser(int id);
         public Task InsertUserCoursAsync(int id, int id_cours);
-        public Task DeleteAsync(int id);
+        public Task DeleteAsync1(int id, int coursid);
         // public Task InsertStudentCoursesAsync(int user, int course);
         public Task Deleteteacher(int idteacher, int course);
         public Task UpdateTeacherToCourse(int teacherId, int courseId);
