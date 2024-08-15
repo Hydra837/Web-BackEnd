@@ -10,8 +10,9 @@ using BLL.Models;
 using DAL.Data;
 using BLL.Mapper;
 using BLL.Interface;
+using System.Linq;
 
-namespace  BLL.Service//Authentication.Authentication
+namespace BLL.Service
 {
     public class AuthService : IAuthenticationService
     {
@@ -65,21 +66,20 @@ namespace  BLL.Service//Authentication.Authentication
 
         public async Task RegisterUserAsync(UsersModel user)
         {
-            Console.WriteLine(" user " + user.Password, user.Nom);
-            UsersData a = await _userRepository.GetUsersByPseudo(user.Pseudo);
-            if (a is not null)
+            var existingUser = await _userRepository.GetUsersByPseudo(user.Pseudo);
+            if (existingUser != null)
             {
-                throw new Exception("User already exists");
+                throw new InvalidOperationException("User already exists");
             }
 
             var salt = GenerateSalt();
-            Console.WriteLine("salt " + salt);
             var passwordHash = HashPassword(user.Password, salt);
 
             var newUser = new UsersData
             {
-                Pseudo = user.Password,
+                Pseudo = user.Pseudo, // Corrected from user.Password
                 Salt = salt,
+                Passwd = passwordHash,
                 Roles = user.Role,
                 Mail = user.Mail,
                 Nom = user.Nom,
@@ -88,18 +88,6 @@ namespace  BLL.Service//Authentication.Authentication
 
             await _userRepository.AddAsync(newUser);
         }
-        //public void RegisterUser(string username, string password)
-        //{
-        //    if (users.Any(user => user.Username.ToLower() == username.ToLower()))
-        //    {
-        //        throw new Exception("User already exist");
-        //    }
-        //    var salt = DateTime.Now.ToString("dddd"); // get the day of week. Ex: Sunday
-        //    var passwordHash = HashPassword(password, salt);
-        //    var newUser = new User(username, passwordHash, salt);
-        //    users.Add(newUser);s
-
-        //   }
 
         private string GenerateSalt()
         {
@@ -113,26 +101,17 @@ namespace  BLL.Service//Authentication.Authentication
 
         public async Task<string> LoginAsync(string username, string password)
         {
-          
-            UsersData user = await _userRepository.GetUsersByPseudo(username)
-                      ?? throw new Exception("Login failed; Invalid username or password");
+            var user = await _userRepository.GetUsersByPseudo(username)
+                      ?? throw new InvalidOperationException("Invalid username or password");
 
-         
-            UsersModel a = user.ToUserBLL();
+            var passwordHash = HashPassword(password, user.Salt);
 
-       
-            var passwordHash = HashPassword(password, a.Salt);
-
-
-            if (a.Password != passwordHash)
+            if (user.Passwd != passwordHash)
             {
-                throw new Exception("Login failed; Invalid username or password");
+                throw new InvalidOperationException("Invalid username or password");
             }
 
-           
-            var roles = new List<string> { a.Role };
-
-      
+            var roles = new List<string> { user.Roles }; // Adjust as necessary
             return GenerateJSONWebToken(username, roles);
         }
 
@@ -146,5 +125,4 @@ namespace  BLL.Service//Authentication.Authentication
             throw new NotImplementedException();
         }
     }
-
 }

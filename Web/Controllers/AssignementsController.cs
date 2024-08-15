@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Web.Mapper;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Web.Controllers
 {
@@ -21,6 +22,7 @@ namespace Web.Controllers
         }
 
         [HttpGet]
+        [Authorize]
         public async Task<IActionResult> GetAll()
         {
             try
@@ -37,6 +39,7 @@ namespace Web.Controllers
         }
 
         [HttpGet("{id}")]
+        [Authorize]
         public async Task<IActionResult> GetById(int id)
         {
             try
@@ -57,6 +60,7 @@ namespace Web.Controllers
         }
 
         [HttpGet("by-course/{courseId}")]
+        [Authorize]
         public async Task<IActionResult> GetByCourse(int courseId)
         {
             try
@@ -73,6 +77,7 @@ namespace Web.Controllers
         }
 
         [HttpGet("by-user/{userId}")]
+        [Authorize]
         public async Task<IActionResult> GetByUser(int userId)
         {
             try
@@ -89,6 +94,7 @@ namespace Web.Controllers
         }
 
         [HttpGet("by-teacher/{userId}")]
+        [Authorize]
         public async Task<IActionResult> GetByTeacher(int userId)
         {
             try
@@ -105,6 +111,7 @@ namespace Web.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "Professeur,Admin")]
         public async Task<IActionResult> Create([FromBody] AssignementsFORM form)
         {
             if (!ModelState.IsValid)
@@ -126,6 +133,7 @@ namespace Web.Controllers
         }
 
         [HttpPut("{id}")]
+        [Authorize(Roles ="Professeur,Admin")]
         public async Task<IActionResult> Update(int id, [FromBody] AssignementsFORM form)
         {
             if (!ModelState.IsValid)
@@ -154,6 +162,7 @@ namespace Web.Controllers
         }
 
         [HttpDelete("{id}")]
+        [Authorize(Roles ="Admin")]
         public async Task<IActionResult> Delete(int id)
         {
             try

@@ -4,6 +4,7 @@ using BLL.Service;
 using DAL.Data;
 using DAL.Interface;
 using DAL.Repository;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Web.Mapper;
@@ -23,6 +24,7 @@ namespace Web.Controllers
         }
 
         [HttpGet("GetAll")]
+        [Authorize]
         public async Task<ActionResult<IEnumerable<CoursDTO>>> GetCourses()
         {
             var courses = await _cours.GetAllAsync();
@@ -30,6 +32,7 @@ namespace Web.Controllers
         }
 
         [HttpGet("available")]
+        [Authorize]
         public async Task<ActionResult<IEnumerable<CoursModel>>> GetAllAvailable()
         {
             try
@@ -44,6 +47,7 @@ namespace Web.Controllers
             }
         }
         [HttpPost("Cours")]
+        [Authorize(Roles ="Professeur,Admin")]
         public async Task<CoursModel> CreateAsync(CoursFORM entity)
         {
             if (entity == null)
@@ -59,6 +63,7 @@ namespace Web.Controllers
         }
         
          [HttpGet("{id}")]
+         [Authorize]
          public async Task<IActionResult> GetByIdAsync(int id)
             {
               var course = await _cours.GetByIdAsync(id);
@@ -71,7 +76,7 @@ namespace Web.Controllers
 
       
         [HttpPut("update/{id}")]
-     
+        [Authorize(Roles = "Professeur,Admin")]
         public async Task<IActionResult> UpdateAsync(int id,  CoursFORM coursFORM)
         {
             if (id <= 0)
@@ -110,6 +115,7 @@ namespace Web.Controllers
             }
         }
         [HttpDelete("{id}")]
+        [Authorize(Roles = "Professeur,Admin")]
         public async Task<IActionResult> DeleteAsync(int id)
         {
             if (id <= 0)
@@ -143,6 +149,7 @@ namespace Web.Controllers
             }
         }
         [HttpGet("cours/professeur/{teacherId}")]
+        [Authorize(Roles = "Professeur,Admin")]
         public async Task<ActionResult<IEnumerable<CoursModel>>> GetCoursesByTeacher(int teacherId)
         {
             try
@@ -161,6 +168,7 @@ namespace Web.Controllers
             }
         }
         [HttpGet("UnenrolledCourses/{studentId}")]
+        [Authorize]
         public async Task<ActionResult<IEnumerable<CoursDTO>>> GetUnenrolledCourses(int studentId)
         {
             try

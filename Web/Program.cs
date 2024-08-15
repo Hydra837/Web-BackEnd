@@ -1,30 +1,54 @@
-using Microsoft.AspNetCore.Builder;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.FileProviders;
-using System.IO;
-using Tools;
-using DAL.Data;
-using DAL.Repository;
-using DAL.Interface;
 using BLL.Interface;
 using BLL.Service;
+using DAL.Interface;
+using DAL.Repository;
 using DAL;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.FileProviders;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
+using System.Text;
+using Web.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Ajouter les services au conteneur
+// Add services to the container
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(options =>
+{
+    options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        In = ParameterLocation.Header,
+        Description = "Please enter a valid token",
+        Name = "Authorization",
+        Type = SecuritySchemeType.Http,
+        BearerFormat = "JWT",
+        Scheme = "Bearer"
+    });
+    options.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference
+                {
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                }
+            },
+            new string[] { }
+        }
+    });
+});
 
-// Ajouter la chaîne de connexion et le DbContext
+// Configure database context and services
 builder.Services.AddSingleton(sp => new Tools.Connection(builder.Configuration.GetConnectionString("Default")));
 builder.Services.AddDbContext<EFDbContextData>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("Default")));
 
-// Ajouter les services d'application
+// Register application services
 builder.Services.AddScoped<ICoursRepository, CoursRepository>();
 builder.Services.AddScoped<ICoursService, CoursService>();
 builder.Services.AddScoped<IusersRepository, UsersRepository>();
@@ -38,17 +62,36 @@ builder.Services.AddScoped<IAssignementsService, AssignementsService>();
 builder.Services.AddScoped<IGradeRepository, GradeRepository>();
 builder.Services.AddScoped<IGradeService, GradeService>();
 
-// Enregistrer le service d'authentification
+// Register the authentication service
 builder.Services.AddScoped<IAuthenticationService, AuthService>();
 
-// Configurer CORS
-// Configurer CORS
+// Configure authentication
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+})
+.AddJwtBearer(options =>
+{
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuer = true,
+        ValidateAudience = true,
+        ValidateLifetime = true,
+        ValidateIssuerSigningKey = true,
+        ValidIssuer = builder.Configuration["Jwt:Issuer"],
+        ValidAudience = builder.Configuration["Jwt:Audience"],
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]))
+    };
+});
+
+// Configure CORS
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAll",
         policy =>
         {
-            policy.AllowAnyOrigin()
+            policy.WithOrigins("https://localhost:7233", "http://localhost:4200")
                   .AllowAnyHeader()
                   .AllowAnyMethod();
         });
@@ -56,7 +99,7 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
-// Configurer le pipeline de requêtes HTTP
+// Configure the HTTP request pipeline
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -64,15 +107,12 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-
-// Utiliser CORS
 app.UseCors("AllowAll");
+app.UseAuthentication();
+app.UseAuthorization();
 
-// Configurer le routage
-app.UseRouting();
-
-// Configurer les fichiers statiques si nécessaire
-var angularDistPath = @"C:\Users\maxim\source\repos\Projet_Ephec2\ClientApp\Client\dist";
+// Configure static file serving for Angular if applicable
+var angularDistPath = Path.Combine(Directory.GetCurrentDirectory(), "ClientApp", "dist");
 
 if (Directory.Exists(angularDistPath))
 {
@@ -82,6 +122,9 @@ if (Directory.Exists(angularDistPath))
         RequestPath = ""
     });
 }
+
+// Use custom exception middleware
+app.UseMiddleware<ExceptionMiddleware>();
 
 app.MapControllers();
 app.MapFallbackToFile("index.html");
