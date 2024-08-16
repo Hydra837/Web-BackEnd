@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Threading.Tasks;
+using Web.Mapper;
 using Web.Models;
 
 namespace Web.Controllers
@@ -22,34 +23,33 @@ namespace Web.Controllers
             _authenticationService = authenticationService;
         }
 
-        //[HttpPost("Register")]
-        //public async Task<IActionResult> Register([FromBody] UsersFORM request)
-        //{
-        //    if (request == null)
-        //    {
-        //        return BadRequest("Invalid client request");
-        //    }
+        [HttpPost("Register")]
+        public async Task<IActionResult> Register([FromBody] UsersFORM request)
+        {
+            if (request == null)
+            {
+                return BadRequest("Invalid client request");
+            }
 
-        //    if (!ModelState.IsValid)
-        //    {
-        //        return BadRequest(ModelState);
-        //    }
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
 
-        //    try
-        //    {
-        //        var userModel = request.ToBllModel();
-        //        await _authenticationService.RegisterUserAsync(userModel);
-        //        return CreatedAtAction(nameof(Register), new { username = userModel.Pseudo }, "User registered successfully");
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        _logger.LogError(ex, "An error occurred during registration");
-        //        return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred during registration");
-        //    }
-        //}
+            try
+            {
+                var userModel = request.BllAccessToApi1();
+                await _authenticationService.RegisterUserAsync(userModel);
+                return CreatedAtAction(nameof(Register), new { username = userModel.Pseudo }, "User registered successfully");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred during registration");
+                return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred during registration");
+            }
+        }
 
-        [HttpPost("Login")]
-
+        [HttpPost("login")]
         [AllowAnonymous]
         public async Task<IActionResult> Login([FromBody] LoginFORM request)
         {

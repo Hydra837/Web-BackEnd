@@ -89,12 +89,13 @@ builder.Services.AddAuthentication(options =>
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAll",
-        policy =>
-        {
-            policy.WithOrigins("https://localhost:7233", "http://localhost:4200")
-                  .AllowAnyHeader()
-                  .AllowAnyMethod();
-        });
+       policy =>
+       {
+           policy.WithOrigins("https://localhost:7233", "http://localhost:4200")
+                 .AllowAnyHeader()
+                 .WithMethods("GET", "POST", "OPTIONS")
+                 .AllowAnyMethod();
+       });
 });
 
 var app = builder.Build();

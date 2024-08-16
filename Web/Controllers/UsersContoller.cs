@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using BLL.Service;
 using Web.Mapper;
 using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
 
 namespace Web.Controllers
 {
@@ -25,7 +26,8 @@ namespace Web.Controllers
         }
 
         [HttpPost]
-        [Authorize]
+        //[Authorize]
+        [AllowAnonymous]
         [Route(nameof(Register))]
         public ActionResult Register( UsersFORM user)
         {
@@ -47,7 +49,8 @@ namespace Web.Controllers
         }
 
         [HttpGet("GetAll")]
-        [Authorize]
+        //   [Authorize]
+        [AllowAnonymous]
         public async Task<ActionResult<IEnumerable<UsersDTO>>> GetAll()
         {
             try
@@ -64,7 +67,8 @@ namespace Web.Controllers
         }
 
         [HttpGet("GetById/{id}")]
-        [Authorize]
+        // [Authorize]
+        [AllowAnonymous]
         public async Task<ActionResult<UsersDTO>> GetById(int id)
         {
             try
@@ -85,7 +89,8 @@ namespace Web.Controllers
         }
 
         [HttpPost("Create")]
-        [Authorize(Roles = "Admin")]
+        //[Authorize(Roles = "Admin")]
+        [AllowAnonymous]
         public async Task<ActionResult> Create( UsersFORM user)
         {
             if (user == null)
@@ -114,7 +119,8 @@ namespace Web.Controllers
 
         // PUT: api/users/{id}
         [HttpPut("{id}")]
-        [Authorize]
+        //  [Authorize]
+        [AllowAnonymous]
         public async Task<ActionResult> Update(int id,UsersFORM user)
         {
             if (user == null)
@@ -145,7 +151,8 @@ namespace Web.Controllers
         }
         // DELETE: api/users/{id}
         [HttpDelete("Delete/{id}")]
-        [Authorize(Roles = "Admin")]
+        //   [Authorize(Roles = "Admin")]
+        [AllowAnonymous]
         public async Task<ActionResult> Delete(int id)
         {
             try
@@ -159,7 +166,8 @@ namespace Web.Controllers
             }
         }
         [HttpGet("GetAllCourseEachCourse")]
-        [Authorize(Roles = "Admin")]
+        // [Authorize(Roles = "Admin")]
+        [AllowAnonymous]
         public async Task<IEnumerable<UserCoursDetailsDTO>> GetUsersCoursesAsync()
         {
             try
@@ -213,7 +221,8 @@ namespace Web.Controllers
         //    }
         //}
         [HttpGet("pseudo/{pseudo}")]
-        [Authorize]
+        //  [Authorize]
+        [AllowAnonymous]
         public async Task<IActionResult> GetUserByPseudo(string pseudo)
         {
             try
@@ -233,7 +242,8 @@ namespace Web.Controllers
             }
         }
         [HttpGet("GetUserRole/{userId}")]
-        [Authorize]
+        //   [Authorize]
+        [AllowAnonymous]
         public async Task<IActionResult> GetUserRole(int userId)
         {
             var role = await _userService.GetUserRoleAsync(userId);
@@ -244,6 +254,20 @@ namespace Web.Controllers
             }
 
             return Ok(new { UserId = userId, Role = role });
+        }
+
+        [HttpGet("GetCurrentUser")]
+        // [Authorize]
+        [AllowAnonymous]
+        public async Task<IActionResult> GetCurrentUser()
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier); // Extrait l'ID de l'utilisateur du token
+            var user = await _userService.GetUsersByPseudo(userId);
+            if (user == null)
+            {
+                return NotFound();
+            }
+            return Ok(user);
         }
     }
 }

@@ -24,7 +24,8 @@ namespace Web.Controllers
         }
 
         [HttpPost(nameof(Create))]
-        [Authorize(Roles = "Professeur,Admin")]
+       // [Authorize(Roles = "Professeur,Admin")]
+        [AllowAnonymous]
         public async Task<ActionResult> Create(CoursFORM coursFORM)
         {
             if (coursFORM == null)
@@ -38,7 +39,8 @@ namespace Web.Controllers
         }
 
         [HttpDelete(nameof(Delete))]
-        [Authorize(Roles = "Admin")]
+       // [Authorize(Roles = "Admin")]
+        [AllowAnonymous]
         public async Task<ActionResult> Delete(int id)
         {
             if (id <= 0)
@@ -51,7 +53,8 @@ namespace Web.Controllers
         }
 
         [HttpDelete("DeleteEnrollment")]
-        [Authorize(Roles = "Admin")]
+        //[Authorize(Roles = "Admin")]
+        [AllowAnonymous]
         public async Task<ActionResult> DeleteEnrollment(int studentId, int courseId)
         {
             if (studentId <= 0 || courseId <= 0)
@@ -64,7 +67,8 @@ namespace Web.Controllers
         }
 
         [HttpGet("{id}")]
-        [Authorize]
+        //   [Authorize]
+        [AllowAnonymous]
         public async Task<ActionResult<IEnumerable<CoursDTO>>> GetAllCourseByUser(int id)
         {
             if (id <= 0)
@@ -78,7 +82,8 @@ namespace Web.Controllers
         }
 
         [HttpPost(nameof(InsertUserCourse))]
-        [Authorize]
+        //    [Authorize]
+        [AllowAnonymous]
         public async Task<ActionResult> InsertUserCourse(int id, int courseId)
         {
             if (id <= 0 || courseId <= 0)
@@ -91,7 +96,8 @@ namespace Web.Controllers
             return Ok("User enrolled in course successfully.");
         }
         [HttpPost("InsertProf")]
-        [Authorize(Roles = "Professeur,Admin")]
+        //  [Authorize(Roles = "Professeur,Admin")]
+        [AllowAnonymous]
         public async Task<ActionResult> InsertUserAsync(int id, int courseId)
         {
             try
@@ -109,7 +115,8 @@ namespace Web.Controllers
             }
         }
         [HttpGet("GetTeacher/{teacherId}")]
-        [Authorize]
+        //[Authorize]
+        [AllowAnonymous]
         public async Task<IActionResult> GetTeacherName(int teacherId)
         {
             try
@@ -123,7 +130,8 @@ namespace Web.Controllers
             }
         }
         [HttpDelete("RemoveTeacher")]
-        [Authorize(Roles = "Admin")]
+        //   [Authorize(Roles = "Admin")]
+        [AllowAnonymous]
         public async Task<IActionResult> RemoveTeacherFromCourse(int teacherId, int courseId)
         {
             try
@@ -137,7 +145,8 @@ namespace Web.Controllers
             }
         }
         [HttpPut("UpdateTeacher")]
-        [Authorize(Roles = "Professeur,Admin")]
+        // [Authorize(Roles = "Professeur,Admin")]
+        [AllowAnonymous]
         public async Task<IActionResult> UpdateTeacherToCourse(int teacherId, int courseId)
         {
             try
@@ -150,5 +159,6 @@ namespace Web.Controllers
                 return BadRequest(new { Message = ex.Message });
             }
         }
+       
     }
 }

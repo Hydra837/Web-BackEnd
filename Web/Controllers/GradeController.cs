@@ -23,7 +23,8 @@ namespace Web.Controllers
 
         // GET: api/grade/{id}
         [HttpGet("{id}")]
-        [Authorize]
+        //[Authorize]
+        [AllowAnonymous]
         public async Task<ActionResult<IEnumerable<GradeDTO>>> GetById(int id)
         {
             var grades = await _gradeService.GetByUserIdAsync(id);
@@ -38,7 +39,8 @@ namespace Web.Controllers
 
         // GET: api/grade/course/{courseId}
         [HttpGet("course/{courseId}")]
-        [Authorize]
+        // [Authorize]
+        [AllowAnonymous]
         public async Task<ActionResult<IEnumerable<GradeDTO>>> GetByCourse(int courseId)
         {
             var grades = await _gradeService.GetByCoursesAsync(courseId);
@@ -47,6 +49,7 @@ namespace Web.Controllers
 
         // GET: api/grade
         [HttpGet]
+        [AllowAnonymous]
         public async Task<ActionResult<IEnumerable<GradeDTO>>> GetAllGrades()
         {
             var grades = await _gradeService.GetAllGradesAsync();
@@ -56,7 +59,7 @@ namespace Web.Controllers
         // POST: api/grade
         // POST: api/grade
         [HttpPost]
-        
+        [AllowAnonymous]
         public async Task<ActionResult> Create(GradeForm gradeForm)
         {
             // Validation des entrées
@@ -111,7 +114,8 @@ namespace Web.Controllers
 
         // DELETE: api/grade/{id}
         [HttpDelete("{id}")]
-        [Authorize(Roles ="Admin")]
+        // [Authorize(Roles ="Admin")]
+        [AllowAnonymous]
         public async Task<ActionResult> Delete(int id)
         {
             var existingGrade = await _gradeService.GetByUserIdAsync(id);
@@ -124,7 +128,8 @@ namespace Web.Controllers
             return NoContent();
         }
         [HttpPut("upgrade/{id}")]
-        [Authorize(Roles = "Professeur,Admin")]
+        //  [Authorize(Roles = "Professeur,Admin")]
+        [AllowAnonymous]
         public async Task<ActionResult> UpgradeGrade(int id, [FromBody] int newGrade)
         {
             var existingGrade = await _gradeService.GetByUserIdAsync(id);
@@ -140,7 +145,8 @@ namespace Web.Controllers
         }
         // GET api/grade/assignments/{assignementsId}
         [HttpGet("assignments/{assignementsId}")]
-        [Authorize]
+       // [Authorize]
+        [AllowAnonymous]
         public async Task<ActionResult<IEnumerable<GradeModel>>> GetByAssignmentAsync(int assignementsId)
         {
             var grades = await _gradeService.GetAllByAssignmentAsync(assignementsId);
@@ -153,7 +159,8 @@ namespace Web.Controllers
 
         // GET api/grade/user/{userId}/assignments/{assignementsId}
         [HttpGet("user/{userId}/assignments/{assignementsId}")]
-        [Authorize]
+        // [Authorize]
+        [AllowAnonymous]
         public async Task<ActionResult<GradeModel>> GetByUserIdAsync(int userId, int assignementsId)
         {
             var grade = await _gradeService.GetByUserIdAsync(userId, assignementsId);

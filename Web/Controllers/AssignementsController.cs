@@ -22,7 +22,8 @@ namespace Web.Controllers
         }
 
         [HttpGet]
-        [Authorize]
+        // [Authorize]
+        [AllowAnonymous]
         public async Task<IActionResult> GetAll()
         {
             try
@@ -39,7 +40,8 @@ namespace Web.Controllers
         }
 
         [HttpGet("{id}")]
-        [Authorize]
+        // [Authorize]
+        [AllowAnonymous]
         public async Task<IActionResult> GetById(int id)
         {
             try
@@ -60,7 +62,8 @@ namespace Web.Controllers
         }
 
         [HttpGet("by-course/{courseId}")]
-        [Authorize]
+        //  [Authorize]
+        [AllowAnonymous]
         public async Task<IActionResult> GetByCourse(int courseId)
         {
             try
@@ -77,7 +80,8 @@ namespace Web.Controllers
         }
 
         [HttpGet("by-user/{userId}")]
-        [Authorize]
+        // [Authorize]
+        [AllowAnonymous]
         public async Task<IActionResult> GetByUser(int userId)
         {
             try
@@ -94,7 +98,8 @@ namespace Web.Controllers
         }
 
         [HttpGet("by-teacher/{userId}")]
-        [Authorize]
+        //  [Authorize]
+        [AllowAnonymous]
         public async Task<IActionResult> GetByTeacher(int userId)
         {
             try
@@ -111,7 +116,8 @@ namespace Web.Controllers
         }
 
         [HttpPost]
-        [Authorize(Roles = "Professeur,Admin")]
+        // [Authorize(Roles = "Professeur,Admin")]
+        [AllowAnonymous]
         public async Task<IActionResult> Create([FromBody] AssignementsFORM form)
         {
             if (!ModelState.IsValid)
@@ -133,7 +139,8 @@ namespace Web.Controllers
         }
 
         [HttpPut("{id}")]
-        [Authorize(Roles ="Professeur,Admin")]
+        // [Authorize(Roles ="Professeur,Admin")]
+        [AllowAnonymous]
         public async Task<IActionResult> Update(int id, [FromBody] AssignementsFORM form)
         {
             if (!ModelState.IsValid)
@@ -162,7 +169,8 @@ namespace Web.Controllers
         }
 
         [HttpDelete("{id}")]
-        [Authorize(Roles ="Admin")]
+        // [Authorize(Roles ="Admin")]
+        [AllowAnonymous]
         public async Task<IActionResult> Delete(int id)
         {
             try

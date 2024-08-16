@@ -24,7 +24,8 @@ namespace Web.Controllers
         }
 
         [HttpGet("GetAllCoursesForStudent/{studentId}")]
-        [Authorize]
+        //[Authorize]
+        [AllowAnonymous]
         public async Task<ActionResult<IEnumerable<CoursFORM>>> GetAllCoursesForStudent(int studentId)
         {
             if (studentId <= 0)
@@ -39,7 +40,8 @@ namespace Web.Controllers
         }
 
         [HttpPost("Insert")]
-        [Authorize]
+        //  [Authorize]
+        [AllowAnonymous]
         public async Task<IActionResult> Insert(int studentId, int courseId)
         {
             if (studentId <= 0 || courseId <= 0)
@@ -58,7 +60,8 @@ namespace Web.Controllers
         }
     
         [HttpGet("GetalluserCourse/{id}")]
-        [Authorize]
+        // [Authorize]
+        [AllowAnonymous]
         public async Task<IActionResult> GetAllUsersByCourse(int id)
         {
             try
@@ -87,7 +90,8 @@ namespace Web.Controllers
         }
         
         [HttpGet("EnrolledStudent/{id}")]
-        [Authorize]
+        //  [Authorize]
+        [AllowAnonymous]
         public async Task<IActionResult> GetEnrolledStudentCourses(int id)
         {
             if (id <= 0)
@@ -114,7 +118,8 @@ namespace Web.Controllers
             }
         }
         [HttpDelete("{id}")]
-        [Authorize(Roles = "Admin")]
+        //[Authorize(Roles = "Admin")]
+        [AllowAnonymous]
         public async Task<ActionResult> DeleteAsync(int id)
         {
             try
@@ -130,7 +135,8 @@ namespace Web.Controllers
         }
    
         [HttpGet("course/{courseId}")]
-        [Authorize]
+        // [Authorize]
+        [AllowAnonymous]
         public async Task<ActionResult<EnrollementDTO>> GetByCourseAsync(int courseId)
         {
             try
@@ -150,7 +156,8 @@ namespace Web.Controllers
             }
         }
         [HttpGet("user/{userId}")]
-        [Authorize]
+        //  [Authorize]
+        [AllowAnonymous]
         public async Task<ActionResult<EnrollementDTO>> GetByUserIdAsync(int userId)
         {
             try
@@ -200,7 +207,8 @@ namespace Web.Controllers
         }
 
         [HttpPut("UpdateGrades")]
-        [Authorize(Roles = "Professeur,Admin")]
+        //[Authorize(Roles = "Professeur,Admin")]
+        [AllowAnonymous]
         public async Task<IActionResult> UpdateGrade(int idUsers, int idCours, int grade)
         {
             var result = await _studentEnrollmentService.UpdateGradesAsync(idUsers, idCours, grade);
@@ -213,7 +221,8 @@ namespace Web.Controllers
             return NotFound();
         }
         [HttpGet("Etudiants")]
-        [Authorize]
+        //[Authorize]
+        [AllowAnonymous]
         public async Task<IActionResult> GetStudentAllCourseAsync()
         {
             try
@@ -228,7 +237,8 @@ namespace Web.Controllers
             }
         }
         [HttpGet("Professeurs")]
-        [Authorize(Roles = "Professeur,Admin")]
+        //[Authorize(Roles = "Professeur,Admin")]
+        [AllowAnonymous]
         public async Task<IActionResult> GetTeacherAllCourseAsync()
         {
             try
