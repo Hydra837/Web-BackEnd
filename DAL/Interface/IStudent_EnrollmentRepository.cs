@@ -27,8 +27,14 @@ namespace DAL.Interface
         Task<bool> UpdateGradesAsync(int userId, int courseId, int grade);
         Task<IEnumerable<UsersData>> GetUsersWithCoursesAsync();
         Task<IEnumerable<UsersData>> GetStudentsWithCourses();
-        public Task<IEnumerable<UsersData>> GetInstructorsWithCourses();
-            
+        public Task<IEnumerable<UsersData>> GetInstructorsWithCourses(); 
+        public Task<CoursData> GetCoursWithUsersAsync(int coursId);
+        public Task<UsersData> GetUserWithCoursesAsync(int userId);
+
+        public Task<List<UsersData>> GetAllStudentsWithCoursesAsync();
+        public Task<List<UsersData>> GetAllProfessorsWithCoursesAsync();
+        public Task<UsersData> GetProfessorWithCoursesAsync1(int professorId);
+
 
     }
       

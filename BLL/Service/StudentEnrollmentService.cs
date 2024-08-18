@@ -327,5 +327,115 @@ namespace BLL.Service
             var coursesModel = await _studentEnrollmentRepository.GetInstructorsWithCourses();
             return coursesModel.Select(x => x.ToUserBLL()).ToList();
         }
+        public async Task<CoursModel> GetCoursWithUsersAsync1(int coursId)
+        {
+            var cours = await _studentEnrollmentRepository.GetCoursWithUsersAsync(coursId);
+
+            if (cours == null)
+            {
+                return null;
+            }
+
+            return new CoursModel
+            {
+                Id = cours.Id,
+                Nom = cours.Nom,
+                Disponible = cours.Disponible,
+                DateDebut = cours.date_debut,
+                DateFin = cours.date_fin,
+                Description = cours.Description,
+                usersModels = cours.StudentEnrollements.Select(se => new UsersModel
+                {
+                    Id = se.User.Id,
+                    Nom = se.User.Nom,
+                    Prenom = se.User.Prenom
+                }).ToList()
+            };
+        }
+
+        public async Task<UsersModel> GetUserWithCoursesAsync1(int userId)
+        {
+            var user = await _studentEnrollmentRepository.GetUserWithCoursesAsync(userId);
+
+            if (user == null)
+            {
+                return null;
+            }
+
+            return new UsersModel
+            {
+                Id = user.Id,
+                Nom = user.Nom,
+                Prenom = user.Prenom,
+                Role = user.Roles,
+                Cours = user.StudentEnrollements.Select(se => new CoursModel
+                {
+                    Id = se.Cours.Id,
+                    Nom = se.Cours.Nom
+                }).ToList()
+            };
+        }
+
+        public async Task<List<UsersModel>> GetAllStudentsWithCoursesAsync()
+        {
+            var students = await _studentEnrollmentRepository.GetAllStudentsWithCoursesAsync();
+
+            return students.Select(u => new UsersModel
+            {
+                Id = u.Id,
+                Nom = u.Nom,
+                Prenom = u.Prenom,
+                Role = u.Roles,
+                Cours = u.StudentEnrollements.Select(se => new CoursModel
+                {
+                    Id = se.Cours.Id,
+                    Nom = se.Cours.Nom
+                }).ToList()
+            }).ToList();
+        }
+
+        public async Task<List<UsersModel>> GetAllProfessorsWithCoursesAsync()
+        {
+            var professors = await _studentEnrollmentRepository.GetAllProfessorsWithCoursesAsync();
+
+            return professors.Select(p => new UsersModel
+            {
+                Id = p.Id,
+                Nom = p.Nom,
+                Prenom = p.Prenom,
+                Role = p.Roles,
+                Cours = p.Courses.Select(c => new CoursModel
+                {
+                    Id = c.Id,
+                    Nom = c.Nom
+                }).ToList()
+            }).ToList();
+        }
+
+        public async Task<UsersModel> GetProfessorWithCoursesAsync(int professorId)
+        {
+            var professor = await _studentEnrollmentRepository.GetProfessorWithCoursesAsync1(professorId);
+
+            if (professor == null) return null;
+
+            return new UsersModel
+            {
+                Id = professor.Id,
+                Nom = professor.Nom,
+                Prenom = professor.Prenom,
+                Role = professor.Roles,
+                Cours = professor.Courses.Select(c => new CoursModel
+                {
+                    Id = c.Id,
+                    Nom = c.Nom
+                }).ToList()
+            };
+
+        }
+
+        public Task<List<UsersModel>> GetUsersWithCoursesAssignmentsAndGradesAsync()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

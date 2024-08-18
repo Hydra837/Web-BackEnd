@@ -359,7 +359,46 @@ namespace DAL.Repository
        .Where(u => u.Roles == "Professeur") // Filtre pour obtenir uniquement les instructeurs
        .ToListAsync();
         }
+        public async Task<CoursData> GetCoursWithUsersAsync(int coursId)
+        {
+            return await _context.Courses
+       .Include(c => c.StudentEnrollements)
+           .ThenInclude(se => se.User)  // Inclure les utilisateurs inscrits au cours
+       .FirstOrDefaultAsync(c => c.Id == coursId);
+        }
 
+        public async Task<UsersData> GetUserWithCoursesAsync(int userId)
+        {
+            return await _context.Users
+        .Include(u => u.StudentEnrollements)
+            .ThenInclude(se => se.Cours)  // Inclure les cours auxquels l'étudiant est inscrit
+        .FirstOrDefaultAsync(u => u.Id == userId);
+        }
+
+        public async Task<List<UsersData>> GetAllStudentsWithCoursesAsync()
+        {
+            return await _context.Users
+             .Where(u => u.Roles == "Etudiant")
+             .Include(u => u.StudentEnrollements)
+                 .ThenInclude(se => se.Cours)
+             .ToListAsync();
+        }
+
+        public async Task<List<UsersData>> GetAllProfessorsWithCoursesAsync()
+        {
+            return await _context.Users
+            .Where(u => u.Roles == "Professeur")
+            .Include(u => u.Courses)
+            .ToListAsync();
+        }
+
+        public async Task<UsersData> GetProfessorWithCoursesAsync1(int professorId)
+        {
+            return await _context.Users
+            .Where(u => u.Roles == "Professeur" && u.Id == professorId)
+            .Include(u => u.Courses)
+            .FirstOrDefaultAsync();
+        }
 
     }
 }

@@ -36,5 +36,5 @@ public class UsersData
     public virtual ICollection<GradeData> Grades { get; set; } = new HashSet<GradeData>();
     public virtual ICollection<Student_EnrollementData> StudentEnrollements { get; set; } = new HashSet<Student_EnrollementData>(); 
     public virtual ICollection<Student_ManagementData> InstructorAssignments { get; set; } = new HashSet<Student_ManagementData>();
-    public virtual ICollection<CoursData> Courses { get; set; } = new HashSet<CoursData>();
+    public virtual ICollection<CoursData>? Courses { get; set; }
 }

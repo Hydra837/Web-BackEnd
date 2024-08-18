@@ -30,8 +30,8 @@ namespace DAL.Data
         [AllowNull]
         public int? ProfesseurId { get; set; }
 
-        public virtual ICollection<Student_EnrollementData> StudentEnrollements { get; set; }
-        public ICollection<UsersData> User { get; set; } 
+        public virtual ICollection<Student_EnrollementData>? StudentEnrollements { get; set; }
+        public ICollection<UsersData>? User { get; set; } 
         // Ajout de la propriété de navigation pour les affectations des instructeurs
         public virtual ICollection<Student_ManagementData> InstructorAssignments { get; set; } = new HashSet<Student_ManagementData>();
 

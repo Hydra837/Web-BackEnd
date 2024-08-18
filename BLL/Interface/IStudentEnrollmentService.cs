@@ -30,7 +30,15 @@ namespace BLL.Interface
         Task<IEnumerable<UsersModel>> GetUsersWithCoursesAsync();
         Task<ICollection<UsersModel>> GetStudentAllCourseAsync();
         Task<ICollection<UsersModel>> GetTeacherAllCourseAsync();
-      
+        public Task<CoursModel> GetCoursWithUsersAsync1(int coursId);
+        public Task<UsersModel> GetUserWithCoursesAsync1(int userId);
+
+        public Task<List<UsersModel>> GetAllStudentsWithCoursesAsync();
+        public Task<List<UsersModel>> GetAllProfessorsWithCoursesAsync();
+        public Task<UsersModel> GetProfessorWithCoursesAsync(int professorId);
+        Task<List<UsersModel>> GetUsersWithCoursesAssignmentsAndGradesAsync();
+
+
     }
 
     // Changer Cours Model en Cours Etu pour avoir les noms étudiant aussi

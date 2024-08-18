@@ -252,5 +252,55 @@ namespace Web.Controllers
                 return StatusCode(500, $"Une erreur s'est produite : {ex.Message}");
             }
         }
+        [HttpGet("{coursId}/users")]
+        public async Task<IActionResult> GetCoursWithUsers(int coursId)
+        {
+            var coursWithUsers = await _studentEnrollmentService.GetCoursWithUsersAsync1(coursId);
+            if (coursWithUsers == null)
+            {
+                return NotFound();
+            }
+            return Ok(coursWithUsers);
+        }
+        [HttpGet("{userId}/cours")]
+        public async Task<IActionResult> GetUserWithCourses(int userId)
+        {
+            var userWithCourses = await _studentEnrollmentService.GetUserWithCoursesAsync1(userId);
+            if (userWithCourses == null)
+            {
+                return NotFound();
+            }
+            return Ok(userWithCourses);
+        }
+        [HttpGet("professors")]
+        public async Task<IActionResult> GetAllProfessorsWithCourses()
+        {
+            var professorsWithCourses = await _studentEnrollmentService.GetAllProfessorsWithCoursesAsync();
+            return Ok(professorsWithCourses);
+        }
+
+        [HttpGet("professors/{professorId}")]
+        public async Task<IActionResult> GetProfessorWithCourses(int professorId)
+        {
+            var professorWithCourses = await _studentEnrollmentService.GetProfessorWithCoursesAsync(professorId);
+            if (professorWithCourses == null)
+            {
+                return NotFound();
+            }
+            return Ok(professorWithCourses);
+        }
+        [HttpGet("students")]
+        public async Task<IActionResult> GetAllStudentsWithCourses()
+        {
+            var studentsWithCourses = await _studentEnrollmentService.GetAllStudentsWithCoursesAsync();
+            return Ok(studentsWithCourses);
+        }
+        [HttpGet("with-courses-assignments-grades")]
+        public async Task<ActionResult<List<UsersDTO>>> GetUsersWithCoursesAssignmentsAndGrades()
+        {
+            var users = await _studentEnrollmentService.GetUsersWithCoursesAssignmentsAndGradesAsync();
+            var userDtos = users.Select(x => x.BllAccessToApi());
+            return Ok(userDtos);
+        }
     }
 }

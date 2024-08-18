@@ -30,7 +30,7 @@ namespace BLL.Models
         public string? Description { get; set; }
 
         public int? ProfesseurId { get; set; }
-        public ICollection<UsersModel> usersModels { get; set; }
+        public ICollection<UsersModel>? usersModels { get; set; }
 
         
 
