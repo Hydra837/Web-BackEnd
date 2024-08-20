@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using BLL.Models;
 using BLL.Service;
 using Microsoft.AspNetCore.Authorization;
+using Azure.Core.GeoJson;
 
 namespace Web.Controllers
 {
@@ -24,8 +25,8 @@ namespace Web.Controllers
         }
 
         [HttpGet("GetAllCoursesForStudent/{studentId}")]
-        //[Authorize]
-        [AllowAnonymous]
+        [Authorize]
+ 
         public async Task<ActionResult<IEnumerable<CoursFORM>>> GetAllCoursesForStudent(int studentId)
         {
             if (studentId <= 0)
@@ -38,30 +39,40 @@ namespace Web.Controllers
             return Ok(courses.Select(x => x.CoursToApi()));
             
         }
-
         [HttpPost("Insert")]
-        //  [Authorize]
-        [AllowAnonymous]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Insert(int studentId, int courseId)
         {
+            // Validation des IDs
             if (studentId <= 0 || courseId <= 0)
                 return BadRequest("Invalid student or course ID.");
 
             try
             {
+                // Vérifiez si l'étudiant est déjà inscrit au cours
+                bool isEnrolled = await _studentEnrollmentService.IsUserEnrolledInCourseAsync(studentId, courseId);
+                if (isEnrolled)
+                {
+                    return BadRequest("The student is already enrolled in this course.");
+                }
+
+                // Inscrire l'étudiant dans le cours
                 await _studentEnrollmentService.InsertStudentCourseAsync2(studentId, courseId);
+
                 return Ok("Student enrolled successfully.");
             }
             catch (Exception ex)
             {
-               
+                // Log the exception and return a 500 status code
+                Console.WriteLine($"Error during enrollment: {ex.Message}");
                 return StatusCode(StatusCodes.Status500InternalServerError, $"Internal server error: {ex.Message}");
             }
         }
-    
+
+
         [HttpGet("GetalluserCourse/{id}")]
-        // [Authorize]
-        [AllowAnonymous]
+         [Authorize]
+   
         public async Task<IActionResult> GetAllUsersByCourse(int id)
         {
             try
@@ -90,8 +101,8 @@ namespace Web.Controllers
         }
         
         [HttpGet("EnrolledStudent/{id}")]
-        //  [Authorize]
-        [AllowAnonymous]
+         [Authorize]
+  
         public async Task<IActionResult> GetEnrolledStudentCourses(int id)
         {
             if (id <= 0)
@@ -118,8 +129,8 @@ namespace Web.Controllers
             }
         }
         [HttpDelete("{id}")]
-        //[Authorize(Roles = "Admin")]
-        [AllowAnonymous]
+        [Authorize(Roles = "Admin")]
+       
         public async Task<ActionResult> DeleteAsync(int id)
         {
             try
@@ -135,9 +146,9 @@ namespace Web.Controllers
         }
    
         [HttpGet("course/{courseId}")]
-        // [Authorize]
-        [AllowAnonymous]
-        public async Task<ActionResult<EnrollementDTO>> GetByCourseAsync(int courseId)
+        [Authorize]
+   
+        public async Task<ActionResult<IEnumerable<EnrollementDTO>>> GetByCourseAsync(int courseId)
         {
             try
             {
@@ -146,7 +157,7 @@ namespace Web.Controllers
                 if (enrollmentModel == null)
                     return NotFound();
 
-                var enrollmentDto = enrollmentModel.ToEnrollementAPI(); // Map to DTO
+                var enrollmentDto = enrollmentModel.Select(x => x.ToEnrollementAPI()); // Map to DTO
                 return Ok(enrollmentDto);
             }
             catch (Exception ex)
@@ -156,9 +167,9 @@ namespace Web.Controllers
             }
         }
         [HttpGet("user/{userId}")]
-        //  [Authorize]
-        [AllowAnonymous]
-        public async Task<ActionResult<EnrollementDTO>> GetByUserIdAsync(int userId)
+          [Authorize]
+     
+        public async Task<ActionResult<IEnumerable<EnrollementDTO>>> GetByUserIdAsync(int userId)
         {
             try
             {
@@ -167,7 +178,7 @@ namespace Web.Controllers
                 if (enrollmentModel == null)
                     return NotFound();
 
-                var enrollmentDto = enrollmentModel.ToEnrollementAPI(); // Map to DTO
+                var enrollmentDto = enrollmentModel.Select( x => x.ToEnrollementAPI()); // Map to DTO
                 return Ok(enrollmentDto);
             }
             catch (Exception ex)
@@ -207,8 +218,8 @@ namespace Web.Controllers
         }
 
         [HttpPut("UpdateGrades")]
-        //[Authorize(Roles = "Professeur,Admin")]
-        [AllowAnonymous]
+        [Authorize(Roles = "Professeur,Admin")]
+       
         public async Task<IActionResult> UpdateGrade(int idUsers, int idCours, int grade)
         {
             var result = await _studentEnrollmentService.UpdateGradesAsync(idUsers, idCours, grade);

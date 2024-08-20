@@ -13,5 +13,7 @@ namespace BLL.Interface
         Task<string> LoginAsync(string username, string password);
         string RefreshToken(string token);
         Task<string> GetUserRoleAsync(string username);
+        public Task ChangePasswordAsync(int userId, string currentPassword, string newPassword);
+        public Task ForgotPasswordAsync(string pseudo, string newPassword);
     }
 }

@@ -26,8 +26,8 @@ namespace Web.Controllers
         }
 
         [HttpPost]
-        //[Authorize]
-        [AllowAnonymous]
+        [Authorize]
+     //  [AllowAnonymous]
         [Route(nameof(Register))]
         public ActionResult Register( UsersFORM user)
         {
@@ -49,8 +49,8 @@ namespace Web.Controllers
         }
 
         [HttpGet("GetAll")]
-        //   [Authorize]
-        [AllowAnonymous]
+        [Authorize]
+        //[AllowAnonymous]
         public async Task<ActionResult<IEnumerable<UsersDTO>>> GetAll()
         {
             try
@@ -67,8 +67,8 @@ namespace Web.Controllers
         }
 
         [HttpGet("GetById/{id}")]
-        // [Authorize]
-        [AllowAnonymous]
+        [Authorize]
+        //[AllowAnonymous]
         public async Task<ActionResult<UsersDTO>> GetById(int id)
         {
             try
@@ -89,8 +89,8 @@ namespace Web.Controllers
         }
 
         [HttpPost("Create")]
-        //[Authorize(Roles = "Admin")]
-        [AllowAnonymous]
+        [Authorize(Roles = "Admin")]
+        //[AllowAnonymous]
         public async Task<ActionResult> Create( UsersFORM user)
         {
             if (user == null)
@@ -119,8 +119,8 @@ namespace Web.Controllers
 
         // PUT: api/users/{id}
         [HttpPut("{id}")]
-        //  [Authorize]
-        [AllowAnonymous]
+        [Authorize]
+     //   [AllowAnonymous]
         public async Task<ActionResult> Update(int id,UsersFORM user)
         {
             if (user == null)
@@ -151,8 +151,8 @@ namespace Web.Controllers
         }
         // DELETE: api/users/{id}
         [HttpDelete("Delete/{id}")]
-        //   [Authorize(Roles = "Admin")]
-        [AllowAnonymous]
+         [Authorize(Roles = "Admin")]
+      //  [AllowAnonymous]
         public async Task<ActionResult> Delete(int id)
         {
             try
@@ -166,8 +166,8 @@ namespace Web.Controllers
             }
         }
         [HttpGet("GetAllCourseEachCourse")]
-        // [Authorize(Roles = "Admin")]
-        [AllowAnonymous]
+        [Authorize(Roles = "Admin")]
+       // [AllowAnonymous]
         public async Task<IEnumerable<UserCoursDetailsDTO>> GetUsersCoursesAsync()
         {
             try
@@ -221,8 +221,8 @@ namespace Web.Controllers
         //    }
         //}
         [HttpGet("pseudo/{pseudo}")]
-        //  [Authorize]
-        [AllowAnonymous]
+        [Authorize]
+      //  [AllowAnonymous]
         public async Task<IActionResult> GetUserByPseudo(string pseudo)
         {
             try
@@ -242,8 +242,8 @@ namespace Web.Controllers
             }
         }
         [HttpGet("GetUserRole/{userId}")]
-        //   [Authorize]
-        [AllowAnonymous]
+          [Authorize]
+        //[AllowAnonymous]
         public async Task<IActionResult> GetUserRole(int userId)
         {
             var role = await _userService.GetUserRoleAsync(userId);
@@ -257,17 +257,32 @@ namespace Web.Controllers
         }
 
         [HttpGet("GetCurrentUser")]
-        // [Authorize]
-        [AllowAnonymous]
+         [Authorize]
+        
         public async Task<IActionResult> GetCurrentUser()
         {
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier); // Extrait l'ID de l'utilisateur du token
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier); 
             var user = await _userService.GetUsersByPseudo(userId);
             if (user == null)
             {
                 return NotFound();
             }
             return Ok(user);
+        }
+        [HttpGet("search")]
+        [Authorize]
+       // [AllowAnonymous]
+        public async Task<IActionResult> SearchUsers([FromQuery] string search)
+        {
+            if (string.IsNullOrWhiteSpace(search))
+            {
+                return BadRequest("Search term is required.");
+            }
+
+            var users = await _userService.SearchUsers(search);
+            var usersDTO = users.Select(u => u.BllAccessToApi());
+
+            return Ok(usersDTO);
         }
     }
 }

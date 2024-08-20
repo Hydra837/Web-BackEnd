@@ -22,6 +22,7 @@ namespace BLL.Interface
         // Task UpdateAsync(int id, CoursModel cours);
         public Task<IEnumerable<CoursModel>> GetAllByTeacher(int id);
         Task<IEnumerable<CoursModel>> GetUnenrolledCoursesAsync(int studentId);
-
+        public Task<IEnumerable<CoursModel>> SearchCours(string search);
+        public Task<bool> CourseExistsAsync(int courseId);
     }
 }

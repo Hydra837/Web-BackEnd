@@ -46,6 +46,11 @@ namespace DAL.Repository
             throw new NotImplementedException();
         }
 
+        public async Task SaveChangesAsync()
+        {
+            await _context.SaveChangesAsync();
+        }
+
         //public async Task<RefreshToken> GetRefreshTokenAsync(string token)
         //{
         //    return await _context.RefreshTokens.SingleOrDefaultAsync(rt => rt.Token == token);

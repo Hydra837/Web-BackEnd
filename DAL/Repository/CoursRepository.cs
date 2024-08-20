@@ -148,6 +148,20 @@ namespace DAL.Repository
 
             return unenrolledCourses;
         }
+        public async Task<IEnumerable<CoursData>> SearchCourse(string search)
+        {
+            var courses = await _context.Courses
+          .Where(c => c.Nom.Contains(search) || c.Description.Contains(search))
+          .ToListAsync();
+
+
+            return courses;
+        }
+
+        public async Task SaveChangesAsync()
+        {
+            await _context.SaveChangesAsync();
+        }
     }
 }
 

@@ -18,5 +18,7 @@ namespace BLL.Interface
         Task DeleteAsync(int id);
         public Task<UsersModel> GetUsersByPseudo(string pseudo);
         Task<string> GetUserRoleAsync(int userId);
+        public Task<IEnumerable<UsersModel>> SearchUsers(string search);
+        public Task<bool> IsPseudoExistsAsync(string pseudo);
     }
 }

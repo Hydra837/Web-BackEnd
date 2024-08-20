@@ -17,6 +17,7 @@ namespace DAL
         public DbSet<Student_ManagementData> InstructorAssignments { get; set; }
         public DbSet<UserCourseDetailsData> UserCourseDetails { get; set; }
         public DbSet<GradeData> Grades { get; set; }
+        public DbSet<UserAssignementsData> UserAssignements { get; set; }
         public DbSet<AssigementsData> Assignments { get; set; }
 
         // Configuration des entités et des relations
@@ -93,6 +94,12 @@ namespace DAL
             modelBuilder.Entity<AssigementsData>()
                 .Property(a => a.Id)
                 .ValueGeneratedOnAdd(); // Assurez-vous que l'Id est généré automatiquement
+            modelBuilder.Entity<UserAssignementsData>(entity =>
+            {
+                entity.HasNoKey();
+                entity.ToTable("GetUserCoursesAssignmentsGrades"); // Vous pouvez spécifier le nom de la table si applicable
+            });
+
         }
 
         // Pour activer le logging des requêtes SQL pour le débogage

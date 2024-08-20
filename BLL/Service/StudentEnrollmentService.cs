@@ -248,8 +248,7 @@ namespace BLL.Service
             return a.Select(x => x.ToUserBLL());
         }
 
-
-        public async Task<Student_EnrollmentModel> GetByUserIdAsync(int userId)
+        public async Task<IEnumerable<Student_EnrollmentModel>> GetByUserIdAsync(int userId)
         {
             if (userId <= 0)
                 throw new ArgumentOutOfRangeException(nameof(userId), "User ID must be greater than zero.");
@@ -258,22 +257,21 @@ namespace BLL.Service
             {
                 var enrollmentData = await _studentEnrollmentRepository.GetByUserIdAsync(userId);
 
-                if (enrollmentData == null)
-                    return null;
+                if (enrollmentData == null || !enrollmentData.Any())
+                    return Enumerable.Empty<Student_EnrollmentModel>();
 
-                return enrollmentData.ToEnrollementBLL();
+                return enrollmentData.Select(x => x.ToEnrollementBLL());
             }
             catch (Exception ex)
             {
-                // Log the exception
                 Console.WriteLine($"Error retrieving enrollment by user ID: {ex.Message}");
-
-                // Optionally, rethrow the exception if it should be handled by a higher-level handler
                 throw;
             }
         }
 
-        public async Task<Student_EnrollmentModel> GetByCourseAsync(int courseId)
+
+
+        public async Task<IEnumerable<Student_EnrollmentModel>> GetByCourseAsync(int courseId)
         {
             if (courseId <= 0)
                 throw new ArgumentOutOfRangeException(nameof(courseId), "Course ID must be greater than zero.");
@@ -282,20 +280,36 @@ namespace BLL.Service
             {
                 var enrollmentData = await _studentEnrollmentRepository.GetByCourseAsync(courseId);
 
-                if (enrollmentData == null)
-                    return null;
+                if (enrollmentData == null || !enrollmentData.Any())
+                    return Enumerable.Empty<Student_EnrollmentModel>();
 
-                return enrollmentData.ToEnrollementBLL();
+                return enrollmentData.Select(x => x.ToEnrollementBLL());
             }
             catch (Exception ex)
             {
-                // Log the exception
                 Console.WriteLine($"Error retrieving enrollment by course ID: {ex.Message}");
-
-                // Optionally, rethrow the exception if it should be handled by a higher-level handler
                 throw;
             }
         }
+  
+
+        public async Task<bool> IsUserEnrolledInCourseAsync(int userId, int courseId)
+        {
+            // Récupérer toutes les inscriptions pour cet utilisateur
+            IEnumerable<Student_EnrollementData> enrollments = await _studentEnrollmentRepository.GetByUserIdAsync(userId);
+
+            // Parcourir les inscriptions pour vérifier s'il y a déjà une inscription à ce cours
+            foreach (Student_EnrollementData enrollment in enrollments)
+            {
+                if (enrollment.CoursId == courseId)
+                {
+                    return true; // L'utilisateur est déjà inscrit à ce cours
+                }
+            }
+
+            return false; // L'utilisateur n'est pas encore inscrit à ce cours
+        }
+
 
         public async Task<bool> UpdateGrade(int id, int grade)
         {

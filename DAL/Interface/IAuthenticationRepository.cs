@@ -15,5 +15,6 @@ namespace DAL.Interface
         // Méthodes pour gérer les tokens de rafraîchissement, si applicable
         Task<RefreshTokenData> GetRefreshTokenAsync(string token);
         Task SaveRefreshTokenAsync(RefreshTokenData refreshToken);
+        Task SaveChangesAsync();
     }
 }

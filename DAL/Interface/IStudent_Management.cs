@@ -16,7 +16,9 @@ namespace DAL.Interface
         public Task InsertStudentCoursesAsync(int user, int course);
         public Task Deleteteacher(int idteacher, int course);
         public Task UpdateTeacherToCourse(int teacherId, int courseId);
-       
+        public Task<IEnumerable<UserAssignementsData>> GetuserResult(int id);
+         Task SaveChangesAsync();
+
 
     }
 }

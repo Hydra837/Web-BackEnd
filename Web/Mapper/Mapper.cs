@@ -168,6 +168,42 @@ namespace Web.Mapper
                 //Grades = dto.Grades?.Select(g => g.ToGradeModel()).ToList()
             };
         }
+        public static UserAssignementDTO TouserAssignmentDTO (this UserAssignementsModel model)
+        {
+            if (model == null)
+            {
+                throw new ArgumentNullException(nameof(model));
+            }
+
+            return new UserAssignementDTO
+            {
+               // CoursId = model.CoursId,
+                Nom = model.Nom,
+                Prenom = model.Prenom,
+                CoursName = model.CoursName,
+                //AssignementId = model.AssignementId,
+                AssignementTitle = model.AssignementTitle,
+                Grade = model.Grade
+            };
+        }
+        public static AssignementDTOids TouserAssignmentDTOId(this UserAssignementsModel model)
+        {
+            if (model == null)
+            {
+                throw new ArgumentNullException(nameof(model));
+            }
+
+            return new AssignementDTOids
+            {
+                CoursId = model.CoursId,
+                Nom = model.Nom,
+                Prenom = model.Prenom,
+                CoursName = model.CoursName,
+                AssignementId = model.AssignementId,
+                AssignementTitle = model.AssignementTitle,
+                Grade = model.Grade
+            };
+        }
 
     }
 }

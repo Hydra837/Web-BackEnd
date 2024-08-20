@@ -18,6 +18,8 @@ namespace DAL.Interface
         public Task<IEnumerable<CoursData>> GetallByUser(int id);
         public Task<UsersData> GetUsersByPseudo(string pseudo);
         Task<string> GetUserRoleByIdAsync(int userId);
+        Task<IEnumerable<UsersData>> SearchUser(string search);
+        Task SaveChangesAsync();
 
 
     }

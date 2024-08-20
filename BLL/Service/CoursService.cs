@@ -90,8 +90,17 @@ namespace BLL.Service
         {
             throw new NotImplementedException();
         }
+        public async Task<IEnumerable<CoursModel>> SearchCours(string search)
+        {
+            var courses = await _coursRepository.SearchCourse(search);
 
-       
+            // Utiliser le mapper pour convertir les entités en modèles
+            var coursesModel = courses.Select(c => c.ToCoursBLL());
+
+            return coursesModel;
+        }
+
+
 
         public void Create(CoursModel cours)
         {
@@ -134,7 +143,22 @@ namespace BLL.Service
             var unenrolledCoursesModels = unenrolledCourses.Select(course => course.ToCoursBLL()).ToList();
             return unenrolledCoursesModels;
         }
+        public async Task<bool> CourseExistsAsync(int courseId)
+        {
+            if (courseId <= 0)
+                throw new ArgumentOutOfRangeException(nameof(courseId), "Course ID must be greater than zero.");
 
+            try
+            {
+                var course = await _coursRepository.GetByIdAsync(courseId);
+                return course != null;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error checking if course exists: {ex.Message}");
+                throw;
+            }
+        }
         //public async Task InsertUserCourseAsync(int userId, int courseId)
         //{
         //    if (userId <= 0)
@@ -157,5 +181,8 @@ namespace BLL.Service
         //        throw;
         //    }
         //}
+
     }
-}
+
+    }
+

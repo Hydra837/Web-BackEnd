@@ -40,8 +40,8 @@ namespace Web.Controllers
         }
 
         [HttpGet("{id}")]
-        // [Authorize]
-        [AllowAnonymous]
+        [Authorize]
+       
         public async Task<IActionResult> GetById(int id)
         {
             try
@@ -62,8 +62,7 @@ namespace Web.Controllers
         }
 
         [HttpGet("by-course/{courseId}")]
-        //  [Authorize]
-        [AllowAnonymous]
+         [Authorize]
         public async Task<IActionResult> GetByCourse(int courseId)
         {
             try
@@ -80,8 +79,8 @@ namespace Web.Controllers
         }
 
         [HttpGet("by-user/{userId}")]
-        // [Authorize]
-        [AllowAnonymous]
+         [Authorize]
+      
         public async Task<IActionResult> GetByUser(int userId)
         {
             try
@@ -98,8 +97,7 @@ namespace Web.Controllers
         }
 
         [HttpGet("by-teacher/{userId}")]
-        //  [Authorize]
-        [AllowAnonymous]
+         [Authorize]
         public async Task<IActionResult> GetByTeacher(int userId)
         {
             try
@@ -116,8 +114,7 @@ namespace Web.Controllers
         }
 
         [HttpPost]
-        // [Authorize(Roles = "Professeur,Admin")]
-        [AllowAnonymous]
+         [Authorize(Roles = "Professeur,Admin")]
         public async Task<IActionResult> Create([FromBody] AssignementsFORM form)
         {
             if (!ModelState.IsValid)
@@ -139,8 +136,8 @@ namespace Web.Controllers
         }
 
         [HttpPut("{id}")]
-        // [Authorize(Roles ="Professeur,Admin")]
-        [AllowAnonymous]
+         [Authorize(Roles ="Professeur,Admin")]
+  
         public async Task<IActionResult> Update(int id, [FromBody] AssignementsFORM form)
         {
             if (!ModelState.IsValid)
@@ -169,8 +166,8 @@ namespace Web.Controllers
         }
 
         [HttpDelete("{id}")]
-        // [Authorize(Roles ="Admin")]
-        [AllowAnonymous]
+         [Authorize(Roles ="Admin")]
+   
         public async Task<IActionResult> Delete(int id)
         {
             try

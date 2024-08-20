@@ -160,9 +160,17 @@ namespace BLL.Service
             throw new NotImplementedException();
         }
 
-        //IEnumerable<CoursData> GetAllCourseByUser(int id)
-        //{
-        //    throw new NotImplementedException();
-        //}
+        public Task SaveChangesAsync()
+        {
+            throw new NotImplementedException();
+        }
+
+        public async Task<IEnumerable<UserAssignementsModel>> GetuserResult(int id)
+        {
+            var assignmentsData = await _stu.GetuserResult(id);
+            var result = assignmentsData.Select(x => x.ToUserAssignementBLL());
+            return result;
+        }
+
     }
 }

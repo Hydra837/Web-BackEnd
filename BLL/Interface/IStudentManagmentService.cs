@@ -1,4 +1,5 @@
 ﻿using BLL.Models;
+using DAL.Data;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,5 +17,6 @@ namespace BLL.Interface
         public Task Deleteteacher(int idteacher, int course);
         public Task UpdateTeacherToCourse(int teacherId, int courseId);
         public Task<UsersModel>GetTeacherName(int teacherId);
+        public Task<IEnumerable<UserAssignementsModel>> GetuserResult(int id);
     }
 }

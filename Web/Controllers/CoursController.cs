@@ -32,8 +32,8 @@ namespace Web.Controllers
         }
 
         [HttpGet("available")]
-        //  [Authorize]
-        [AllowAnonymous]
+         [Authorize]
+      
         public async Task<ActionResult<IEnumerable<CoursModel>>> GetAllAvailable()
         {
             try
@@ -48,8 +48,8 @@ namespace Web.Controllers
             }
         }
         [HttpPost("Cours")]
-        //  [Authorize(Roles ="Professeur,Admin")]
-        [AllowAnonymous]
+         [Authorize(Roles ="Professeur,Admin")]
+      
         public async Task<CoursModel> CreateAsync(CoursFORM entity)
         {
             if (entity == null)
@@ -65,8 +65,8 @@ namespace Web.Controllers
         }
         
          [HttpGet("{id}")]
-        //[Authorize]
-        [AllowAnonymous]
+        [Authorize]
+    
         public async Task<IActionResult> GetByIdAsync(int id)
             {
               var course = await _cours.GetByIdAsync(id);
@@ -79,8 +79,7 @@ namespace Web.Controllers
 
       
         [HttpPut("update/{id}")]
-        // [Authorize(Roles = "Professeur,Admin")]
-        [AllowAnonymous]
+        [Authorize(Roles = "Professeur,Admin")]
         public async Task<IActionResult> UpdateAsync(int id,  CoursFORM coursFORM)
         {
             if (id <= 0)
@@ -119,8 +118,8 @@ namespace Web.Controllers
             }
         }
         [HttpDelete("{id}")]
-        // [Authorize(Roles = "Professeur,Admin")]
-        [AllowAnonymous]
+        [Authorize(Roles = "Professeur,Admin")]
+     
         public async Task<IActionResult> DeleteAsync(int id)
         {
             if (id <= 0)
@@ -154,8 +153,8 @@ namespace Web.Controllers
             }
         }
         [HttpGet("cours/professeur/{teacherId}")]
-        //  [Authorize(Roles = "Professeur,Admin")]
-        [AllowAnonymous]
+         [Authorize(Roles = "Professeur,Admin")]
+      
         public async Task<ActionResult<IEnumerable<CoursModel>>> GetCoursesByTeacher(int teacherId)
         {
             try
@@ -174,8 +173,8 @@ namespace Web.Controllers
             }
         }
         [HttpGet("UnenrolledCourses/{studentId}")]
-        // [Authorize]
-        [AllowAnonymous]
+        [Authorize]
+ 
         public async Task<ActionResult<IEnumerable<CoursDTO>>> GetUnenrolledCourses(int studentId)
         {
             try
@@ -197,7 +196,19 @@ namespace Web.Controllers
             }
         }
 
+        [HttpGet("search")]
+        [Authorize(Roles ="Admin")]
+        public async Task<IActionResult> SearchCours([FromQuery] string search)
+        {
+            if (string.IsNullOrWhiteSpace(search))
+            {
+                return BadRequest("Search term is required.");
+            }
 
+            var courses = await _cours.SearchCours(search);
+            var coursesDTO = courses.Select(c => c.CoursToApi());
+            return Ok(coursesDTO);
+        }
 
 
 

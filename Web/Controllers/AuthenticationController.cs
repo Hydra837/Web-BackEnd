@@ -1,5 +1,7 @@
 ﻿using BLL.Interface;
+using BLL.Service;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity.Data;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Threading.Tasks;
@@ -67,6 +69,33 @@ namespace Web.Controllers
             {
                 _logger.LogError(ex, "An error occurred during login");
                 return Unauthorized("Invalid username or password");
+            }
+        }
+        [HttpPost("change-password")]
+        public async Task<IActionResult> ChangePassword(int userId, string currentPassword, string newPassword)
+        {
+            try
+            {
+                await _authenticationService.ChangePasswordAsync(userId, currentPassword, newPassword);
+                return Ok("Password changed successfully");
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+        [HttpPost("forgot-password")]
+        public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswdFORM request)
+        {
+           
+            try
+            {
+                await _authenticationService.ForgotPasswordAsync(request.Pseudo, request.NewPassword);
+                return Ok("Mot de passe modifié avec succès");
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
             }
         }
 

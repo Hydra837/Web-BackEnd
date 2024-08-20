@@ -8,6 +8,7 @@ using Microsoft.Data.SqlClient;
 using System.Linq;
 using System.Threading.Tasks;
 using Tools;
+using System.Collections;
 
 namespace DAL.Repository
 {
@@ -103,39 +104,39 @@ namespace DAL.Repository
             return usersList;
         }
 
-        public async Task<Student_EnrollementData> GetByCourseAsync(int courseId)
+        public async Task<IEnumerable<Student_EnrollementData>> GetByCourseAsync(int courseId)
         {
-            var enrollment = await _context.StudentEnrollements
+            var enrollments = await _context.StudentEnrollements
                 .Include(se => se.User)
                 .Include(se => se.Cours)
-                .FirstOrDefaultAsync(se => se.CoursId == courseId);
+                .Where(se => se.CoursId == courseId)
+                .ToListAsync();
 
-            if (enrollment == null)
+            if (!enrollments.Any())
             {
-                throw new KeyNotFoundException($"No enrollment found for course ID {courseId}");
+                throw new KeyNotFoundException($"No enrollments found for course ID {courseId}");
             }
 
-            return enrollment;
+            return enrollments;
         }
 
 
 
-        public async Task<Student_EnrollementData> GetByUserIdAsync(int userId)
+        public async Task<IEnumerable<Student_EnrollementData>> GetByUserIdAsync(int userId)
         {
-            var enrollment = await _context.StudentEnrollements
+            var enrollments = await _context.StudentEnrollements
                 .Include(se => se.User)
                 .Include(se => se.Cours)
-                .FirstOrDefaultAsync(se => se.UserId == userId);
+                .Where(se => se.UserId == userId)
+                .ToListAsync();
 
-            if (enrollment == null)
+            if (!enrollments.Any())
             {
-                throw new KeyNotFoundException($"No enrollment found for user ID {userId}");
+                throw new KeyNotFoundException($"No enrollments found for user ID {userId}");
             }
 
-            return enrollment;
+            return enrollments;
         }
-
-
         public async Task InsertGrade(int id, int grade)
         {
             var enrollment = await _context.StudentEnrollements.FindAsync(id);
@@ -399,6 +400,18 @@ namespace DAL.Repository
             .Include(u => u.Courses)
             .FirstOrDefaultAsync();
         }
+        public async Task<IEnumerable<UsersData>> SearchUser(string search)
+        {
+            var users = await _context.Users
+                .Where(u => u.Nom.Contains(search) || u.Prenom.Contains(search))
+                .ToListAsync();
 
+            return users;
+        }
+
+        public async Task SaveChangesAsync()
+        {
+            await _context.SaveChangesAsync();
+        }
     }
 }

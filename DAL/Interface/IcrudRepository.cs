@@ -12,6 +12,6 @@ namespace DAL.Interface
         public void Create(CoursData cours);
         public void Update(int id);
         public void Delete(int id);
-
+        Task SaveChangesAsync();
     }
 }

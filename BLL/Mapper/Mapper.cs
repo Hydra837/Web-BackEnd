@@ -157,5 +157,26 @@ namespace BLL.Mapper
                 Grades = data.Grades?.ToList() 
             };
         }
+        
+            public static UserAssignementsModel ToUserAssignementBLL(this UserAssignementsData data)
+            {
+                if (data == null)
+                {
+                    throw new ArgumentNullException(nameof(data));
+                }
+
+                return new UserAssignementsModel()
+                {
+                    CoursId = data.CoursId,
+                    Nom = data.Nom,
+                    Prenom = data.Prenom,
+                    CoursName = data.CoursName,
+                    AssignementId = data.AssignementId,
+                    AssignementTitle = data.AssignementTitle,
+                    Grade = data.Grade
+                };
+            }
+        
+
     }
 }

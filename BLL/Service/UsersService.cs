@@ -7,6 +7,7 @@ using DAL.Mapper;
 using DAL.Repository;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using UsersModel = BLL.Models.UsersModel;
 
 namespace BLL.Service
 {
@@ -54,7 +55,22 @@ namespace BLL.Service
 
             await _userRepository.DeleteAsync(id);
         }
+        public async Task<bool> IsPseudoExistsAsync(string pseudo)
+        {
+            if (string.IsNullOrEmpty(pseudo))
+                throw new ArgumentException("Pseudo cannot be null or empty.", nameof(pseudo));
 
+            try
+            {
+                var user = await _userRepository.GetUsersByPseudo(pseudo);
+                return user != null;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error checking if pseudo exists: {ex.Message}");
+                throw;
+            }
+        }
         public async Task<IEnumerable<UsersModel>> GetAllAsync()
         {
             var userData = await _userRepository.GetAllAsync();
@@ -145,6 +161,13 @@ namespace BLL.Service
         public async Task<string> GetUserRoleAsync(int userId)
         {
             return await _userRepository.GetUserRoleByIdAsync(userId);
+        }
+        public async Task<IEnumerable<UsersModel>> SearchUsers(string search)
+        {
+            var users = await _userRepository.SearchUser(search);
+            var usersModel = users.Select(u => u.ToUserBLL());
+
+            return usersModel;
         }
     }
     

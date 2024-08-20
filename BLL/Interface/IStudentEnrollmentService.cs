@@ -18,8 +18,8 @@ namespace BLL.Interface
         public Task<IEnumerable<UsersModel>> GetAlluserBycourse(int id);
         public Task<IEnumerable<CoursModel>> EnrolledStudentAsync(int id);
         Task<IEnumerable<Student_EnrollmentModel>> GetAllGradesAsync();
-        Task<Student_EnrollmentModel> GetByUserIdAsync(int userId);
-        Task<Student_EnrollmentModel> GetByCourseAsync(int courseId);
+         Task<IEnumerable<Student_EnrollmentModel>> GetByUserIdAsync(int userId);
+        Task<IEnumerable<Student_EnrollmentModel>> GetByCourseAsync(int courseId);
         //   Task<IEnumerable<GradeData>> GetByCoursesAsync(int id);
         Task InsertGrade(int id, int grade);
         Task DeleteAsync(int id);
@@ -37,6 +37,7 @@ namespace BLL.Interface
         public Task<List<UsersModel>> GetAllProfessorsWithCoursesAsync();
         public Task<UsersModel> GetProfessorWithCoursesAsync(int professorId);
         Task<List<UsersModel>> GetUsersWithCoursesAssignmentsAndGradesAsync();
+        public Task<bool> IsUserEnrolledInCourseAsync(int userId, int courseId);
 
 
     }

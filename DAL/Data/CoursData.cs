@@ -34,7 +34,7 @@ namespace DAL.Data
         public ICollection<UsersData>? User { get; set; } 
         // Ajout de la propriété de navigation pour les affectations des instructeurs
         public virtual ICollection<Student_ManagementData> InstructorAssignments { get; set; } = new HashSet<Student_ManagementData>();
-
+        public ICollection<AssigementsData>? Assignments { get; set; }
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
         {
             if (date_fin <= date_debut)

@@ -114,5 +114,22 @@ namespace DAL.Mapper
 
             };
         }
+        internal static UserAssignementsData ToUserAssignementsModel(this IDataRecord record)
+        {
+            if (record == null)
+                throw new ArgumentNullException(nameof(record));
+
+            return new UserAssignementsData()
+            {
+                CoursId = record["CoursId"] as int?,
+                Nom = record["Nom"] as string,
+                Prenom = record["Prenom"] as string,
+                CoursName = record["CoursName"] as string,
+                AssignementId = record["AssignementId"] as int?,
+                AssignementTitle = record["AssignementTitle"] as string,
+                Grade = record["Grade"] as int?
+            };
+        }
+
     }
 }

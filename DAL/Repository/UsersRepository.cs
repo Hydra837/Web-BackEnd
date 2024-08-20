@@ -250,5 +250,18 @@ namespace DAL.Repository
             return user;
 
         }
+        public async Task<IEnumerable<UsersData>> SearchUser(string search)
+        {
+            var users = await _context.Users
+                .Where(u => u.Nom.Contains(search) || u.Prenom.Contains(search))
+                .ToListAsync();
+
+            return users;
+        }
+
+        public async Task SaveChangesAsync()
+        {
+            await _context.SaveChangesAsync();
+        }
     }
 }

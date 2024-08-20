@@ -98,7 +98,23 @@ namespace BLL.Service
                 return Convert.ToBase64String(saltBytes);
             }
         }
+        public async Task ChangePasswordAsync(int userId, string currentPassword, string newPassword)
+        {
+            var user = await  _userRepository.GetByIdAsync(userId)
+                ?? throw new InvalidOperationException("User not found");
 
+            var currentHashedPassword = HashPassword(currentPassword, user.Salt);
+
+            if (user.Passwd != currentHashedPassword)
+            {
+                throw new InvalidOperationException("Current password is incorrect");
+            }
+
+            var newHashedPassword = HashPassword(newPassword, user.Salt);
+            user.Passwd = newHashedPassword;
+
+            _userRepository.UpdateAsync(user);
+        }
         public async Task<string> LoginAsync(string username, string password)
         {
             var user = await _userRepository.GetUsersByPseudo(username)
@@ -123,6 +139,20 @@ namespace BLL.Service
         public Task<string> GetUserRoleAsync(string username)
         {
             throw new NotImplementedException();
+        }
+
+        public async Task ForgotPasswordAsync(string pseudo, string newPassword)
+        {
+            var user = await _userRepository.GetUsersByPseudo(pseudo)
+               ?? throw new InvalidOperationException("User not found");
+
+            var salt = GenerateSalt();
+            user.Passwd = HashPassword(newPassword, salt);
+            user.Salt = salt;
+
+            _userRepository.UpdateAsync(user);
+           // await _userRepository.SaveChangesAsync();
+
         }
     }
 }

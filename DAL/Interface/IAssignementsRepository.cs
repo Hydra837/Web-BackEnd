@@ -17,6 +17,7 @@ namespace DAL.Interface
         Task Insert(AssigementsData assigementsData);
         Task Update(AssigementsData assigementsData);
         Task Delete (int id);
+        Task SaveChangesAsync();
 
 
     }

@@ -43,6 +43,7 @@ namespace DAL.Interface
         // Récupérer toutes les notes par ID de cours (une méthode redondante dans l'interface, selon les besoins)
         Task<IEnumerable<GradeData>> GetByCoursesAsync(int id);
         public Task<IEnumerable<GradeData>> GetAllByAssignmentAsync(int assignementsId);
+        Task SaveChangesAsync();
 
 
 

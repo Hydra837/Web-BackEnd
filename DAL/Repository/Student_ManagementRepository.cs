@@ -1,8 +1,10 @@
 ﻿using DAL.Data;
 using DAL.Interface;
+using Dapper;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
 using Tools;
@@ -12,10 +14,13 @@ namespace DAL.Repository
     public class Student_ManagementRepository : RepositoryBase, IStudent_Management
     {
         private readonly EFDbContextData _context;
-
+        private readonly DbSet<UserAssignementsData> _detailsDbSet;
+        private readonly Connection _connection;
         public Student_ManagementRepository(Connection connection, EFDbContextData context) : base(connection)
         {
+            _connection = connection;
             _context = context;
+            _detailsDbSet = _context.UserAssignements;
         }
 
         public void Create(CoursData cours)
@@ -227,6 +232,29 @@ namespace DAL.Repository
             {
                 Console.WriteLine("Une erreur est survenue : " + ex.Message);
                 throw;
+            }
+        }
+
+        public async Task SaveChangesAsync()
+        {
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task<IEnumerable<UserAssignementsData>> GetuserResult(int userId)
+        {
+            string storedProcedure = "GetUserAssignmentsWithGrades";
+
+            var parameters = new { UserId = userId };
+
+            using (var connection = _context.Database.GetDbConnection())
+            {
+                connection.Open();
+                var result = await connection.QueryAsync<UserAssignementsData>(
+                    storedProcedure,
+                    parameters,
+                    commandType: CommandType.StoredProcedure
+                );
+                return result;
             }
         }
     }
