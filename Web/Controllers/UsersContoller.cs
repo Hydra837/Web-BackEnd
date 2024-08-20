@@ -90,12 +90,16 @@ namespace Web.Controllers
 
         [HttpPost("Create")]
         [Authorize(Roles = "Admin")]
-        //[AllowAnonymous]
-        public async Task<ActionResult> Create( UsersFORM user)
+        public async Task<ActionResult> Create(UsersFORM user)
         {
             if (user == null)
             {
                 return BadRequest(new { Message = "User cannot be null" });
+            }
+            UsersModel existingUser = await _userService.GetUsersByPseudo(user.Pseudo);
+            if (existingUser != null)
+            {
+                return BadRequest(new { Message = "Ce pseudo est déjà pris" });
             }
 
             if (!ModelState.IsValid)
@@ -105,16 +109,16 @@ namespace Web.Controllers
 
             try
             {
-                UsersModel model = user.BllAccessToApi1();
+                UsersModel model = user.BllAccessToApi1(); // Supposons que c'est une méthode de mapping
                 await _userService.CreateAsync(model);
                 return CreatedAtAction(nameof(GetById), new { id = model.Id }, model);
             }
             catch (Exception ex)
             {
-                // Log the exception here if you have a logging mechanism
                 return StatusCode(500, new { Message = "An error occurred while creating the user", Details = ex.Message });
             }
         }
+
 
 
         // PUT: api/users/{id}

@@ -40,32 +40,32 @@ namespace Web.Controllers
             
         }
         [HttpPost("Insert")]
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin, Etudiant")]
         public async Task<IActionResult> Insert(int studentId, int courseId)
         {
-            // Validation des IDs
+   
             if (studentId <= 0 || courseId <= 0)
                 return BadRequest("Invalid student or course ID.");
 
             try
             {
-                // Vérifiez si l'étudiant est déjà inscrit au cours
-                bool isEnrolled = await _studentEnrollmentService.IsUserEnrolledInCourseAsync(studentId, courseId);
-                if (isEnrolled)
-                {
-                    return BadRequest("The student is already enrolled in this course.");
-                }
+  
+                //bool isEnrolled = await _studentEnrollmentService.IsUserEnrolledInCourseAsync(studentId, courseId);
+                //if (isEnrolled)
+                //{
+                //    return BadRequest("L'utilisateur est dejà inscrit");
+                //}
 
-                // Inscrire l'étudiant dans le cours
+          
                 await _studentEnrollmentService.InsertStudentCourseAsync2(studentId, courseId);
 
-                return Ok("Student enrolled successfully.");
+                return Ok("Student inscrit au cours correctement.");
             }
             catch (Exception ex)
             {
-                // Log the exception and return a 500 status code
-                Console.WriteLine($"Error during enrollment: {ex.Message}");
-                return StatusCode(StatusCodes.Status500InternalServerError, $"Internal server error: {ex.Message}");
+            
+                Console.WriteLine($"Erreur durant l'enrollement: {ex.Message}");
+                return StatusCode(StatusCodes.Status500InternalServerError, $"Probleme interne: {ex.Message}");
             }
         }
 
@@ -116,14 +116,14 @@ namespace Web.Controllers
 
                 if (courses == null)
                 {
-                    return NotFound("No courses found for the given student ID.");
+                    return NotFound("Aucun cours n'a été trouvé.");
                 }
 
                 return Ok(courses);
             }
             catch (Exception ex)
             {
-                // Log the exception
+                
                 Console.WriteLine($"Error retrieving enrolled courses for student: {ex.Message}");
                 return StatusCode(500, "Internal server error");
             }

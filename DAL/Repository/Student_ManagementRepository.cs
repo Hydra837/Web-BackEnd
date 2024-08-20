@@ -242,7 +242,7 @@ namespace DAL.Repository
 
         public async Task<IEnumerable<UserAssignementsData>> GetuserResult(int userId)
         {
-            string storedProcedure = "GetUserAssignmentsWithGrades";
+            string storedProcedure = "GetUserCoursesAssignmentsGrades";
 
             var parameters = new { UserId = userId };
 

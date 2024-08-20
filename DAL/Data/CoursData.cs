@@ -25,7 +25,7 @@ namespace DAL.Data
         public DateTime date_fin { get; set; }
 
         [Required]
-        public string Description { get; set; }
+        public string? Description { get; set; }
 
         [AllowNull]
         public int? ProfesseurId { get; set; }

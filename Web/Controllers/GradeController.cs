@@ -56,8 +56,7 @@ namespace Web.Controllers
             return Ok(grades.Select(g => g.ToGradeDTO()));
         }
 
-        // POST: api/grade
-        // POST: api/grade
+      
         [HttpPost]
         [Authorize(Roles ="Admin,Professeur")]
         public async Task<ActionResult> Create(GradeForm gradeForm)
@@ -115,7 +114,7 @@ namespace Web.Controllers
         // DELETE: api/grade/{id}
         [HttpDelete("{id}")]
         // [Authorize(Roles ="Admin")]
-        [Authorize(Roles =("Admin"))]
+        [Authorize(Roles ="Admin,Professeur")]
         public async Task<ActionResult> Delete(int id)
         {
             var existingGrade = await _gradeService.GetByUserIdAsync(id);
@@ -128,21 +127,37 @@ namespace Web.Controllers
             return NoContent();
         }
         [HttpPut("upgrade/{id}")]
-         [Authorize(Roles = "Professeur,Admin")]
-
+        [Authorize(Roles="Professeur,Admin")]
         public async Task<ActionResult> UpgradeGrade(int id, [FromBody] int newGrade)
         {
+            // Validation de la note
+            if (newGrade < 0 || newGrade > 20)
+            {
+                return BadRequest("La note doit être entre 0 et 20.");
+            }
+
+            // Vérification de l'existence de la note
             var existingGrade = await _gradeService.GetByUserIdAsync(id);
             if (existingGrade == null)
             {
-                return NotFound();
+                return NotFound($"La note pour l'utilisateur avec l'ID {id} n'a pas été trouvée.");
             }
 
-            // Assuming the grade is represented by an integer and we only need to update the grade value
-            await _gradeService.UpdateGradeAsync(id, newGrade);
+            try
+            {
+                // Mise à jour de la note
+                await _gradeService.UpdateGradeAsync(id, newGrade);
+            }
+            catch (Exception ex)
+            {
+                // Gestion des exceptions
+                // Vous pouvez loguer l'erreur ici si nécessaire
+                return StatusCode(500, $"Erreur lors de la mise à jour de la note : {ex.Message}");
+            }
 
             return NoContent();
         }
+
         // GET api/grade/assignments/{assignementsId}
         [HttpGet("assignments/{assignementsId}")]
         [Authorize]

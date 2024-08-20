@@ -88,12 +88,11 @@ builder.Services.AddAuthentication(options =>
 // Configure CORS
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowAll",
+    options.AddPolicy("AllowSpecificOrigins",
        policy =>
        {
-           policy.WithOrigins("https://localhost:7233", "http://localhost:4200")
+           policy.WithOrigins("https://localhost:7233", "http://localhost:4200") 
                  .AllowAnyHeader()
-                 .WithMethods("GET", "POST", "OPTIONS")
                  .AllowAnyMethod();
        });
 });
@@ -108,11 +107,11 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-app.UseCors("AllowAll");
+app.UseCors("AllowSpecificOrigins"); 
 app.UseAuthentication();
 app.UseAuthorization();
 
-// Configure static file serving for Angular if applicable
+
 var angularDistPath = Path.Combine(Directory.GetCurrentDirectory(), "ClientApp", "dist");
 
 if (Directory.Exists(angularDistPath))

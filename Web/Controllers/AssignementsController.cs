@@ -166,7 +166,7 @@ namespace Web.Controllers
         }
 
         [HttpDelete("{id}")]
-         [Authorize(Roles ="Admin")]
+         [Authorize(Roles ="Admin, Professeur")]
    
         public async Task<IActionResult> Delete(int id)
         {

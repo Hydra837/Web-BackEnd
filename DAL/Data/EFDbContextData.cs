@@ -55,12 +55,12 @@ namespace DAL
 
             // Configuration de la relation entre GradeData et UsersData
             modelBuilder.Entity<GradeData>()
-                .HasOne(g => g.User)
-                .WithMany(u => u.Grades)
-                .HasForeignKey(g => g.UserId)
-                .OnDelete(DeleteBehavior.Cascade);
+    .HasOne(g => g.User) 
+    .WithMany(u => u.Grades) 
+    .HasForeignKey(g => g.UserId) 
+    .OnDelete(DeleteBehavior.Cascade);
 
-            // Configuration de la relation entre GradeData et AssigementsData
+         
             modelBuilder.Entity<GradeData>()
                 .HasOne(g => g.Assignment)
                 .WithMany(a => a.Grades)
@@ -70,6 +70,7 @@ namespace DAL
             // Définir la clé primaire pour GradeData
             modelBuilder.Entity<GradeData>()
                 .HasKey(g => g.Id);
+            
 
             // Assurez-vous que la propriété Id est auto-générée
             modelBuilder.Entity<GradeData>()

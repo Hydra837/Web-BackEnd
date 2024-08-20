@@ -1,4 +1,5 @@
 ﻿using BLL.Interface;
+using BLL.Models;
 using BLL.Service;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity.Data;
@@ -17,22 +18,27 @@ namespace Web.Controllers
     {
         private readonly ILogger<AuthenticationController> _logger;
         private readonly IAuthenticationService _authenticationService;
+        private readonly IusersService _usersService;
 
         public AuthenticationController(ILogger<AuthenticationController> logger,
-                                        IAuthenticationService authenticationService)
+                                        IAuthenticationService authenticationService,
+                                        IusersService usersService)
         {
             _logger = logger;
             _authenticationService = authenticationService;
+            _usersService = usersService;
         }
 
         [HttpPost("Register")]
         public async Task<IActionResult> Register([FromBody] UsersFORM request)
         {
+            // Vérification de la requête
             if (request == null)
             {
-                return BadRequest("Invalid client request");
+                return BadRequest("La requête est invalide.");
             }
 
+            // Validation du modèle
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
@@ -40,16 +46,30 @@ namespace Web.Controllers
 
             try
             {
+                // Vérification de l'existence du pseudo
+                UsersModel existingUser = await _usersService.GetUsersByPseudo(request.Pseudo);
+                if (existingUser != null)
+                {
+                    return BadRequest(new { Message = "Ce pseudo est déjà pris." });
+                }
+
+                // Conversion du formulaire en modèle BLL et enregistrement de l'utilisateur
                 var userModel = request.BllAccessToApi1();
                 await _authenticationService.RegisterUserAsync(userModel);
-                return CreatedAtAction(nameof(Register), new { username = userModel.Pseudo }, "User registered successfully");
+
+                // Réponse de succès
+                return CreatedAtAction(nameof(Register), new { username = userModel.Pseudo }, "Utilisateur enregistré avec succès.");
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "An error occurred during registration");
-                return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred during registration");
+                // Logging de l'erreur
+                _logger.LogError(ex, "Une erreur est survenue lors de l'inscription.");
+
+                // Réponse d'erreur serveur
+                return StatusCode(StatusCodes.Status500InternalServerError, "Une erreur est survenue lors de l'inscription.");
             }
         }
+
 
         [HttpPost("login")]
         [AllowAnonymous]

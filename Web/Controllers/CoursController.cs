@@ -43,7 +43,6 @@ namespace Web.Controllers
             }
             catch (Exception ex)
             {
-                // Log the exception (use a logging framework)
                 return StatusCode(500, "Internal server error");
             }
         }
@@ -54,11 +53,11 @@ namespace Web.Controllers
         {
             if (entity == null)
                 throw new ArgumentNullException(nameof(entity));
+          //  CoursModel = _cours.CourseExistsAsync(entity.)
+            CoursModel coursData = entity.CoursToBLL(); 
 
-            CoursModel coursData = entity.CoursToBLL(); ;
             await _cours.CreateAsync(coursData);
 
-            // Assuming the entity gets updated with an ID or other information after saving
           ;
 
             return coursData;
@@ -111,14 +110,14 @@ namespace Web.Controllers
             }
             catch (Exception ex)
             {
-                // Log the exception
+
                 Console.WriteLine($"Error: {ex.Message}");
 
                 return StatusCode(500, "Internal server error.");
             }
         }
         [HttpDelete("{id}")]
-        [Authorize(Roles = "Professeur,Admin")]
+        [Authorize(Roles = "Admin")]
      
         public async Task<IActionResult> DeleteAsync(int id)
         {
@@ -129,26 +128,21 @@ namespace Web.Controllers
 
             try
             {
-                // Call the service method to delete the course
+
                 await _cours.DeleteAsync(id);
 
-                // Return a 204 No Content response to indicate success
                 return NoContent();
             }
             catch (KeyNotFoundException ex)
             {
-                // Log the exception
                 Console.WriteLine($"Error: {ex.Message}");
-
-                // Return a 404 Not Found response if the course ID is not found
                 return NotFound("Course not found.");
             }
             catch (Exception ex)
-            {
-                // Log the exception
+            { 
                 Console.WriteLine($"Error: {ex.Message}");
 
-                // Return a 500 Internal Server Error response if there is a general error
+     
                 return StatusCode(500, "Internal server error.");
             }
         }
@@ -162,14 +156,14 @@ namespace Web.Controllers
                 var courses = await _cours.GetAllByTeacher(teacherId);
                 if (courses == null)
                 {
-                    return NotFound(); // 404 Not Found if no courses are found
+                    return NotFound();
                 }
-                return Ok(courses); // 200 OK with the list of courses
+                return Ok(courses); 
             }
             catch (Exception ex)
             {
-                // Log the exception (ex) here if needed
-                return StatusCode(500, "Internal server error"); // 500 Internal Server Error
+              
+                return StatusCode(500, "Internal server error"); 
             }
         }
         [HttpGet("UnenrolledCourses/{studentId}")]

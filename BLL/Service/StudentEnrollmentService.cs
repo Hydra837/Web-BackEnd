@@ -295,19 +295,19 @@ namespace BLL.Service
 
         public async Task<bool> IsUserEnrolledInCourseAsync(int userId, int courseId)
         {
-            // Récupérer toutes les inscriptions pour cet utilisateur
+           
             IEnumerable<Student_EnrollementData> enrollments = await _studentEnrollmentRepository.GetByUserIdAsync(userId);
 
-            // Parcourir les inscriptions pour vérifier s'il y a déjà une inscription à ce cours
+            
             foreach (Student_EnrollementData enrollment in enrollments)
             {
                 if (enrollment.CoursId == courseId)
                 {
-                    return true; // L'utilisateur est déjà inscrit à ce cours
+                    return false; 
                 }
             }
 
-            return false; // L'utilisateur n'est pas encore inscrit à ce cours
+            return true; 
         }
 
 

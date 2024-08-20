@@ -158,7 +158,7 @@ namespace Web.Controllers
                 return BadRequest(new { Message = ex.Message });
             }
         }
-        [HttpGet("userAssignement/{userId}")]
+        [HttpGet("userAssignment/{userId}")]
         [Authorize]
         public async Task<ActionResult<IEnumerable<UserAssignementDTO>>> GetUserAssignments(int userId)
         {
@@ -169,16 +169,17 @@ namespace Web.Controllers
 
             try
             {
+                // Get user assignments from the service
+                IEnumerable<UserAssignementsModel> assignments = await _studentManagementService.GetuserResult(userId);
 
-                var assignments = await _studentManagementService.GetuserResult(userId);
-
-                var assignmentDTOs = assignments.Select(a => a.TouserAssignmentDTO());
+                // Map the model to DTO
+                IEnumerable<UserAssignementDTO> assignmentDTOs = assignments.Select(a => a.TouserAssignmentDTO());
 
                 return Ok(assignmentDTOs);
             }
             catch (Exception ex)
-            {
-                return StatusCode(500, "Une erreur est survenue lors de la récupération des assignements.");
+            { 
+                return StatusCode(StatusCodes.Status500InternalServerError, "Une erreur est survenue lors de la récupération des assignements.");
             }
         }
     }
