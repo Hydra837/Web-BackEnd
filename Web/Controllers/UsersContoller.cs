@@ -2,12 +2,10 @@
 using Microsoft.AspNetCore.Mvc;
 using Web.Models;
 using BLL.Interface;
-using BLL.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using BLL.Service;
 using Web.Mapper;
 using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
@@ -25,33 +23,29 @@ namespace Web.Controllers
             _userService = userService;
         }
 
-        [HttpPost]
+        [HttpPost("Register")]
         [Authorize]
-     //  [AllowAnonymous]
-        [Route(nameof(Register))]
-        public ActionResult Register( UsersFORM user)
+        public IActionResult Register([FromBody] UsersFORM user)
         {
             if (user == null)
             {
-                return BadRequest(new { Message = "User cannot be null" });
+                return BadRequest(new { Message = "Les données de l'utilisateur ne peuvent pas être nulles." });
             }
 
             try
             {
                 _userService.Register(user.Prenom, user.Nom);
-                return Ok(new { Message = "User registered successfully" });
+                return Ok(new { Message = "Utilisateur enregistré avec succès." });
             }
             catch (Exception ex)
             {
-                // Log the exception here if you have a logging mechanism
-                return StatusCode(500, new { Message = "An error occurred during registration", Details = ex.Message });
+                return StatusCode(500, new { Message = "Une erreur est survenue lors de l'enregistrement.", Details = ex.Message });
             }
         }
 
         [HttpGet("GetAll")]
         [Authorize]
-        //[AllowAnonymous]
-        public async Task<ActionResult<IEnumerable<UsersDTO>>> GetAll()
+        public async Task<IActionResult> GetAll()
         {
             try
             {
@@ -61,172 +55,128 @@ namespace Web.Controllers
             }
             catch (Exception ex)
             {
-                // Log the exception here if you have a logging mechanism
-                return StatusCode(500, new { Message = "An error occurred while retrieving users", Details = ex.Message });
+                return StatusCode(500, new { Message = "Une erreur est survenue lors de la récupération des utilisateurs.", Details = ex.Message });
             }
         }
 
         [HttpGet("GetById/{id}")]
         [Authorize]
-        //[AllowAnonymous]
-        public async Task<ActionResult<UsersDTO>> GetById(int id)
+        public async Task<IActionResult> GetById(int id)
         {
             try
             {
                 var user = await _userService.GetByIdAsync(id);
                 if (user == null)
                 {
-                    return NotFound(new { Message = "User not found" });
+                    return NotFound(new { Message = "Utilisateur non trouvé." });
                 }
-                var userModel = user.BllAccessToApi();
-                return Ok(userModel);
+                return Ok(user.BllAccessToApi());
             }
             catch (Exception ex)
             {
-                // Log the exception here if you have a logging mechanism
-                return StatusCode(500, new { Message = "An error occurred while retrieving the user", Details = ex.Message });
+                return StatusCode(500, new { Message = "Une erreur est survenue lors de la récupération de l'utilisateur.", Details = ex.Message });
             }
         }
 
         [HttpPost("Create")]
         [Authorize(Roles = "Admin")]
-        public async Task<ActionResult> Create(UsersFORM user)
+        public async Task<IActionResult> Create([FromBody] UsersFORM user)
         {
             if (user == null)
             {
-                return BadRequest(new { Message = "User cannot be null" });
+                return BadRequest(new { Message = "Les données de l'utilisateur ne peuvent pas être nulles." });
             }
-            UsersModel existingUser = await _userService.GetUsersByPseudo(user.Pseudo);
+
+            var existingUser = await _userService.GetUsersByPseudo(user.Pseudo);
             if (existingUser != null)
             {
-                return BadRequest(new { Message = "Ce pseudo est déjà pris" });
+                return Conflict(new { Message = "Ce pseudo est déjà pris." });
             }
 
             if (!ModelState.IsValid)
             {
-                return BadRequest(ModelState);
+                return BadRequest(new { Message = "Les données de l'utilisateur ne sont pas valides.", Details = ModelState });
             }
 
             try
             {
-                UsersModel model = user.BllAccessToApi1(); // Supposons que c'est une méthode de mapping
+                var model = user.BllAccessToApi1();
                 await _userService.CreateAsync(model);
                 return CreatedAtAction(nameof(GetById), new { id = model.Id }, model);
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { Message = "An error occurred while creating the user", Details = ex.Message });
+                return StatusCode(500, new { Message = "Une erreur est survenue lors de la création de l'utilisateur.", Details = ex.Message });
             }
         }
 
-
-
-        // PUT: api/users/{id}
         [HttpPut("{id}")]
         [Authorize]
-     //   [AllowAnonymous]
-        public async Task<ActionResult> Update(int id,UsersFORM user)
+        public async Task<IActionResult> Update(int id, [FromBody] UsersFORM user)
         {
             if (user == null)
             {
-                return BadRequest(new { Message = "User data is null" });
+                return BadRequest(new { Message = "Les données de l'utilisateur ne peuvent pas être nulles." });
             }
 
             if (!ModelState.IsValid)
             {
-                return BadRequest(ModelState);
+                return BadRequest(new { Message = "Les données de l'utilisateur ne sont pas valides.", Details = ModelState });
             }
 
             try
             {
-                UsersModel model = user.BllAccessToApi1();
+                var model = user.BllAccessToApi1();
                 await _userService.UpdateAsync(id, model);
-                return NoContent(); // 204 No Content
+                return Ok(new { Message = "Utilisateur mis à jour avec succès." });
             }
             catch (KeyNotFoundException)
             {
-                return NotFound(new { Message = "User not found" });
+                return NotFound(new { Message = "Utilisateur non trouvé." });
             }
             catch (Exception ex)
             {
-                // Log the exception here if you have a logging mechanism
-                return StatusCode(500, new { Message = "An error occurred while updating the user", Details = ex.Message });
+                return StatusCode(500, new { Message = "Une erreur est survenue lors de la mise à jour de l'utilisateur.", Details = ex.Message });
             }
         }
-        // DELETE: api/users/{id}
+
         [HttpDelete("Delete/{id}")]
-         [Authorize(Roles = "Admin")]
-      //  [AllowAnonymous]
-        public async Task<ActionResult> Delete(int id)
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> Delete(int id)
         {
             try
             {
                 await _userService.DeleteAsync(id);
-                return NoContent(); // 204 No Content
+                return NoContent();
             }
             catch (KeyNotFoundException)
             {
-                return NotFound(new { Message = "User not found" });
-            }
-        }
-        [HttpGet("GetAllCourseEachCourse")]
-        [Authorize(Roles = "Admin")]
-       // [AllowAnonymous]
-        public async Task<IEnumerable<UserCoursDetailsDTO>> GetUsersCoursesAsync()
-        {
-            try
-            {
-                // Récupération des détails des cours depuis le service
-                IEnumerable<UserCourseDetailsModel> userCourseDetailsData = await _userService.GetUsersCoursesAsync();
-
-                // Conversion des modèles en DTOs
-                IEnumerable<UserCoursDetailsDTO> userCoursDetailsDTOs = userCourseDetailsData
-                    .Select(x => x.ToApiCoursDetailsDTO());
-
-                return userCoursDetailsDTOs;
-            }
-            catch (KeyNotFoundException ex)
-            {
-                // Log l'erreur ou gérer le cas où aucune donnée n'est trouvée
-                // Par exemple, loggez l'erreur dans un fichier ou un système de log
-                // Vous pouvez également retourner une réponse HTTP appropriée si vous êtes dans un contrôleur
-               // Log.Error("Détails de l'erreur: ", ex); // Exemple de logging
-                throw; // Relance l'exception pour être capturée ailleurs si nécessaire
+                return NotFound(new { Message = "Utilisateur non trouvé." });
             }
             catch (Exception ex)
             {
-                // Gérer d'autres exceptions qui pourraient survenir
-                // Log l'erreur et retournez un message d'erreur général
-                // Log.Error("Détails de l'erreur: ", ex); // Exemple de logging
-                throw new ApplicationException("Une erreur inattendue est survenue lors de la récupération des données.", ex);
+                return StatusCode(500, new { Message = "Une erreur est survenue lors de la suppression de l'utilisateur.", Details = ex.Message });
             }
-
         }
 
-        //[HttpDelete("{id}")]
-        //public async Task<IActionResult> DeleteUser(int id)
-        //{
-        //    try
-        //    {
-        //        await  _userService.DeleteAsync(id);
-        //        return NoContent(); // 204 No Content
-        //    }
-        //    catch (KeyNotFoundException)
-        //    {
-        //        return NotFound(new { message = "User not found" }); // 404 Not Found
-        //    }
-        //    catch (ArgumentOutOfRangeException)
-        //    {
-        //        return BadRequest(new { message = "Invalid user ID" }); // 400 Bad Request
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return StatusCode(500, new { message = "An error occurred while deleting the user", details = ex.Message }); // 500 Internal Server Error
-        //    }
-        //}
+        [HttpGet("GetAllCourseEachCourse")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> GetUsersCoursesAsync()
+        {
+            try
+            {
+                var userCourseDetailsData = await _userService.GetUsersCoursesAsync();
+                var userCoursDetailsDTOs = userCourseDetailsData.Select(x => x.ToApiCoursDetailsDTO());
+                return Ok(userCoursDetailsDTOs);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { Message = "Une erreur est survenue lors de la récupération des détails des cours des utilisateurs.", Details = ex.Message });
+            }
+        }
+
         [HttpGet("pseudo/{pseudo}")]
         [Authorize]
-      //  [AllowAnonymous]
         public async Task<IActionResult> GetUserByPseudo(string pseudo)
         {
             try
@@ -234,60 +184,74 @@ namespace Web.Controllers
                 var user = await _userService.GetUsersByPseudo(pseudo);
                 if (user == null)
                 {
-                    return NotFound(new { Message = "l'utilisateur est introuvable." });
+                    return NotFound(new { Message = "Utilisateur non trouvé." });
                 }
-
                 return Ok(user);
             }
             catch (Exception ex)
             {
-                // Log exception details here if needed
-                return StatusCode(500, new { Message = "Une erreur à été détecté.", Details = ex.Message });
+                return StatusCode(500, new { Message = "Une erreur est survenue lors de la récupération de l'utilisateur.", Details = ex.Message });
             }
         }
+
         [HttpGet("GetUserRole/{userId}")]
-          [Authorize]
-        //[AllowAnonymous]
+        [Authorize]
         public async Task<IActionResult> GetUserRole(int userId)
         {
-            var role = await _userService.GetUserRoleAsync(userId);
-
-            if (role == null)
+            try
             {
-                return NotFound("L'utilisateur n'a pas été trouvé.");
+                var role = await _userService.GetUserRoleAsync(userId);
+                if (role == null)
+                {
+                    return NotFound(new { Message = "Rôle de l'utilisateur non trouvé." });
+                }
+                return Ok(new { UserId = userId, Role = role });
             }
-
-            return Ok(new { UserId = userId, Role = role });
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { Message = "Une erreur est survenue lors de la récupération du rôle de l'utilisateur.", Details = ex.Message });
+            }
         }
 
         [HttpGet("GetCurrentUser")]
-         [Authorize]
-        
+        [Authorize]
         public async Task<IActionResult> GetCurrentUser()
         {
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier); 
-            var user = await _userService.GetUsersByPseudo(userId);
-            if (user == null)
+            try
             {
-                return NotFound();
+                var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                var user = await _userService.GetUsersByPseudo(userId);
+                if (user == null)
+                {
+                    return NotFound(new { Message = "Utilisateur non trouvé." });
+                }
+                return Ok(user);
             }
-            return Ok(user);
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { Message = "Une erreur est survenue lors de la récupération de l'utilisateur actuel.", Details = ex.Message });
+            }
         }
+
         [HttpGet("search")]
         [Authorize]
-       // [AllowAnonymous]
         public async Task<IActionResult> SearchUsers([FromQuery] string search)
         {
             if (string.IsNullOrWhiteSpace(search))
             {
-                return BadRequest("Search term is required.");
+                return BadRequest(new { Message = "Le terme de recherche est requis." });
             }
 
-            var users = await _userService.SearchUsers(search);
-            var usersDTO = users.Select(u => u.BllAccessToApi());
-
-            return Ok(usersDTO);
+            try
+            {
+                var users = await _userService.SearchUsers(search);
+                var usersDTO = users.Select(u => u.BllAccessToApi());
+                return Ok(usersDTO);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { Message = "Une erreur est survenue lors de la recherche des utilisateurs.", Details = ex.Message });
+            }
         }
     }
 }
-

@@ -172,5 +172,14 @@ namespace BLL.Service
             return result;
         }
 
+        public async Task<List<UserAssignementsModel>> GetAllUsersAssignmentsGradesForCourseAsync(int courseId)
+        {
+         
+            var userAssignmentsData = await _stu.GetAllUsersAssignmentsGradesForCourse(courseId);
+
+            var userAssignmentsModels = userAssignmentsData.Select(data => data.ToUserAssignementBLL()).ToList();
+
+            return userAssignmentsModels;
+        }
     }
 }

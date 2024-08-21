@@ -257,5 +257,34 @@ namespace DAL.Repository
                 return result;
             }
         }
+
+        public async Task<List<UserAssignementsData>> GetAllUsersAssignmentsGradesForCourse(int courseId)
+        {
+           
+            using (var context = _context)
+            {
+                // Requête LINQ pour récupérer les données
+                var result = await (from user in context.Users
+                                    join enrollment in context.StudentEnrollements on user.Id equals enrollment.UserId
+                                    join course in context.Courses on enrollment.CoursId equals course.Id
+                                    where course.Id == courseId
+                                    from assignment in context.Assignments.Where(a => a.CoursId == course.Id).DefaultIfEmpty() 
+                                    from grade in context.Grades.Where(g => g.UserId == user.Id && g.AssignementsId == assignment.Id).DefaultIfEmpty() 
+                                    select new UserAssignementsData
+                                    {
+                                        CoursId = courseId,
+                                        Nom = user.Nom,
+                                        Prenom = user.Prenom,
+                                        CoursName = course.Nom,
+                                        AssignementId = assignment != null ? assignment.Id : 0,
+                                        AssignementTitle = assignment != null ? assignment.Description : "No Assignment", 
+                                        Grade = grade != null ? grade.Grade : null
+                                    }).ToListAsync();
+
+                return result;
+            }
+        }
+
+
     }
 }

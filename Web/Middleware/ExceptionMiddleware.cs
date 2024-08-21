@@ -19,9 +19,22 @@
             }
             catch (Exception ex)
             {
+                // Log the exception
                 _logger.LogError(ex, "An unhandled exception occurred.");
+
+                // Set the response status code
                 context.Response.StatusCode = StatusCodes.Status500InternalServerError;
-                await context.Response.WriteAsJsonAsync(new { message = "An internal server error occurred." });
+
+                // Define a standard response format
+                var response = new ErrorResponse(
+                    statusCode: StatusCodes.Status500InternalServerError,
+                    message: "An internal server error occurred.",
+                    details: ex.Message // Optional: include exception details if needed
+                );
+
+                // Write the JSON response
+                context.Response.ContentType = "application/json";
+                await context.Response.WriteAsJsonAsync(response);
             }
         }
     }

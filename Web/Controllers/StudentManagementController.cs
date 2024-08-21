@@ -14,7 +14,7 @@ namespace Web.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class StudentManagementController :ControllerBase
+    public class StudentManagementController : ControllerBase
     {
         private readonly IStudentManagmentService _studentManagementService;
 
@@ -25,161 +25,370 @@ namespace Web.Controllers
 
         [HttpPost(nameof(Create))]
         [Authorize(Roles = "Professeur,Admin")]
-      
         public async Task<ActionResult> Create(CoursFORM coursFORM)
         {
             if (coursFORM == null)
             {
-                return BadRequest("CoursFORM is null.");
+                return BadRequest(new
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Message = "CoursFORM is null.",
+                    Details = "Please provide a valid CoursFORM object."
+                });
             }
 
-            var coursModel = coursFORM.CoursToBLL();
-            await _studentManagementService.CreateAsync(coursModel);
-            return Ok("Course created successfully.");
+            try
+            {
+                var coursModel = coursFORM.CoursToBLL();
+                await _studentManagementService.CreateAsync(coursModel);
+                return Ok(new
+                {
+                    StatusCode = StatusCodes.Status200OK,
+                    Message = "Course created successfully."
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new
+                {
+                    StatusCode = StatusCodes.Status500InternalServerError,
+                    Message = "An error occurred while creating the course.",
+                    Details = ex.Message
+                });
+            }
         }
 
         [HttpDelete(nameof(Delete))]
         [Authorize(Roles = "Admin")]
-       
         public async Task<ActionResult> Delete(int id)
         {
             if (id <= 0)
             {
-                return BadRequest("Invalid ID.");
+                return BadRequest(new
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Message = "Invalid ID.",
+                    Details = "ID must be a positive number."
+                });
             }
 
-            await _studentManagementService.DeleteAsync(id);
-            return Ok("Deleted successfully.");
+            try
+            {
+                await _studentManagementService.DeleteAsync(id);
+                return Ok(new
+                {
+                    StatusCode = StatusCodes.Status200OK,
+                    Message = "Deleted successfully."
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new
+                {
+                    StatusCode = StatusCodes.Status500InternalServerError,
+                    Message = "An error occurred while deleting.",
+                    Details = ex.Message
+                });
+            }
         }
 
         [HttpDelete("DeleteEnrollment")]
         [Authorize(Roles = "Admin")]
-       
         public async Task<ActionResult> DeleteEnrollment(int studentId, int courseId)
         {
             if (studentId <= 0 || courseId <= 0)
             {
-                return BadRequest("Invalid student or course ID.");
+                return BadRequest(new
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Message = "Invalid student or course ID.",
+                    Details = "Both IDs must be positive numbers."
+                });
             }
 
-            await _studentManagementService.DeleteAsync1(studentId , courseId); //  modifie pour supprimer (2 param) 
-            return Ok("Student unenrolled from course successfully.");
+            try
+            {
+                await _studentManagementService.DeleteAsync1(studentId, courseId);
+                return Ok(new
+                {
+                    StatusCode = StatusCodes.Status200OK,
+                    Message = "Student unenrolled from course successfully."
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new
+                {
+                    StatusCode = StatusCodes.Status500InternalServerError,
+                    Message = "An error occurred while unenrolling the student.",
+                    Details = ex.Message
+                });
+            }
         }
 
         [HttpGet("{id}")]
-         [Authorize]
-     
+        [Authorize]
         public async Task<ActionResult<IEnumerable<CoursDTO>>> GetAllCourseByUser(int id)
         {
             if (id <= 0)
             {
-                return BadRequest("Invalid student ID.");
+                return BadRequest(new
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Message = "Invalid student ID.",
+                    Details = "ID must be a positive number."
+                });
             }
 
-            var courses = await _studentManagementService.GetByIdAsync(id);
-            var courseDtos = courses.CoursToApi();
-            return Ok(courseDtos);
+            try
+            {
+                var courses = await _studentManagementService.GetByIdAsync(id);
+                var courseDtos = courses.CoursToApi();
+                return Ok(new
+                {
+                    StatusCode = StatusCodes.Status200OK,
+                    Courses = courseDtos
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new
+                {
+                    StatusCode = StatusCodes.Status500InternalServerError,
+                    Message = "An error occurred while retrieving the courses.",
+                    Details = ex.Message
+                });
+            }
         }
 
         [HttpPost(nameof(InsertUserCourse))]
-        //    [Authorize]
         [AllowAnonymous]
         public async Task<ActionResult> InsertUserCourse(int id, int courseId)
         {
             if (id <= 0 || courseId <= 0)
             {
-                return BadRequest("Invalid student or course ID.");
+                return BadRequest(new
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Message = "Invalid student or course ID.",
+                    Details = "Both IDs must be positive numbers."
+                });
             }
 
-            //await
-            //   _studentManagementService.InsertUserCours(id, courseId);
-            return Ok("User enrolled in course successfully.");
-        }
-        [HttpPost("InsertProf")]
-          [Authorize(Roles = "Professeur,Admin")]
-        public async Task<ActionResult> InsertUserAsync(int id, int courseId)
-        {
             try
             {
                 await _studentManagementService.InsertUserCoursAsync(id, courseId);
-                return Ok(new { Message = "L'utilisateur a été inscrit au cours avec succès." });
-            }
-            catch (ArgumentException ex)
-            {
-                return BadRequest(new { Message = ex.Message });
+                return Ok(new
+                {
+                    StatusCode = StatusCodes.Status200OK,
+                    Message = "User enrolled in course successfully."
+                });
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { Message = "Une erreur interne est survenue.", Details = ex.Message });
+                return StatusCode(StatusCodes.Status500InternalServerError, new
+                {
+                    StatusCode = StatusCodes.Status500InternalServerError,
+                    Message = "An error occurred while enrolling the user in the course.",
+                    Details = ex.Message
+                });
             }
         }
+
+        [HttpPost("InsertProf")]
+        [Authorize(Roles = "Professeur,Admin")]
+        public async Task<ActionResult> InsertUserAsync(int id, int courseId)
+        {
+            if (id <= 0 || courseId <= 0)
+            {
+                return BadRequest(new
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Message = "Invalid student or course ID.",
+                    Details = "Both IDs must be positive numbers."
+                });
+            }
+
+            try
+            {
+                await _studentManagementService.InsertUserCoursAsync(id, courseId);
+                return Ok(new
+                {
+                    StatusCode = StatusCodes.Status200OK,
+                    Message = "User enrolled in course successfully."
+                });
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Message = ex.Message
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new
+                {
+                    StatusCode = StatusCodes.Status500InternalServerError,
+                    Message = "An error occurred while enrolling the user in the course.",
+                    Details = ex.Message
+                });
+            }
+        }
+
         [HttpGet("GetTeacher/{teacherId}")]
         [Authorize]
         public async Task<IActionResult> GetTeacherName(int teacherId)
         {
+            if (teacherId <= 0)
+            {
+                return BadRequest(new
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Message = "Invalid teacher ID.",
+                    Details = "ID must be a positive number."
+                });
+            }
+
             try
             {
                 var teacher = await _studentManagementService.GetTeacherName(teacherId);
-                return Ok(teacher);
+                return Ok(new
+                {
+                    StatusCode = StatusCodes.Status200OK,
+                    Teacher = teacher
+                });
             }
             catch (Exception ex)
             {
-                return NotFound(new { Message = ex.Message });
+                return StatusCode(StatusCodes.Status500InternalServerError, new
+                {
+                    StatusCode = StatusCodes.Status500InternalServerError,
+                    Message = "An error occurred while retrieving the teacher information.",
+                    Details = ex.Message
+                });
             }
         }
+
         [HttpDelete("RemoveTeacher")]
-          [Authorize(Roles = "Admin")]
-  
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> RemoveTeacherFromCourse(int teacherId, int courseId)
         {
+            if (teacherId <= 0 || courseId <= 0)
+            {
+                return BadRequest(new
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Message = "Invalid teacher or course ID.",
+                    Details = "Both IDs must be positive numbers."
+                });
+            }
+
             try
             {
                 await _studentManagementService.Deleteteacher(teacherId, courseId);
-                return Ok(new { Message = "Teacher removed from course successfully." });
+                return Ok(new
+                {
+                    StatusCode = StatusCodes.Status200OK,
+                    Message = "Teacher removed from course successfully."
+                });
             }
             catch (Exception ex)
             {
-                return BadRequest(new { Message = ex.Message });
+                return StatusCode(StatusCodes.Status500InternalServerError, new
+                {
+                    StatusCode = StatusCodes.Status500InternalServerError,
+                    Message = "An error occurred while removing the teacher from the course.",
+                    Details = ex.Message
+                });
             }
         }
+
         [HttpPut("UpdateTeacher")]
-        [Authorize(Roles ="Admin")]
-        // [Authorize(Roles = "Professeur,Admin")]
-        [AllowAnonymous]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> UpdateTeacherToCourse(int teacherId, int courseId)
         {
+            if (teacherId <= 0 || courseId <= 0)
+            {
+                return BadRequest(new
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Message = "Invalid teacher or course ID.",
+                    Details = "Both IDs must be positive numbers."
+                });
+            }
+
             try
             {
                 await _studentManagementService.UpdateTeacherToCourse(teacherId, courseId);
-                return Ok(new { Message = "Teacher updated for the course successfully." });
+                return Ok(new
+                {
+                    StatusCode = StatusCodes.Status200OK,
+                    Message = "Teacher updated for the course successfully."
+                });
             }
             catch (Exception ex)
             {
-                return BadRequest(new { Message = ex.Message });
+                return StatusCode(StatusCodes.Status500InternalServerError, new
+                {
+                    StatusCode = StatusCodes.Status500InternalServerError,
+                    Message = "An error occurred while updating the teacher for the course.",
+                    Details = ex.Message
+                });
             }
         }
+
         [HttpGet("userAssignment/{userId}")]
         [Authorize]
         public async Task<ActionResult<IEnumerable<UserAssignementDTO>>> GetUserAssignments(int userId)
         {
             if (userId <= 0)
             {
-                return BadRequest("L'identifiant de l'utilisateur doit être positif.");
+                return BadRequest(new
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Message = "Invalid user ID.",
+                    Details = "ID must be a positive number."
+                });
             }
 
             try
             {
-                // Get user assignments from the service
-                IEnumerable<UserAssignementsModel> assignments = await _studentManagementService.GetuserResult(userId);
-
-                // Map the model to DTO
-                IEnumerable<UserAssignementDTO> assignmentDTOs = assignments.Select(a => a.TouserAssignmentDTO());
-
-                return Ok(assignmentDTOs);
+                var assignments = await _studentManagementService.GetuserResult(userId);
+                var assignmentDTOs = assignments.Select(a => a.TouserAssignmentDTO());
+                return Ok(new
+                {
+                    StatusCode = StatusCodes.Status200OK,
+                    Assignments = assignmentDTOs
+                });
             }
             catch (Exception ex)
-            { 
-                return StatusCode(StatusCodes.Status500InternalServerError, "Une erreur est survenue lors de la récupération des assignements.");
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new
+                {
+                    StatusCode = StatusCodes.Status500InternalServerError,
+                    Message = "An error occurred while retrieving user assignments.",
+                    Details = ex.Message
+                });
+            }
+        }
+        [HttpGet("course/{courseId}/assignments")]
+        public async Task<IActionResult> GetAllUsersAssignmentsGradesForCourse(int courseId)
+        {
+            try
+            {
+                var result = await _studentManagementService.GetAllUsersAssignmentsGradesForCourseAsync(courseId);
+                if (result == null || result.Count == 0)
+                {
+                    return NotFound("Aucune donnée trouvée pour le cours spécifié.");
+                }
+               IEnumerable<UserAssignementDTO> a = result.Select( x => x.TouserAssignmentDTO());
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Une erreur est survenue lors du traitement de la demande.");
             }
         }
     }

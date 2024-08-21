@@ -7,6 +7,7 @@ using DAL.Repository;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Web.Mapper;
 using Web.Models;
 
@@ -47,23 +48,47 @@ namespace Web.Controllers
             }
         }
         [HttpPost("Cours")]
-         [Authorize(Roles ="Professeur,Admin")]
-      
-        public async Task<CoursModel> CreateAsync(CoursFORM entity)
+        [Authorize(Roles = "Professeur,Admin")]
+        public async Task<IActionResult> CreateAsync(CoursFORM entity)
         {
             if (entity == null)
-                throw new ArgumentNullException(nameof(entity));
-          //  CoursModel = _cours.CourseExistsAsync(entity.)
-            CoursModel coursData = entity.CoursToBLL(); 
+            {
+                return BadRequest("Les données du cours ne peuvent pas être nulles.");
+            }
 
-            await _cours.CreateAsync(coursData);
+            CoursModel coursData = entity.CoursToBLL();
 
-          ;
-
-            return coursData;
+            try
+            {
+                await _cours.CreateAsync(coursData);
+                return Ok(coursData); // Retourne le cours créé avec un code 200
+            }
+            catch (DbUpdateException ex) when (ex.InnerException != null)
+            {
+                // Vérifiez les messages d'erreur spécifiques pour les contraintes de clé primaire, unique, et clé étrangère
+                if (ex.InnerException.Message.Contains("PRIMARY KEY constraint"))
+                {
+                    return StatusCode(409, "Le cours que vous essayez d'ajouter existe déjà."); // Conflit
+                }
+                else if (ex.InnerException.Message.Contains("FOREIGN KEY constraint"))
+                {
+                    return StatusCode(400, "Violation de contrainte de clé étrangère. Veuillez vérifier les données."); // Mauvaise requête
+                }
+                else if (ex.InnerException.Message.Contains("UNIQUE constraint"))
+                {
+                    return StatusCode(409, "Les données doivent être uniques. Une entrée similaire existe déjà."); // Conflit
+                }
+                // Autres exceptions
+                return StatusCode(500, "Erreur serveur lors de l'ajout du cours."); // Erreur serveur
+            }
+            catch (Exception ex)
+            {
+                // Gestion des exceptions générales
+                return StatusCode(500, $"Erreur serveur: {ex.Message}"); // Erreur serveur
+            }
         }
-        
-         [HttpGet("{id}")]
+
+        [HttpGet("{id}")]
         [Authorize]
     
         public async Task<IActionResult> GetByIdAsync(int id)
@@ -76,46 +101,57 @@ namespace Web.Controllers
                return Ok(course);
             }
 
-      
         [HttpPut("update/{id}")]
         [Authorize(Roles = "Professeur,Admin")]
-        public async Task<IActionResult> UpdateAsync(int id,  CoursFORM coursFORM)
+        public async Task<IActionResult> UpdateAsync(int id, CoursFORM coursFORM)
         {
             if (id <= 0)
             {
-                return BadRequest("Invalid course ID.");
+                return BadRequest("ID de cours invalide.");
             }
 
             if (coursFORM == null)
             {
-                return BadRequest("Course data is null.");
+                return BadRequest("Les données du cours sont vides.");
             }
 
             try
             {
-
                 var coursModel = coursFORM.CoursToBLL();
-                coursModel.Id = id; 
+                coursModel.Id = id;
 
-                await _cours.UpdateAsync(id , coursModel);
+                await _cours.UpdateAsync(id, coursModel);
 
-                return Ok("Course updated successfully.");
+                return Ok("Cours mis à jour avec succès.");
             }
             catch (KeyNotFoundException ex)
             {
-              
-                Console.WriteLine($"Error: {ex.Message}");
-
-                return NotFound("Course not found.");
+                return NotFound("Cours non trouvé.");
+            }
+            catch (DbUpdateException ex) when (ex.InnerException != null)
+            {
+                if (ex.InnerException.Message.Contains("PRIMARY KEY constraint"))
+                {
+                    return Conflict("Le cours que vous essayez d'ajouter existe déjà.");
+                }
+                else if (ex.InnerException.Message.Contains("FOREIGN KEY constraint"))
+                {
+                    return BadRequest("Violation de contrainte de clé étrangère.");
+                }
+                else if (ex.InnerException.Message.Contains("UNIQUE constraint"))
+                {
+                    return Conflict("Les données doivent être uniques.");
+                }
+                return StatusCode(500, "Erreur serveur.");
             }
             catch (Exception ex)
             {
-
-                Console.WriteLine($"Error: {ex.Message}");
-
-                return StatusCode(500, "Internal server error.");
+                return StatusCode(500, $"Erreur serveur: {ex.Message}");
             }
         }
+
+
+
         [HttpDelete("{id}")]
         [Authorize(Roles = "Admin")]
      
@@ -156,7 +192,8 @@ namespace Web.Controllers
                 var courses = await _cours.GetAllByTeacher(teacherId);
                 if (courses == null)
                 {
-                    return NotFound();
+                    return NotFound("Aucun cours trouvé");
+
                 }
                 return Ok(courses); 
             }
@@ -178,15 +215,15 @@ namespace Web.Controllers
 
                 if (courses == null || !courses.Any())
                 {
-                    return NotFound("No unenrolled courses found for the student.");
+                    return NotFound("Aucun cours trouvé");
                 }
 
                 return Ok(courses);
             }
             catch (Exception ex)
             {
-                // Log the exception (not shown here)
-                return StatusCode(500, "An error occurred while processing your request.");
+               
+                return StatusCode(500, "Erreur. Veuillez réessayer");
             }
         }
 
@@ -196,7 +233,7 @@ namespace Web.Controllers
         {
             if (string.IsNullOrWhiteSpace(search))
             {
-                return BadRequest("Search term is required.");
+                return BadRequest("veuillez entrez un nom.");
             }
 
             var courses = await _cours.SearchCours(search);

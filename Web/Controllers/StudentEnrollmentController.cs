@@ -10,6 +10,7 @@ using BLL.Models;
 using BLL.Service;
 using Microsoft.AspNetCore.Authorization;
 using Azure.Core.GeoJson;
+using Microsoft.EntityFrameworkCore;
 
 namespace Web.Controllers
 {
@@ -26,174 +27,331 @@ namespace Web.Controllers
 
         [HttpGet("GetAllCoursesForStudent/{studentId}")]
         [Authorize]
- 
         public async Task<ActionResult<IEnumerable<CoursFORM>>> GetAllCoursesForStudent(int studentId)
         {
             if (studentId <= 0)
-                return BadRequest("Invalid student ID.");
+            {
+                return BadRequest(new
+                {
+                    StatusCode = 400,
+                    Message = "Invalid student ID.",
+                    Details = "The provided student ID must be a positive number."
+                });
+            }
 
             var courses = await _studentEnrollmentService.CoursPourchaqueEtuAsync(studentId);
             if (!courses.Any())
-                return NotFound("No courses found for the given student.");
+            {
+                return NotFound(new
+                {
+                    StatusCode = 404,
+                    Message = "No courses found for the given student.",
+                    Details = "Ensure that the student ID is correct and that the student is enrolled in courses."
+                });
+            }
 
             return Ok(courses.Select(x => x.CoursToApi()));
-            
         }
+
         [HttpPost("Insert")]
-        [Authorize(Roles = "Admin, Etudiant")]
-        public async Task<IActionResult> Insert(int studentId, int courseId)
+        [Authorize]
+        public async Task<IActionResult> InsertEnrollment([FromQuery] int studentId, [FromQuery] int courseId)
         {
-   
             if (studentId <= 0 || courseId <= 0)
-                return BadRequest("Invalid student or course ID.");
+            {
+                return BadRequest(new
+                {
+                    StatusCode = 400,
+                    Message = "Invalid student or course ID.",
+                    Details = "Both student and course IDs must be positive numbers."
+                });
+            }
 
             try
             {
-  
-                //bool isEnrolled = await _studentEnrollmentService.IsUserEnrolledInCourseAsync(studentId, courseId);
-                //if (isEnrolled)
-                //{
-                //    return BadRequest("L'utilisateur est dejà inscrit");
-                //}
+                // Check if the student is already enrolled
+                bool isAlreadyEnrolled = await _studentEnrollmentService.IsUserEnrolledInCourseAsync(studentId, courseId);
 
-          
+                if (isAlreadyEnrolled)
+                {
+                    return Conflict(new
+                    {
+                        StatusCode = 409,
+                        Message = "The student is already enrolled in this course.",
+                        Details = "Enrollment failed because the student is already enrolled in this course."
+                    });
+                }
+
+                // Proceed with enrollment
                 await _studentEnrollmentService.InsertStudentCourseAsync2(studentId, courseId);
-
-                return Ok("Student inscrit au cours correctement.");
+                return Ok(new
+                {
+                    StatusCode = 200,
+                    Message = "Enrollment successful."
+                });
             }
-            catch (Exception ex)
+            //catch (KeyNotFoundException ex)
+            //{
+            //    // Handle case where student or course is not found
+            //    return NotFound(new
+            //    {
+            //        StatusCode = 404,
+            //        Message = "Student or course not found.",
+            //        Details = ex.Message
+            //    });
+            //}
+            catch (InvalidOperationException ex)
             {
-            
-                Console.WriteLine($"Erreur durant l'enrollement: {ex.Message}");
-                return StatusCode(StatusCodes.Status500InternalServerError, $"Probleme interne: {ex.Message}");
+                // Handle any logical issues during enrollment
+                return BadRequest(new
+                {
+                    StatusCode = 400,
+                    Message = "Enrollment operation failed.",
+                    Details = ex.Message
+                });
             }
+            //catch (Exception ex)
+            //{
+            //    // Log the error (using a logger instance)
+            //   // _logger.LogError($"An error occurred during enrollment of student {studentId} in course {courseId}: {ex.Message}");
+
+            //    // Return a 500 error with detailed information
+            //    return StatusCode(500, new
+            //    {
+            //        StatusCode = 500,
+            //        Message = "An error occurred during enrollment.",
+            //        Details = "Please contact support if the issue persists."
+            //    });
+            //}
         }
 
 
         [HttpGet("GetalluserCourse/{id}")]
-         [Authorize]
-   
+        [Authorize]
         public async Task<IActionResult> GetAllUsersByCourse(int id)
         {
+            if (id <= 0)
+            {
+                return BadRequest(new
+                {
+                    StatusCode = 400,
+                    Message = "Invalid course ID.",
+                    Details = "The provided course ID must be a positive number."
+                });
+            }
+
             try
             {
-                // Appel du service pour obtenir les utilisateurs inscrits à ce cours
                 var users = await _studentEnrollmentService.GetAlluserBycourse(id);
 
-                // Vérifier si des utilisateurs ont été trouvés
                 if (users == null || !users.Any())
                 {
-                    return NotFound(new { Message = "Aucun utilisateur trouvé pour ce cours." });
+                    return NotFound(new
+                    {
+                        StatusCode = 404,
+                        Message = "No users found for this course.",
+                        Details = "Ensure that the course ID is correct and that users are enrolled in this course."
+                    });
                 }
 
                 return Ok(users);
             }
             catch (ArgumentException ex)
             {
-                // Gérer les erreurs d'argument
-                return BadRequest(new { Message = ex.Message });
+                return BadRequest(new
+                {
+                    StatusCode = 400,
+                    Message = "Invalid argument.",
+                    Details = ex.Message
+                });
             }
             catch (Exception ex)
             {
-                // Gérer les erreurs internes du serveur
-                return StatusCode(500, new { Message = "Une erreur interne est survenue.", Details = ex.Message });
+                return StatusCode(500, new
+                {
+                    StatusCode = 500,
+                    Message = "An internal server error occurred.",
+                    Details = ex.Message
+                });
             }
         }
-        
+
         [HttpGet("EnrolledStudent/{id}")]
-         [Authorize]
-  
+        [Authorize]
         public async Task<IActionResult> GetEnrolledStudentCourses(int id)
         {
             if (id <= 0)
             {
-                return BadRequest("Invalid student ID.");
+                return BadRequest(new
+                {
+                    StatusCode = 400,
+                    Message = "Invalid student ID.",
+                    Details = "The provided student ID must be a positive number."
+                });
             }
 
             try
             {
                 IEnumerable<CoursModel> courses = await _studentEnrollmentService.EnrolledStudentAsync(id);
 
-                if (courses == null)
+                if (courses == null || !courses.Any())
                 {
-                    return NotFound("Aucun cours n'a été trouvé.");
+                    return NotFound(new
+                    {
+                        StatusCode = 404,
+                        Message = "No courses found for the student.",
+                        Details = "The student might not be enrolled in any courses."
+                    });
                 }
 
                 return Ok(courses);
             }
             catch (Exception ex)
             {
-                
-                Console.WriteLine($"Error retrieving enrolled courses for student: {ex.Message}");
-                return StatusCode(500, "Internal server error");
+                return StatusCode(500, new
+                {
+                    StatusCode = 500,
+                    Message = "An internal server error occurred.",
+                    Details = ex.Message
+                });
             }
         }
+
         [HttpDelete("{id}")]
         [Authorize(Roles = "Admin")]
-       
         public async Task<ActionResult> DeleteAsync(int id)
         {
+            if (id <= 0)
+            {
+                return BadRequest(new
+                {
+                    StatusCode = 400,
+                    Message = "Invalid ID.",
+                    Details = "The provided ID must be a positive number."
+                });
+            }
+
             try
             {
                 await _studentEnrollmentService.DeleteAsync(id);
                 return NoContent();
             }
+            catch (KeyNotFoundException)
+            {
+                return NotFound(new
+                {
+                    StatusCode = 404,
+                    Message = "Enrollment not found.",
+                    Details = "The enrollment with the specified ID does not exist."
+                });
+            }
             catch (Exception ex)
             {
-                // Log the exception
-                return StatusCode(500, $"Internal server error: {ex.Message}");
+                return StatusCode(500, new
+                {
+                    StatusCode = 500,
+                    Message = "An internal server error occurred.",
+                    Details = ex.Message
+                });
             }
         }
-   
+
         [HttpGet("course/{courseId}")]
         [Authorize]
-   
         public async Task<ActionResult<IEnumerable<EnrollementDTO>>> GetByCourseAsync(int courseId)
         {
+            if (courseId <= 0)
+            {
+                return BadRequest(new
+                {
+                    StatusCode = 400,
+                    Message = "Invalid course ID.",
+                    Details = "The provided course ID must be a positive number."
+                });
+            }
+
             try
             {
                 var enrollmentModel = await _studentEnrollmentService.GetByCourseAsync(courseId);
 
-                if (enrollmentModel == null)
-                    return NotFound();
+                if (enrollmentModel == null || !enrollmentModel.Any())
+                {
+                    return NotFound(new
+                    {
+                        StatusCode = 404,
+                        Message = "No enrollments found for this course.",
+                        Details = "Ensure that the course ID is correct and that enrollments exist for this course."
+                    });
+                }
 
-                var enrollmentDto = enrollmentModel.Select(x => x.ToEnrollementAPI()); // Map to DTO
+                var enrollmentDto = enrollmentModel.Select(x => x.ToEnrollementAPI());
                 return Ok(enrollmentDto);
             }
             catch (Exception ex)
             {
-                // Log the exception
-                return StatusCode(500, $"Internal server error: {ex.Message}");
+                return StatusCode(500, new
+                {
+                    StatusCode = 500,
+                    Message = "An internal server error occurred.",
+                    Details = ex.Message
+                });
             }
         }
+
         [HttpGet("user/{userId}")]
-          [Authorize]
-     
+        [Authorize]
         public async Task<ActionResult<IEnumerable<EnrollementDTO>>> GetByUserIdAsync(int userId)
         {
+            if (userId <= 0)
+            {
+                return BadRequest(new
+                {
+                    StatusCode = 400,
+                    Message = "Invalid user ID.",
+                    Details = "The provided user ID must be a positive number."
+                });
+            }
+
             try
             {
                 var enrollmentModel = await _studentEnrollmentService.GetByUserIdAsync(userId);
 
-                if (enrollmentModel == null)
-                    return NotFound();
+                if (enrollmentModel == null || !enrollmentModel.Any())
+                {
+                    return NotFound(new
+                    {
+                        StatusCode = 404,
+                        Message = "No enrollments found for this user.",
+                        Details = "Ensure that the user ID is correct and that enrollments exist for this user."
+                    });
+                }
 
-                var enrollmentDto = enrollmentModel.Select( x => x.ToEnrollementAPI()); // Map to DTO
+                var enrollmentDto = enrollmentModel.Select(x => x.ToEnrollementAPI());
                 return Ok(enrollmentDto);
             }
             catch (Exception ex)
             {
-                // Log the exception
-                return StatusCode(500, $"Internal server error: {ex.Message}");
+                return StatusCode(500, new
+                {
+                    StatusCode = 500,
+                    Message = "An internal server error occurred.",
+                    Details = ex.Message
+                });
             }
         }
+
         [HttpPut("UpdateGrade")]
         [Authorize(Roles = "Professeur,Admin")]
         public async Task<IActionResult> UpdateGrade(int id, int grade)
         {
             if (id <= 0 || grade < 0)
             {
-                return BadRequest("Invalid student ID or grade.");
+                return BadRequest(new
+                {
+                    StatusCode = 400,
+                    Message = "Invalid student ID or grade.",
+                    Details = "The provided student ID must be a positive number and the grade must be non-negative."
+                });
             }
 
             try
@@ -201,38 +359,84 @@ namespace Web.Controllers
                 var result = await _studentEnrollmentService.UpdateGrade(id, grade);
                 if (result)
                 {
-                    return Ok("Grade updated successfully.");
+                    return Ok(new
+                    {
+                        StatusCode = 200,
+                        Message = "Grade updated successfully."
+                    });
                 }
 
-                return NotFound("Enrollment not found.");
+                return NotFound(new
+                {
+                    StatusCode = 404,
+                    Message = "Enrollment not found.",
+                    Details = "Ensure that the enrollment ID is correct."
+                });
             }
             catch (KeyNotFoundException ex)
             {
-                return NotFound(ex.Message);
+                return NotFound(new
+                {
+                    StatusCode = 404,
+                    Message = ex.Message
+                });
             }
             catch (Exception ex)
             {
-                // Log the exception
-                return StatusCode(500, "Internal server error.");
+                return StatusCode(500, new
+                {
+                    StatusCode = 500,
+                    Message = "An internal server error occurred.",
+                    Details = ex.Message
+                });
             }
         }
 
         [HttpPut("UpdateGrades")]
         [Authorize(Roles = "Professeur,Admin")]
-       
         public async Task<IActionResult> UpdateGrade(int idUsers, int idCours, int grade)
         {
-            var result = await _studentEnrollmentService.UpdateGradesAsync(idUsers, idCours, grade);
-
-            if (result)
+            if (idUsers <= 0 || idCours <= 0 || grade < 0)
             {
-                return Ok();
+                return BadRequest(new
+                {
+                    StatusCode = 400,
+                    Message = "Invalid input.",
+                    Details = "User ID and course ID must be positive numbers, and the grade must be non-negative."
+                });
             }
 
-            return NotFound();
+            try
+            {
+                var result = await _studentEnrollmentService.UpdateGradesAsync(idUsers, idCours, grade);
+                if (result)
+                {
+                    return Ok(new
+                    {
+                        StatusCode = 200,
+                        Message = "Grade updated successfully."
+                    });
+                }
+
+                return NotFound(new
+                {
+                    StatusCode = 404,
+                    Message = "Enrollment not found.",
+                    Details = "Ensure that the user ID, course ID, and grade are correct."
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new
+                {
+                    StatusCode = 500,
+                    Message = "An internal server error occurred.",
+                    Details = ex.Message
+                });
+            }
         }
+
         [HttpGet("Etudiants")]
-        //[Authorize]
         [AllowAnonymous]
         public async Task<IActionResult> GetStudentAllCourseAsync()
         {
@@ -243,12 +447,16 @@ namespace Web.Controllers
             }
             catch (Exception ex)
             {
-                // Enregistrer l'exception si nécessaire
-                return StatusCode(500, $"Une erreur s'est produite : {ex.Message}");
+                return StatusCode(500, new
+                {
+                    StatusCode = 500,
+                    Message = "An error occurred while retrieving students.",
+                    Details = ex.Message
+                });
             }
         }
+
         [HttpGet("Professeurs")]
-        //[Authorize(Roles = "Professeur,Admin")]
         [AllowAnonymous]
         public async Task<IActionResult> GetTeacherAllCourseAsync()
         {
@@ -259,59 +467,188 @@ namespace Web.Controllers
             }
             catch (Exception ex)
             {
-                // Enregistrer l'exception si nécessaire
-                return StatusCode(500, $"Une erreur s'est produite : {ex.Message}");
+                return StatusCode(500, new
+                {
+                    StatusCode = 500,
+                    Message = "An error occurred while retrieving teachers.",
+                    Details = ex.Message
+                });
             }
         }
+
         [HttpGet("{coursId}/users")]
         public async Task<IActionResult> GetCoursWithUsers(int coursId)
         {
-            var coursWithUsers = await _studentEnrollmentService.GetCoursWithUsersAsync1(coursId);
-            if (coursWithUsers == null)
+            if (coursId <= 0)
             {
-                return NotFound();
+                return BadRequest(new
+                {
+                    StatusCode = 400,
+                    Message = "Invalid course ID.",
+                    Details = "The provided course ID must be a positive number."
+                });
             }
-            return Ok(coursWithUsers);
+
+            try
+            {
+                var coursWithUsers = await _studentEnrollmentService.GetCoursWithUsersAsync1(coursId);
+                if (coursWithUsers == null)
+                {
+                    return NotFound(new
+                    {
+                        StatusCode = 404,
+                        Message = "Course not found.",
+                        Details = "Ensure that the course ID is correct."
+                    });
+                }
+
+                return Ok(coursWithUsers);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new
+                {
+                    StatusCode = 500,
+                    Message = "An internal server error occurred.",
+                    Details = ex.Message
+                });
+            }
         }
+
         [HttpGet("{userId}/cours")]
         public async Task<IActionResult> GetUserWithCourses(int userId)
         {
-            var userWithCourses = await _studentEnrollmentService.GetUserWithCoursesAsync1(userId);
-            if (userWithCourses == null)
+            if (userId <= 0)
             {
-                return NotFound();
+                return BadRequest(new
+                {
+                    StatusCode = 400,
+                    Message = "Invalid user ID.",
+                    Details = "The provided user ID must be a positive number."
+                });
             }
-            return Ok(userWithCourses);
+
+            try
+            {
+                var userWithCourses = await _studentEnrollmentService.GetUserWithCoursesAsync1(userId);
+                if (userWithCourses == null)
+                {
+                    return NotFound(new
+                    {
+                        StatusCode = 404,
+                        Message = "User not found.",
+                        Details = "Ensure that the user ID is correct."
+                    });
+                }
+
+                return Ok(userWithCourses);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new
+                {
+                    StatusCode = 500,
+                    Message = "An internal server error occurred.",
+                    Details = ex.Message
+                });
+            }
         }
+
         [HttpGet("professors")]
         public async Task<IActionResult> GetAllProfessorsWithCourses()
         {
-            var professorsWithCourses = await _studentEnrollmentService.GetAllProfessorsWithCoursesAsync();
-            return Ok(professorsWithCourses);
+            try
+            {
+                var professorsWithCourses = await _studentEnrollmentService.GetAllProfessorsWithCoursesAsync();
+                return Ok(professorsWithCourses);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new
+                {
+                    StatusCode = 500,
+                    Message = "An error occurred while retrieving professors.",
+                    Details = ex.Message
+                });
+            }
         }
 
         [HttpGet("professors/{professorId}")]
         public async Task<IActionResult> GetProfessorWithCourses(int professorId)
         {
-            var professorWithCourses = await _studentEnrollmentService.GetProfessorWithCoursesAsync(professorId);
-            if (professorWithCourses == null)
+            if (professorId <= 0)
             {
-                return NotFound();
+                return BadRequest(new
+                {
+                    StatusCode = 400,
+                    Message = "Invalid professor ID.",
+                    Details = "The provided professor ID must be a positive number."
+                });
             }
-            return Ok(professorWithCourses);
+
+            try
+            {
+                var professorWithCourses = await _studentEnrollmentService.GetProfessorWithCoursesAsync(professorId);
+                if (professorWithCourses == null)
+                {
+                    return NotFound(new
+                    {
+                        StatusCode = 404,
+                        Message = "Professor not found.",
+                        Details = "Ensure that the professor ID is correct."
+                    });
+                }
+
+                return Ok(professorWithCourses);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new
+                {
+                    StatusCode = 500,
+                    Message = "An internal server error occurred.",
+                    Details = ex.Message
+                });
+            }
         }
+
         [HttpGet("students")]
         public async Task<IActionResult> GetAllStudentsWithCourses()
         {
-            var studentsWithCourses = await _studentEnrollmentService.GetAllStudentsWithCoursesAsync();
-            return Ok(studentsWithCourses);
+            try
+            {
+                var studentsWithCourses = await _studentEnrollmentService.GetAllStudentsWithCoursesAsync();
+                return Ok(studentsWithCourses);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new
+                {
+                    StatusCode = 500,
+                    Message = "An error occurred while retrieving students.",
+                    Details = ex.Message
+                });
+            }
         }
+
         [HttpGet("with-courses-assignments-grades")]
         public async Task<ActionResult<List<UsersDTO>>> GetUsersWithCoursesAssignmentsAndGrades()
         {
-            var users = await _studentEnrollmentService.GetUsersWithCoursesAssignmentsAndGradesAsync();
-            var userDtos = users.Select(x => x.BllAccessToApi());
-            return Ok(userDtos);
+            try
+            {
+                var users = await _studentEnrollmentService.GetUsersWithCoursesAssignmentsAndGradesAsync();
+                var userDtos = users.Select(x => x.BllAccessToApi());
+                return Ok(userDtos);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new
+                {
+                    StatusCode = 500,
+                    Message = "An error occurred while retrieving users.",
+                    Details = ex.Message
+                });
+            }
         }
     }
 }

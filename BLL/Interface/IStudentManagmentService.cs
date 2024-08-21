@@ -18,5 +18,6 @@ namespace BLL.Interface
         public Task UpdateTeacherToCourse(int teacherId, int courseId);
         public Task<UsersModel>GetTeacherName(int teacherId);
         public Task<IEnumerable<UserAssignementsModel>> GetuserResult(int id);
+        Task<List<UserAssignementsModel>> GetAllUsersAssignmentsGradesForCourseAsync(int courseId);
     }
 }
