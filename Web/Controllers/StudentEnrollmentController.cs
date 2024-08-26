@@ -54,7 +54,7 @@ namespace Web.Controllers
         }
 
         [HttpPost("Insert")]
-        [Authorize]
+        [Authorize ( Roles = "Admin" )]
         public async Task<IActionResult> InsertEnrollment([FromQuery] int studentId, [FromQuery] int courseId)
         {
             if (studentId <= 0 || courseId <= 0)
@@ -70,17 +70,17 @@ namespace Web.Controllers
             try
             {
                 // Check if the student is already enrolled
-                bool isAlreadyEnrolled = await _studentEnrollmentService.IsUserEnrolledInCourseAsync(studentId, courseId);
+                //bool isAlreadyEnrolled = await _studentEnrollmentService.IsUserEnrolledInCourseAsync(studentId, courseId);
 
-                if (isAlreadyEnrolled)
-                {
-                    return Conflict(new
-                    {
-                        StatusCode = 409,
-                        Message = "The student is already enrolled in this course.",
-                        Details = "Enrollment failed because the student is already enrolled in this course."
-                    });
-                }
+                //if (isAlreadyEnrolled)
+                //{
+                //    return Conflict(new
+                //    {
+                //        StatusCode = 409,
+                //        Message = "The student is already enrolled in this course.",
+                //        Details = "Enrollment failed because the student is already enrolled in this course."
+                //    });
+                //}
 
                 // Proceed with enrollment
                 await _studentEnrollmentService.InsertStudentCourseAsync2(studentId, courseId);
